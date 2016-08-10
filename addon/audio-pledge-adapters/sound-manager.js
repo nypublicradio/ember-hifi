@@ -14,45 +14,10 @@ export default BaseAdapter.extend({
         adapter.set('soundManager', soundManager);
       },
 
-      debugMode:false,
-
-      defaultOptions: {
-        multiShot: false,
-        onstop() {
-          adapter.relayEvent('audio-stopped', this);
-        },
-        onfinish() {
-          adapter.relayEvent('audio-finished', this);
-        },
-        onpause() {
-          adapter.relayEvent('audio-paused', this);
-        },
-        onplay() {
-          adapter.relayEvent('audio-played', this);
-        },
-        onresume() {
-          adapter.relayEvent('audio-resumed', this);
-        },
-        whileplaying() {
-          adapter.relayEvent('audio-position-update', this);
-        },
-        whileloading() {
-          adapter.relayEvent('audio-loading', this);
-          if (this.loaded) {
-            adapter.relayEvent('audio-loaded');
-          }
-        }
-      }
+      debugMode: false,
     });
 
     this._super(...arguments);
-  },
-
-  relayEvent(name, info) {
-    let sound = this.get('sound');
-    if (sound) {
-      sound.trigger(name, info);
-    }
   },
 
   createSound(urls) {
@@ -63,16 +28,7 @@ export default BaseAdapter.extend({
     return new RSVP.Promise((resolve, reject) => {
       (function tryNext(tryLoadingSound) {
         tryLoadingSound
-          .then(soundManagerSound => {
-
-            let sound = new Sound();
-
-            adapter.set('sound', sound);
-            sound.set('_sound', soundManagerSound);
-            sound.set('url', soundManagerSound.url);
-
-            resolve(sound);
-          })
+          .then(resolve)
           .catch((rejectedUrl) => {
             failedUrls.push(rejectedUrl);
             let url = urlsToTry.shift();
@@ -91,21 +47,51 @@ export default BaseAdapter.extend({
       console.log(`try ${url}`);
       return new RSVP.Promise((resolve, reject) => {
         let soundManager = this.get('soundManager');
-        let preload = soundManager.createSound({ id: url, url: url });
+        let sound = new Sound();
 
-        preload.load({
+        let soundManagerSound = soundManager.createSound({
+          id: url,
+          url: url,
+          multiShot: false,
+          onstop() {
+            sound.trigger('audio-stopped', this);
+          },
+          onfinish() {
+            sound.trigger('audio-finished', this);
+          },
+          onpause() {
+            sound.trigger('audio-paused', this);
+          },
+          onplay() {
+            sound.trigger('audio-played', this);
+          },
+          onresume() {
+            sound.trigger('audio-resumed', this);
+          },
           onload: function(success) {
             if (success) {
-              resolve(preload);
+              sound.set('url', this.url);
+              sound.set('_sound', this);
+              resolve(sound);
             }
             else {
               // Load failed
-              preload.destruct();
+              soundManagerSound.destruct();
               reject(url);
+            }
+          },
+          whileplaying() {
+            sound.trigger('audio-position-update', this);
+          },
+          whileloading() {
+            sound.trigger('audio-loading', this);
+            if (this.loaded) {
+              sound.trigger('audio-loaded');
             }
           }
         });
 
+        soundManagerSound.load();
       });
     }
 

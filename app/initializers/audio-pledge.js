@@ -4,7 +4,8 @@ export function initialize(application) {
   const { audioPledgeAdapters = [{
     name: 'howler',
     config: {}
-  },{
+  },
+  {
     name: 'sound-manager',
     config: {}
   }] } = config;

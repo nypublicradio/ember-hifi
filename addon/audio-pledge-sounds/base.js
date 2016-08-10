@@ -4,29 +4,20 @@ const {
 } = Ember;
 
 export default Ember.Object.extend(Ember.Evented, {
-  init() {    
-    this.on('audio-played',    () => this.set('isPlaying', true));
-    this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-resumed',   () => this.set('isPlaying', true));
-    this.on('audio-stopped',   () => this.set('isPlaying', false));
-    this.on('audio-loaded',    () => {
-      this.set('isLoading', false);
-    });
-    this.on('audio-loading',   () => this.set('isLoading', true));
-
-    this._super(...arguments);
-  },
-
   play() {
-    this.get('_sound').play();
+    this.trigger('play')
+
+    assert("[audio-pledge] interface not implemented", false);
   },
 
   pause() {
-    this.get('_sound').pause();
+    this.trigger('pause')
+
+    assert("[audio-pledge] interface not implemented", false);
   },
 
   stop() {
-    this.get('_sound').stop();
+    assert("[audio-pledge] interface not implemented", false);
   },
 
   forward() {
@@ -38,6 +29,6 @@ export default Ember.Object.extend(Ember.Evented, {
   },
 
   setPosition(position) {
-    this.get('_sound').seek(position);
+    assert("[audio-pledge] interface not implemented", false);
   }
 });

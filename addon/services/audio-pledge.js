@@ -120,7 +120,7 @@ export default Service.extend(Ember.Evented, {
   },
 
   selectAdapter(/* urls */) {
-    // For now we're only supporting one adapter, so just return it.
+    // Select a random adapter for testing
 
     let adapters = this.get('_adapters');
     let options = Object.keys(adapters);
