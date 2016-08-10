@@ -1,121 +1,177 @@
 import Ember from 'ember';
-import { Howl } from 'howler';
+import SoundCache from '../helpers/sound-cache';
+import getOwner from 'ember-getowner-polyfill';
+import RSVP from 'rsvp';
+const {
+  Service,
+  computed,
+  getWithDefault,
+  assert,
+  get,
+  set,
+  A: emberArray,
+  String: { dasherize }
+} = Ember;
 
-export default Ember.Service.extend(Ember.Evented, {
+export default Service.extend(Ember.Evented, {
   currentSound: null,
 
-  init() {
-    this.on('audio-played',    () => this.set('isPlaying', true));
-    this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-resumed',   () => this.set('isPlaying', true));
-    this.on('audio-stopped',   () => this.set('isPlaying', false));
-    this.on('audio-loaded',    () => {
-      this.set('isLoading', false);
-    });
-    this.on('audio-loading',   () => this.set('isLoading', true));
+  isPlaying: computed.alias('currentSound.isPlaying'),
+  isLoading: computed.alias('currentSound.isLoading'),
 
-    this.set('cachedSounds', new Ember.Map());
+  init() {
+    const adapters = getWithDefault(this, 'options.audioPledgeAdapters', emberArray());
+    const owner = getOwner(this);
+    owner.registerOptionsForType('audio-pledge@audio-pledge-adapter', { instantiate: false });
+    owner.registerOptionsForType('audio-pledge-adapter', { instantiate: false });
+    set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
+    set(this, '_adapters', {});
+    this.activateAdapters(adapters);
+
+    set(this, 'soundCache', new SoundCache());
+
+    this.set('isReady', true);
+    this._super(...arguments);
   },
 
-  play(urls, soundId) {
-    this.pause();
+  play(urls) {
+    if (!Ember.isArray(urls)) {
+      urls = [urls];
+    }
 
-    return this._findOrCreateSound(soundId, urls).then(results => {
-      let sound = results.sound;
-      this.pause(); // make sure it's paused
+    let promise = new RSVP.Promise((resolve, reject) => {
+      let sound = this.get('soundCache').find(urls);
+      if (sound) {
+        resolve(sound);
+      }
+      else {
+        let adapter       = this.selectAdapter(urls);
+        let createPromise = adapter.createSound(urls)
+          .then(sound => resolve(sound))
+          .catch(reject);
 
+        return createPromise;
+      }
+    });
+    promise.then(sound => {
+      if (this.get('currentSound')) {
+        this.pause();
+      }
+      this.get('soundCache').cache(sound);
+
+      this._unregisterEvents(this.get('currentSound'));
+      this._registerEvents(sound);
       this.set('currentSound', sound);
-      this._cacheSound(sound);
 
       sound.play();
-
-      return results;
-    }).catch(results => {
-
-      return results;
     });
+    return promise;
   },
 
   pause() {
-    let sound = this.get('currentSound');
-    if (sound) {
-      sound.pause();
-    }
+    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    this.get('currentSound').pause();
   },
 
   togglePause() {
-    let sound = this.get('currentSound');
-    sound[this.get('isPlaying') ? 'pause' : 'play']();
-  },
+    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
 
-  _findOrCreateSound(id, urls) {
-    let service = this;
-    let status = this._audioLoadStatus;
-    let urlsToTry =  urls.uniq().filter(u => u && u.length > 0);
-
-    return new Ember.RSVP.Promise((resolve, reject) => {
-      let sound = this._findCachedSound(urlsToTry);
-
-      if (sound) {
-        resolve(status(sound, urlsToTry));
-      }
-      else {
-        sound = new Howl({
-          src:      urlsToTry,
-          volume:   1,
-          autoplay: false,
-          preload:  true,
-          html5:    true,
-          onload: function() {
-            service.trigger('audio-loaded', this);
-            resolve(status(this, urlsToTry));
-          },
-          onpause: function() {
-            service.trigger('audio-paused', this);
-          },
-          onplay: function() {
-            service.trigger('audio-played', this);
-          },
-          onend: function() {
-            service.trigger('audio-ended', this);
-          },
-          onloaderror: function(id, error) {
-            reject(status(sound, urlsToTry, error));
-          }
-        });
-
-      }
-    });
-  },
-
-  _findCachedSound(urls) {
-    let sound;
-    urls.forEach(url => {
-      if (!sound) {
-        sound = this.get('cachedSounds').get(url);
-      }
-    });
-    if (sound) {
-      console.log("found sound");
+    if (this.get('isPlaying')) {
+      this.get('currentSound').pause();
     }
-
-    return sound;
-  },
-
-  _cacheSound(sound) {
-    if (sound._url) {
-      this.get('cachedSounds').set(sound._url, sound);
+    else {
+      this.get('currentSound').play();
     }
   },
 
-  _audioLoadStatus(sound, urls, error) {
-    // Howler tries these the order that are given. The ones before this failed
-    let workingIndex = urls.indexOf(sound._src);
-    let failedUrls   = urls.slice(0, workingIndex);
+  forward() {
+    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+  },
 
-    console.log(error);
-    let url = sound._src;
+  rewind() {
+    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+  },
 
-    return {sound: sound, failedUrls: failedUrls, url: url, error: error};
+  _registerEvents(sound) {
+    sound.on('audio-played',  () => this.relayEvent('audio-played', sound));
+    sound.on('audio-paused',  () => this.relayEvent('audio-paused', sound));
+    sound.on('audio-resumed', () => this.relayEvent('audio-resumed', sound));
+    sound.on('audio-stopped', () => this.relayEvent('audio-stopped', sound));
+    sound.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
+    sound.on('audio-loading', () => this.relayEvent('audio-loading', sound));
+  },
+
+  _unregisterEvents(sound) {
+    if (!sound) {
+      return;
+    }
+
+    sound.off('audio-played',  () => this.relayEvent('audio-played', sound));
+    sound.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
+    sound.off('audio-resumed', () => this.relayEvent('audio-resumed', sound));
+    sound.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
+    sound.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
+    sound.off('audio-loading', () => this.relayEvent('audio-loading', sound));
+  },
+
+  relayEvent(eventName, sound) {
+    console.log(`${eventName} -> ${sound.get('url')}`);
+    this.trigger(eventName, sound);
+  },
+
+  selectAdapter(/* urls */) {
+    // For now we're only supporting one adapter, so just return it.
+
+    let adapters = this.get('_adapters');
+    let options = Object.keys(adapters);
+    let choice = options[Math.floor(Math.random() * options.length)];
+
+    console.log(`Choosing ${choice} adapter`);
+    return this.get(`_adapters.${choice}`);
+  },
+
+  activateAdapters(adapterOptions = []) {
+   const cachedAdapters = get(this, '_adapters');
+   const activatedAdapters = {};
+
+   adapterOptions
+     .forEach((adapterOption) => {
+       const { name } = adapterOption;
+       const adapter = cachedAdapters[name] ? cachedAdapters[name] : this._activateAdapter(adapterOption);
+
+       set(activatedAdapters, name, adapter);
+     });
+
+   return set(this, '_adapters', activatedAdapters);
+  },
+
+  _activateAdapter({ name, config } = {}) {
+    const Adapter = this._lookupAdapter(name);
+    assert('[audio-pledge] Could not find audio adapter ${name}.', name);
+    console.log(Adapter);
+
+    return Adapter.create({ this, config });
+  },
+
+  /**
+   * Looks up the adapter from the container. Prioritizes the consuming app's
+   * adapters over the addon's adapters.
+   *
+   * @method _lookupAdapter
+   * @param {String} adapterName
+   * @private
+   * @return {Adapter} a local adapter or an adapter from the addon
+   */
+
+  _lookupAdapter(adapterName) {
+    assert('[audio-pledge] Could not find audio adapter without a name.', adapterName);
+
+    const dasherizedAdapterName = dasherize(adapterName);
+    const availableAdapter = getOwner(this).lookup(`audio-pledge@audio-pledge-adapter:${dasherizedAdapterName}`);
+    const localAdapter = getOwner(this).lookup(`audio-pledge-adapter:${dasherizedAdapterName}`);
+
+    assert('[audio-pledge] Could not load audio adapter ${dasherizedAdapterName}', (localAdapter || availableAdapter));
+
+    return localAdapter ? localAdapter : availableAdapter;
   }
 });

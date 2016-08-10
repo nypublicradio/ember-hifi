@@ -1,10 +1,15 @@
 import config from '../config/environment';
 
 export function initialize(application) {
-  const { audioAdapters = [] } = config;
+  const { audioPledgeAdapters = [{
+    name: 'howler',
+    config: {}
+  },{
+    name: 'sound-manager',
+    config: {}
+  }] } = config;
   const { environment = 'development' } = config;
-  const options = { audioAdapters, environment };
-
+  const options = { audioPledgeAdapters, environment };
   application.register('config:audio-pledge', options, { instantiate: false });
   application.inject('service:audio-pledge', 'options', 'config:audio-pledge');
 }
