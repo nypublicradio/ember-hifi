@@ -47,8 +47,11 @@ export default BaseAdapter.extend({
             },
             onload: function(success) {
               if (success) {
+                let workingIndex = urlsToTry.indexOf(this.url);
+                let failedUrls   = urlsToTry.slice(0, workingIndex);
+                sound.set('failedUrls', failedUrls);
                 sound.set('url', this.url);
-                sound.set('_sound', this);
+                sound.set('soundManagerSound', this);
                 resolve(sound);
               }
               else {

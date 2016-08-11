@@ -32,12 +32,18 @@ export default Service.extend(Ember.Evented, {
 
     this.set('isReady', true);
     this._super(...arguments);
+
+    RSVP.on('error', (e) => {
+      throw(e);
+    });
   },
 
-  play(urls) {
+  create(urls) {
     if (!Ember.isArray(urls)) {
       urls = [urls];
     }
+
+    urls = urls.compact().uniq();
 
     let promise = new RSVP.Promise((resolve, reject) => {
       let sound = this.get('soundCache').find(urls);
@@ -53,11 +59,17 @@ export default Service.extend(Ember.Evented, {
         return createPromise;
       }
     });
+    promise.then(sound => this.get('soundCache').cache(sound));
+
+    return promise;
+  },
+
+  play(urls) {
+    let promise = this.create(urls);
     promise.then(sound => {
       if (this.get('currentSound')) {
         this.pause();
       }
-      this.get('soundCache').cache(sound);
 
       this._unregisterEvents(this.get('currentSound'));
       this._registerEvents(sound);

@@ -5,7 +5,6 @@ const {
 } = Ember;
 
 export default BaseSound.extend({
-  _adapter: 'howler',
   init() {
     this.on('audio-played',    () => this.set('isPlaying', true));
     this.on('audio-paused',    () => this.set('isPlaying', false));
@@ -13,31 +12,33 @@ export default BaseSound.extend({
     this.on('audio-stopped',   () => this.set('isPlaying', false));
     this.on('audio-loaded',    () => {
       this.set('isLoading', false);
+      this.set('duration', this.get('howl').duration());
+      console.log(this.get('duration'));
     });
     this.on('audio-loading',   () => this.set('isLoading', true));
   },
 
   play() {
-    this.get('_sound').play();
+    this.get('howl').play();
   },
 
   pause() {
-    this.get('_sound').pause();
+    this.get('howl').pause();
   },
 
   stop() {
-    this.get('_sound').stop();
+    this.get('howl').stop();
   },
 
   forward(duration) {
-    this.get('_sound').forward(duration);
+    this.get('howl').forward(duration);
   },
 
   rewind(duration) {
-    this.get('_sound').rewind(duration);
+    this.get('howl').rewind(duration);
   },
 
   setPosition(position) {
-    this.get('_sound').setPosition(position);
+    this.get('howl').setPosition(position);
   }
 });

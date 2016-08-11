@@ -15,7 +15,12 @@ export default BaseAdapter.extend({
         html5:    true,
         onload: function() {
           sound.set('url', this._src);
-          sound.set('_sound', this);
+
+          let workingIndex = urls.indexOf(this._src);
+          let failedUrls   = urls.slice(0, workingIndex);
+          sound.set('failedUrls', failedUrls);
+
+          sound.set('howl', this);
           resolve(sound);
           sound.trigger('audio-loaded', sound);
         },

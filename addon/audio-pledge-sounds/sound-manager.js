@@ -5,39 +5,39 @@ const {
 } = Ember;
 
 export default BaseSound.extend({
-  _adapter: 'sound-manager',
   init() {
     this.on('audio-played',    () => this.set('isPlaying', true));
     this.on('audio-paused',    () => this.set('isPlaying', false));
     this.on('audio-resumed',   () => this.set('isPlaying', true));
     this.on('audio-stopped',   () => this.set('isPlaying', false));
     this.on('audio-loaded',    () => {
+      this.set('duration', this.get('soundManagerSound').duration);
       this.set('isLoading', false);
     });
     this.on('audio-loading',   () => this.set('isLoading', true));
   },
-    
+
   play() {
-    this.get('_sound').play();
+    this.get('soundManagerSound').play();
   },
 
   pause() {
-    this.get('_sound').pause();
+    this.get('soundManagerSound').pause();
   },
 
   stop() {
-    this.get('_sound').stop();
+    this.get('soundManagerSound').stop();
   },
 
   forward(duration) {
-    this.get('_sound').forward(duration);
+    this.get('soundManagerSound').forward(duration);
   },
 
   rewind(duration) {
-    this.get('_sound').rewind(duration);
+    this.get('soundManagerSound').rewind(duration);
   },
 
   setPosition(position) {
-    this.get('_sound').setPosition(position);
+    this.get('soundManagerSound').setPosition(position);
   }
 });
