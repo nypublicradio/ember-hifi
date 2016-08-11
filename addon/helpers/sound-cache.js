@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import get from 'ember-metal/get';
 
 export default Ember.Object.extend(Ember.Evented, {
   _cache: new Ember.Map(),
@@ -9,8 +10,8 @@ export default Ember.Object.extend(Ember.Evented, {
     return sounds[0];
   },
 
-  cache(sound) {
+  cache(soundObject) {
     let cache = this.get("_cache");
-    cache.set(sound.get('url'), sound);
+    cache.set(get(soundObject, 'url'), soundObject);
   }
 });
