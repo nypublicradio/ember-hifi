@@ -42,7 +42,7 @@ export default BaseAdapter.extend({
       console.log(`try ${url}`);
       return new RSVP.Promise((resolve, reject) => {
         let soundManager = this.get('soundManager');
-        let soundObject = { adapter: this };
+        let soundObject = { adapter: this, url };
 
         soundObject.sound = soundManager.createSound({
           id: url,

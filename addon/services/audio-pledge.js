@@ -94,30 +94,30 @@ export default Service.extend(Ember.Evented, {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
   },
 
-  _registerEvents({ sound, adapter }) {
-    adapter.on('audio-played',  () => this.relayEvent('audio-played', sound));
-    adapter.on('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    adapter.on('audio-resumed', () => this.relayEvent('audio-resumed', sound));
-    adapter.on('audio-stopped', () => this.relayEvent('audio-stopped', sound));
-    adapter.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
-    adapter.on('audio-loading', () => this.relayEvent('audio-loading', sound));
+  _registerEvents({ sound, adapter, url }) {
+    adapter.on('audio-played',  () => this.relayEvent('audio-played', sound, url));
+    adapter.on('audio-paused',  () => this.relayEvent('audio-paused', sound, url));
+    adapter.on('audio-resumed', () => this.relayEvent('audio-resumed', sound, url));
+    adapter.on('audio-stopped', () => this.relayEvent('audio-stopped', sound, url));
+    adapter.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound, url));
+    adapter.on('audio-loading', () => this.relayEvent('audio-loading', sound, url));
   },
 
-  _unregisterEvents({ sound, adapter }) {
+  _unregisterEvents({ sound, adapter, url }) {
     if (!sound) {
       return;
     }
 
-    adapter.off('audio-played',  () => this.relayEvent('audio-played', sound));
-    adapter.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    adapter.off('audio-resumed', () => this.relayEvent('audio-resumed', sound));
-    adapter.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
-    adapter.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
-    adapter.off('audio-loading', () => this.relayEvent('audio-loading', sound));
+    adapter.off('audio-played',  () => this.relayEvent('audio-played', sound, url));
+    adapter.off('audio-paused',  () => this.relayEvent('audio-paused', sound, url));
+    adapter.off('audio-resumed', () => this.relayEvent('audio-resumed', sound, url));
+    adapter.off('audio-stopped', () => this.relayEvent('audio-stopped', sound, url));
+    adapter.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound, url));
+    adapter.off('audio-loading', () => this.relayEvent('audio-loading', sound, url));
   },
 
-  relayEvent(eventName, sound) {
-    console.log(`${eventName} -> ${sound.get('url')}`);
+  relayEvent(eventName, sound, url) {
+    console.log(`${eventName} -> ${url}`);
     this.trigger(eventName, sound);
   },
 
