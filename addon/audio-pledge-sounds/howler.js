@@ -6,7 +6,6 @@ const {
 
 export default BaseSound.extend({
   _adapter: 'howler',
-
   init() {
     this.on('audio-played',    () => this.set('isPlaying', true));
     this.on('audio-paused',    () => this.set('isPlaying', false));
@@ -16,7 +15,7 @@ export default BaseSound.extend({
       this.set('isLoading', false);
     });
     this.on('audio-loading',   () => this.set('isLoading', true));
-  }
+  },
 
   play() {
     this.get('_sound').play();

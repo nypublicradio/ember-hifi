@@ -4,16 +4,9 @@ import RSVP from 'rsvp';
 import Sound from '../audio-pledge-sounds/howler';
 
 export default BaseAdapter.extend({
-  init(config) {
-    this._super(...arguments);
-  },
-
   createSound(urls) {
     return new RSVP.Promise((resolve, reject) => {
-      let sound = new Sound({
-
-      });
-
+      let sound = new Sound();
       new Howl({
         src:      urls,
         volume:   1,
