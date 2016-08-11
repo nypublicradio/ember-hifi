@@ -1,19 +1,14 @@
 import soundManager from 'soundManager';
 import BaseAdapter from './base';
 import RSVP from 'rsvp';
-import Sound from '../audio-pledge-sounds/sound-manager';
 
 export default BaseAdapter.extend({
   init(config) {
-    let adapter = this;
 
     soundManager.setup({
       url: '/assets/swf',
       flashVersion: 9,
-      onready() {
-        adapter.set('soundManager', soundManager);
-      },
-
+      onready: () => this.set('soundManager', soundManager),
       debugMode: false,
     });
 
@@ -47,51 +42,39 @@ export default BaseAdapter.extend({
       console.log(`try ${url}`);
       return new RSVP.Promise((resolve, reject) => {
         let soundManager = this.get('soundManager');
-        let sound = new Sound();
+        let soundObject = { adapter: this };
 
-        let soundManagerSound = soundManager.createSound({
+        soundObject.sound = soundManager.createSound({
           id: url,
           url: url,
           multiShot: false,
-          onstop() {
-            sound.trigger('audio-stopped', this);
-          },
-          onfinish() {
-            sound.trigger('audio-finished', this);
-          },
-          onpause() {
-            sound.trigger('audio-paused', this);
-          },
-          onplay() {
-            sound.trigger('audio-played', this);
-          },
-          onresume() {
-            sound.trigger('audio-resumed', this);
-          },
-          onload: function(success) {
+          onstop: () => this.trigger('audio-stopped', soundObject),
+          onfinish: () => this.trigger('audio-finished', soundObject),
+          onpause: () => this.trigger('audio-paused', soundObject),
+          onplay: () => this.trigger('audio-played', soundObject),
+          onresume: () => this.trigger('audio-resumed', soundObject),
+          onload: (success) => {
             if (success) {
-              sound.set('url', this.url);
-              sound.set('_sound', this);
-              resolve(sound);
+              this.set('url', soundObject.sound.url);
+              this.set('_sound', soundObject);
+              resolve(soundObject);
             }
             else {
               // Load failed
-              soundManagerSound.destruct();
+              soundObject.sound.destruct();
               reject(url);
             }
           },
-          whileplaying() {
-            sound.trigger('audio-position-update', this);
-          },
-          whileloading() {
-            sound.trigger('audio-loading', this);
-            if (this.loaded) {
-              sound.trigger('audio-loaded');
+          whileplaying: () => this.trigger('audio-position-update', this),
+          whileloading: () => {
+            this.trigger('audio-loading', this);
+            if (soundObject.sound.loaded) {
+              this.trigger('audio-loaded', soundObject);
             }
           }
         });
 
-        soundManagerSound.load();
+        soundObject.sound.load();
       });
     }
 
