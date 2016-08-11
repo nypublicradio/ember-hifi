@@ -3,7 +3,7 @@ import { Howl } from 'howler';
 import RSVP from 'rsvp';
 
 export default BaseAdapter.extend({
-  init(config) {
+  init(/* config */) {
     this._super(...arguments);
   },
 
@@ -33,5 +33,5 @@ export default BaseAdapter.extend({
        });
       
     });
-  }
+  },
 });

@@ -47,7 +47,7 @@ export default Service.extend(Ember.Evented, {
       else {
         let adapter       = this.selectAdapter(urls);
         let createPromise = adapter.createSound(urls)
-          .then(sound => resolve(sound))
+          .then(resolve)
           .catch(reject);
 
         return createPromise;

@@ -3,7 +3,7 @@ import BaseAdapter from './base';
 import RSVP from 'rsvp';
 
 export default BaseAdapter.extend({
-  init(config) {
+  init(/* config */) {
 
     soundManager.setup({
       url: '/assets/swf',
