@@ -1,8 +1,4 @@
-import Ember from 'ember';
 import BaseSound from './base';
-const {
-  computed
-} = Ember;
 
 export default BaseSound.extend({
   _adapter: 'howler',
@@ -16,7 +12,7 @@ export default BaseSound.extend({
       this.set('isLoading', false);
     });
     this.on('audio-loading',   () => this.set('isLoading', true));
-  }
+  },
 
   play() {
     this.get('_sound').play();
