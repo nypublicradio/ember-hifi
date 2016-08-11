@@ -53,34 +53,36 @@ export default Service.extend(Ember.Evented, {
         return createPromise;
       }
     });
-    promise.then(sound => {
+    promise.then(soundObject => {
       if (this.get('currentSound')) {
         this.pause();
       }
-      this.get('soundCache').cache(sound);
+      this.get('soundCache').cache(soundObject);
 
       this._unregisterEvents(this.get('currentSound'));
-      this._registerEvents(sound);
-      this.set('currentSound', sound);
+      this._registerEvents(soundObject);
+      this.set('currentSound', soundObject);
 
-      sound.play();
+      soundObject.adapter.play(soundObject.sound);
     });
     return promise;
   },
 
   pause() {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
-    this.get('currentSound').pause();
+    let currentSound = this.get('currentSound');
+    currentSound.adapter.pause(currentSound.sound);
   },
 
   togglePause() {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    let currentSound = this.get('currentSound');
+    assert('[audio-pledge] Nothing is playing.', currentSound);
 
     if (this.get('isPlaying')) {
-      this.get('currentSound').pause();
+      currentSound.adapter.pause(currentSound.sound);
     }
     else {
-      this.get('currentSound').play();
+      currentSound.adapter.play(currentSound.sound);
     }
   },
 
@@ -92,26 +94,26 @@ export default Service.extend(Ember.Evented, {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
   },
 
-  _registerEvents(sound) {
-    sound.on('audio-played',  () => this.relayEvent('audio-played', sound));
-    sound.on('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    sound.on('audio-resumed', () => this.relayEvent('audio-resumed', sound));
-    sound.on('audio-stopped', () => this.relayEvent('audio-stopped', sound));
-    sound.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
-    sound.on('audio-loading', () => this.relayEvent('audio-loading', sound));
+  _registerEvents({ sound, adapter }) {
+    adapter.on('audio-played',  () => this.relayEvent('audio-played', sound));
+    adapter.on('audio-paused',  () => this.relayEvent('audio-paused', sound));
+    adapter.on('audio-resumed', () => this.relayEvent('audio-resumed', sound));
+    adapter.on('audio-stopped', () => this.relayEvent('audio-stopped', sound));
+    adapter.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
+    adapter.on('audio-loading', () => this.relayEvent('audio-loading', sound));
   },
 
-  _unregisterEvents(sound) {
+  _unregisterEvents({ sound, adapter }) {
     if (!sound) {
       return;
     }
 
-    sound.off('audio-played',  () => this.relayEvent('audio-played', sound));
-    sound.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    sound.off('audio-resumed', () => this.relayEvent('audio-resumed', sound));
-    sound.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
-    sound.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
-    sound.off('audio-loading', () => this.relayEvent('audio-loading', sound));
+    adapter.off('audio-played',  () => this.relayEvent('audio-played', sound));
+    adapter.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
+    adapter.off('audio-resumed', () => this.relayEvent('audio-resumed', sound));
+    adapter.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
+    adapter.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
+    adapter.off('audio-loading', () => this.relayEvent('audio-loading', sound));
   },
 
   relayEvent(eventName, sound) {
