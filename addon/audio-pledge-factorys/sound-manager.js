@@ -1,31 +1,26 @@
-import soundManager from 'soundManager';
-import BaseAdapter from './base';
+import Ember from 'ember';
+import BaseSound from './base';
 import RSVP from 'rsvp';
-import Sound from '../audio-pledge-sounds/sound-manager';
 import PromiseTry from '../utils/promise-try';
-export default BaseAdapter.extend({
-  init(config) {
-    let adapter = this;
+import soundManager from 'soundManager';
 
+const ClassMethods = Ember.Mixin.create({
+  setup() {
     soundManager.setup({
       url: '/assets/swf',
       flashVersion: 9,
-      onready() {
-        adapter.set('soundManager', soundManager);
-      },
       debugMode: false,
     });
+  }
+});
 
-    this._super(...arguments);
-  },
-
-  createSound(urls) {
+let Sound = BaseSound.extend({
+  init() {
+    let urls = this.get('urls');
     let urlsToTry = urls.uniq().filter(u => u && u.length > 0);
-
-    return PromiseTry.findFirst(urlsToTry, (param) => {
+    let sound = this;
+    let create =  PromiseTry.findFirst(urlsToTry, (param) => {
       return new RSVP.Promise((resolve, reject) => {
-          let soundManager = this.get('soundManager');
-          let sound = new Sound();
           let soundManagerSound = soundManager.createSound({
             id: param,
             url: param,
@@ -74,5 +69,53 @@ export default BaseAdapter.extend({
           soundManagerSound.load();
       });
     });
+
+    create.then(s => {
+      this.trigger('audio-ready', s);
+    }).catch(s => {
+      this.trigger('audio-load-error', s);
+    });
+
+    this.setupEvents();
+  },
+
+  setupEvents() {
+    this.on('audio-played',    () => this.set('isPlaying', true));
+    this.on('audio-paused',    () => this.set('isPlaying', false));
+    this.on('audio-resumed',   () => this.set('isPlaying', true));
+    this.on('audio-stopped',   () => this.set('isPlaying', false));
+    this.on('audio-loaded',    () => {
+      this.set('duration', this.get('soundManagerSound').duration);
+      this.set('isLoading', false);
+    });
+    this.on('audio-loading',   () => this.set('isLoading', true));
+  },
+
+  play() {
+    this.get('soundManagerSound').play();
+  },
+
+  pause() {
+    this.get('soundManagerSound').pause();
+  },
+
+  stop() {
+    this.get('soundManagerSound').stop();
+  },
+
+  forward(duration) {
+    this.get('soundManagerSound').forward(duration);
+  },
+
+  rewind(duration) {
+    this.get('soundManagerSound').rewind(duration);
+  },
+
+  setPosition(position) {
+    this.get('soundManagerSound').setPosition(position);
   }
 });
+
+Sound.reopenClass(ClassMethods);
+
+export default Sound;

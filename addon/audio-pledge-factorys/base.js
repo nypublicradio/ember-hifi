@@ -3,16 +3,18 @@ const {
   assert
 } = Ember;
 
-export default Ember.Object.extend(Ember.Evented, {
-  play() {
-    this.trigger('play')
 
+const ClassMethods = Ember.Mixin.create({
+  setup() {
+  }
+});
+
+let Sound = Ember.Object.extend(Ember.Evented, {
+  play() {
     assert("[audio-pledge] interface not implemented", false);
   },
 
   pause() {
-    this.trigger('pause')
-
     assert("[audio-pledge] interface not implemented", false);
   },
 
@@ -32,3 +34,7 @@ export default Ember.Object.extend(Ember.Evented, {
     assert("[audio-pledge] interface not implemented", false);
   }
 });
+
+Sound.reopenClass(ClassMethods);
+
+export default Sound;

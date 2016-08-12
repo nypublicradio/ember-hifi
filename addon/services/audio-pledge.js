@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import SoundCache from '../helpers/sound-cache';
+import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 const {
@@ -18,17 +19,20 @@ export default Service.extend(Ember.Evented, {
 
   isPlaying: computed.alias('currentSound.isPlaying'),
   isLoading: computed.alias('currentSound.isLoading'),
+  canFastForward: computed.alias('currentSound.canFastForward'),
 
   init() {
-    const adapters = getWithDefault(this, 'options.audioPledgeAdapters', emberArray());
+    const factories = getWithDefault(this, 'options.audioPledgeFactories', emberArray());
     const owner = getOwner(this);
-    owner.registerOptionsForType('audio-pledge@audio-pledge-adapter', { instantiate: false });
-    owner.registerOptionsForType('audio-pledge-adapter', { instantiate: false });
-    set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
-    set(this, '_adapters', {});
-    this.activateAdapters(adapters);
+    owner.registerOptionsForType('audio-pledge@audio-pledge-factory', { instantiate: false });
+    owner.registerOptionsForType('audio-pledge-factory', { instantiate: false });
 
+    set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
+    set(this, '_factories', {});
+
+    this.activateFactories(factories);
     set(this, 'soundCache', new SoundCache());
+    set(this, 'oneAtATime', new OneAtATime());
 
     this.set('isReady', true);
     this._super(...arguments);
@@ -51,15 +55,15 @@ export default Service.extend(Ember.Evented, {
         resolve(sound);
       }
       else {
-        let adapter       = this.selectAdapter(urls);
-        let createPromise = adapter.createSound(urls)
-          .then(sound => resolve(sound))
-          .catch(reject);
+        let SoundFactory  = this.selectFactory(urls);
+        let sound = SoundFactory.create({urls: urls, service: this});
 
-        return createPromise;
+        sound.on('audio-ready', resolve);
+        sound.on('audio-load-error', reject);
       }
     });
     promise.then(sound => this.get('soundCache').cache(sound));
+    promise.then(sound => this.get('oneAtATime').register(sound));
 
     return promise;
   },
@@ -131,59 +135,60 @@ export default Service.extend(Ember.Evented, {
     this.trigger(eventName, sound);
   },
 
-  selectAdapter(/* urls */) {
-    // Select a random adapter for testing
+  selectFactory(/* urls */) {
+    // Select a random factory for testing
 
-    let adapters = this.get('_adapters');
-    let options = Object.keys(adapters);
+    let factories = this.get('_factories');
+    let options = Object.keys(factories);
     let choice = options[Math.floor(Math.random() * options.length)];
-
-    console.log(`Choosing ${choice} adapter`);
-    return this.get(`_adapters.${choice}`);
+    choice = 'howler';
+    console.log(`Choosing ${choice} factory`);
+    return this.get(`_factories.${choice}`);
   },
 
-  activateAdapters(adapterOptions = []) {
-   const cachedAdapters = get(this, '_adapters');
-   const activatedAdapters = {};
+  activateFactories(factoryOptions = []) {
+   const cachedFactories = get(this, '_factories');
+   const activatedFactories = {};
 
-   adapterOptions
-     .forEach((adapterOption) => {
-       const { name } = adapterOption;
-       const adapter = cachedAdapters[name] ? cachedAdapters[name] : this._activateAdapter(adapterOption);
+   factoryOptions
+     .forEach((factoryOption) => {
+       const { name } = factoryOption;
+       const factory = cachedFactories[name] ? cachedFactories[name] : this._activateFactory(factoryOption);
 
-       set(activatedAdapters, name, adapter);
+       set(activatedFactories, name, factory);
      });
 
-   return set(this, '_adapters', activatedAdapters);
+   return set(this, '_factories', activatedFactories);
   },
 
-  _activateAdapter({ name, config } = {}) {
-    const Adapter = this._lookupAdapter(name);
-    assert('[audio-pledge] Could not find audio adapter ${name}.', name);
-    console.log(Adapter);
+  _activateFactory({ name, config } = {}) {
+    const Factory = this._lookupFactory(name);
+    assert('[audio-pledge] Could not find audio factory ${name}.', name);
+    console.log(Factory);
 
-    return Adapter.create({ this, config });
+    Factory.setup(config);
+    return Factory;
   },
 
   /**
-   * Looks up the adapter from the container. Prioritizes the consuming app's
-   * adapters over the addon's adapters.
+   * Looks up the factory from the container. Prioritizes the consuming app's
+   * factories over the addon's factories.
    *
-   * @method _lookupAdapter
-   * @param {String} adapterName
+   * @method _lookupFactory
+   * @param {String} factoryName
    * @private
-   * @return {Adapter} a local adapter or an adapter from the addon
+   * @return {Factory} a local factory or an factory from the addon
    */
 
-  _lookupAdapter(adapterName) {
-    assert('[audio-pledge] Could not find audio adapter without a name.', adapterName);
+  _lookupFactory(factoryName) {
+    assert('[audio-pledge] Could not find audio factory without a name.', factoryName);
 
-    const dasherizedAdapterName = dasherize(adapterName);
-    const availableAdapter = getOwner(this).lookup(`audio-pledge@audio-pledge-adapter:${dasherizedAdapterName}`);
-    const localAdapter = getOwner(this).lookup(`audio-pledge-adapter:${dasherizedAdapterName}`);
+    const dasherizedFactoryName = dasherize(factoryName);
+    const availableFactory = getOwner(this).lookup(`audio-pledge@audio-pledge-factory:${dasherizedFactoryName}`);
+    const localFactory = getOwner(this).lookup(`audio-pledge-factory:${dasherizedFactoryName}`);
 
-    assert('[audio-pledge] Could not load audio adapter ${dasherizedAdapterName}', (localAdapter || availableAdapter));
+    assert(`[audio-pledge] Could not load audio factory ${dasherizedFactoryName}`, (localFactory || availableFactory));
 
-    return localAdapter ? localAdapter : availableAdapter;
+    return localFactory ? localFactory : availableFactory;
   }
 });
