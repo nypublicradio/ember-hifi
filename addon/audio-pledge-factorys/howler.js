@@ -5,6 +5,7 @@ export default BaseSound.extend({
   init() {
     let urls = this.get('urls');
     let sound = this;
+    this.set('isLoading', true);
 
     new Howl({
       src:      urls,
@@ -46,12 +47,19 @@ export default BaseSound.extend({
     this.on('audio-paused',    () => this.set('isPlaying', false));
     this.on('audio-resumed',   () => this.set('isPlaying', true));
     this.on('audio-stopped',   () => this.set('isPlaying', false));
+
     this.on('audio-loaded',    () => {
       this.set('isLoading', false);
       this.set('duration', this.get('howl').duration());
-      console.log(this.get('duration'));
     });
-    this.on('audio-loading',   () => this.set('isLoading', true));
+
+    this.on('audio-loading',   () => {
+      this.set('isLoading', true);
+    });
+
+    this.on('audio-load-error',   () => {
+      this.set('isLoading', false);
+    });
   },
 
   play() {
@@ -66,7 +74,7 @@ export default BaseSound.extend({
     this.get('howl').stop();
   },
 
-  forward(duration) {
+  fastForward(duration) {
     this.get('howl').forward(duration);
   },
 
