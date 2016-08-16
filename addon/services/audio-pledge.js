@@ -38,6 +38,7 @@ export default Service.extend(Ember.Evented, {
   init() {
     const factories = getWithDefault(this, 'options.audioPledgeFactories', emberArray());
     const owner = getOwner(this);
+
     owner.registerOptionsForType('audio-pledge@audio-pledge-factory', { instantiate: false });
     owner.registerOptionsForType('audio-pledge-factory', { instantiate: false });
 

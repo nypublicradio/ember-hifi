@@ -1,4 +1,11 @@
 import config from '../config/environment';
+import Resolver from 'ember/resolver';
+
+Resolver.reopen({
+  pluralizedTypes: {
+    'audio-pledge-factory': 'audio-pledge-factories'
+  }
+});
 
 export function initialize(application) {
   const { audioPledgeFactories = [
