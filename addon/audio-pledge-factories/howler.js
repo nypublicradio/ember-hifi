@@ -1,9 +1,13 @@
+import Ember from 'ember';
 import BaseSound from './base';
 import { Howl } from 'howler';
 
 export default BaseSound.extend({
   init() {
-    let urls = this.get('urls');
+    let urls = this.get('url');
+    if (!Ember.isArray(urls)) {
+      urls = [urls];
+    }
     let sound = this;
     this.set('isLoading', true);
 
@@ -15,11 +19,6 @@ export default BaseSound.extend({
       html5:    true,
       onload: function() {
         sound.set('url', this._src);
-
-        let workingIndex = urls.indexOf(this._src);
-        let failedUrls   = urls.slice(0, workingIndex);
-        sound.set('failedUrls', failedUrls);
-
         sound.set('howl', this);
         sound.trigger('audio-loaded', sound);
         sound.trigger('audio-ready', sound);

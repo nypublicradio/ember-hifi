@@ -1,7 +1,5 @@
 import Ember from 'ember';
 import BaseSound from './base';
-import RSVP from 'rsvp';
-import PromiseTry from '../utils/promise-try';
 import soundManager from 'soundManager';
 
 const ClassMethods = Ember.Mixin.create({
@@ -16,66 +14,52 @@ const ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   init() {
-    let urls = this.get('urls');
-    let urlsToTry = urls.uniq().filter(u => u && u.length > 0);
+    let url = this.get('url');
     let sound = this;
-    let create =  PromiseTry.findFirst(urlsToTry, (param) => {
-      return new RSVP.Promise((resolve, reject) => {
-          let soundManagerSound = soundManager.createSound({
-            id: param,
-            url: param,
-            multiShot: false,
-            onstop() {
-              sound.trigger('audio-stopped', this);
-            },
-            onfinish() {
-              sound.trigger('audio-finished', this);
-            },
-            onpause() {
-              sound.trigger('audio-paused', this);
-            },
-            onplay() {
-              sound.trigger('audio-played', this);
-            },
-            onresume() {
-              sound.trigger('audio-resumed', this);
-            },
-            onload: function(success) {
-              if (success) {
-                let workingIndex = urlsToTry.indexOf(this.url);
-                let failedUrls   = urlsToTry.slice(0, workingIndex);
-                sound.set('failedUrls', failedUrls);
-                sound.set('url', this.url);
-                sound.set('soundManagerSound', this);
-                resolve(sound);
-              }
-              else {
-                // Load failed
-                soundManagerSound.destruct();
-                reject(param);
-              }
-            },
-            whileplaying() {
-              sound.trigger('audio-position-update', this);
-            },
-            whileloading() {
-              sound.trigger('audio-loading', this);
-              if (this.loaded) {
-                sound.trigger('audio-loaded');
-              }
-            }
-          });
 
-          soundManagerSound.load();
-      });
+    let soundManagerSound = soundManager.createSound({
+      id: url,
+      url: url,
+      multiShot: false,
+      onstop() {
+        sound.trigger('audio-stopped', this);
+      },
+      onfinish() {
+        sound.trigger('audio-finished', this);
+      },
+      onpause() {
+        sound.trigger('audio-paused', this);
+      },
+      onplay() {
+        sound.trigger('audio-played', this);
+      },
+      onresume() {
+        sound.trigger('audio-resumed', this);
+      },
+      onload: function(success) {
+        if (success) {
+          sound.set('url', this.url);
+          sound.set('soundManagerSound', this);
+          sound.trigger('audio-ready', sound);
+        }
+        else {
+          // Load failed
+          soundManagerSound.destruct();
+          sound.trigger('audio-load-error', sound);
+        }
+      },
+      whileplaying() {
+        sound.trigger('audio-position-update', this);
+      },
+      whileloading() {
+        sound.trigger('audio-loading', this);
+        if (this.loaded) {
+          sound.trigger('audio-loaded');
+        }
+      }
     });
 
-    create.then(s => {
-      this.trigger('audio-ready', s);
-    }).catch(s => {
-      this.trigger('audio-load-error', s);
-    });
-
+    soundManagerSound.load();
     this.setupEvents();
   },
 

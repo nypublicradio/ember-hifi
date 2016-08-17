@@ -4,7 +4,7 @@ const {
   A:emberArray
 } = Ember;
 
-export default Ember.Object.extend({
+export default Ember.Object.extend(Ember.Evented, {
   init() {
     this.set('sounds', emberArray());
   },

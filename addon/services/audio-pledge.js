@@ -3,6 +3,8 @@ import SoundCache from '../helpers/sound-cache';
 import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
+import PromiseTry from '../utils/promise-try';
+
 const {
   Service,
   computed,
@@ -16,9 +18,9 @@ const {
 
 export default Service.extend(Ember.Evented, {
   currentSound:   null,
-  isPlaying:      computed.readOnly('currentSound.isPlaying'),
-  canFastForward: computed.readOnly('currentSound.canFastForward'),
-  canRewind:      computed.readOnly('currentSound.canRewind'),
+  isPlaying:      computed.alias('currentSound.isPlaying'),
+  canFastForward: computed.alias('currentSound.canFastForward'),
+  canRewind:      computed.alias('currentSound.canRewind'),
   isLoading:      computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
@@ -76,16 +78,50 @@ export default Service.extend(Ember.Evented, {
       else {
         let SoundFactory  = this.selectFactory(urls);
         this.set('isLoading', true);
-        let sound = SoundFactory.create({urls: urls, service: this});
-
-        sound.on('audio-ready', resolve);
-        sound.on('audio-load-error', reject);
+        let failedUrls = [];
+        return PromiseTry.findFirst(urls, (url, stopAndResolve, tryNext) => {
+          try {
+            let sound = SoundFactory.create({url: url});
+            sound.on('audio-ready', () => {
+              stopAndResolve(sound);}
+            );
+            sound.on('audio-load-error', () => {
+              failedUrls.push(url);
+              tryNext();
+            });
+          }
+          catch(e) {
+            failedUrls.push(url);
+            tryNext();
+          }
+        }).then(sound => {
+          sound.set('failedUrls', failedUrls);
+          resolve(sound);
+        }).catch(() => {
+          sound.set('failedUrls', failedUrls);
+          reject(sound);
+        });
       }
     });
+
+
     promise.then(sound => this.get('soundCache').cache(sound));
+
+    // On audio-played this pauses all the other sounds. One at a time!
     promise.then(sound => this.get('oneAtATime').register(sound));
 
+    promise.then(sound => sound.on('audio-played', () => this.setCurrentSound(sound)));
+
+
     return promise;
+  },
+
+  setCurrentSound(sound) {
+    if (sound.get('url') !== this.get('currentSound.url')) {
+      this._unregisterEvents(this.get('currentSound'));
+      this._registerEvents(sound);
+      this.set('currentSound', sound);
+    }
   },
 
   /**
@@ -99,14 +135,6 @@ export default Service.extend(Ember.Evented, {
   play(urls) {
     let promise = this.load(urls);
     promise.then(sound => {
-      if (this.get('currentSound')) {
-        this.pause();
-      }
-
-      this._unregisterEvents(this.get('currentSound'));
-      this._registerEvents(sound);
-      this.set('currentSound', sound);
-
       sound.play();
     });
     return promise;
