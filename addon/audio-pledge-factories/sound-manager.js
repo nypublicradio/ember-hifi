@@ -34,7 +34,7 @@ let Sound = BaseSound.extend({
         sound.trigger('audio-played', this);
       },
       onresume() {
-        sound.trigger('audio-resumed', this);
+        sound.trigger('audio-played', this);
       },
       onload: function(success) {
         if (success) {
@@ -66,7 +66,6 @@ let Sound = BaseSound.extend({
   setupEvents() {
     this.on('audio-played',    () => this.set('isPlaying', true));
     this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-resumed',   () => this.set('isPlaying', true));
     this.on('audio-stopped',   () => this.set('isPlaying', false));
     this.on('audio-loaded',    () => {
       this.set('duration', this.get('soundManagerSound').duration);

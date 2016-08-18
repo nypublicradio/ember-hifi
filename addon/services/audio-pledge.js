@@ -82,10 +82,10 @@ export default Service.extend(Ember.Evented, {
         return PromiseTry.findFirst(urls, (url, stopAndResolve, tryNext) => {
           try {
             let sound = SoundFactory.create({url: url});
-            sound.on('audio-ready', () => {
+            sound.one('audio-ready', () => {
               stopAndResolve(sound);}
             );
-            sound.on('audio-load-error', () => {
+            sound.one('audio-load-error', () => {
               failedUrls.push(url);
               tryNext();
             });
@@ -98,30 +98,24 @@ export default Service.extend(Ember.Evented, {
           sound.set('failedUrls', failedUrls);
           resolve(sound);
         }).catch(() => {
-          sound.set('failedUrls', failedUrls);
-          reject(sound);
+          reject();
         });
       }
     });
 
 
     promise.then(sound => this.get('soundCache').cache(sound));
-
     // On audio-played this pauses all the other sounds. One at a time!
     promise.then(sound => this.get('oneAtATime').register(sound));
-
     promise.then(sound => sound.on('audio-played', () => this.setCurrentSound(sound)));
-
 
     return promise;
   },
 
   setCurrentSound(sound) {
-    if (sound.get('url') !== this.get('currentSound.url')) {
-      this._unregisterEvents(this.get('currentSound'));
-      this._registerEvents(sound);
-      this.set('currentSound', sound);
-    }
+    this._unregisterEvents(this.get('currentSound'));
+    this._registerEvents(sound);
+    this.set('currentSound', sound);
   },
 
   /**
@@ -133,11 +127,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   play(urls) {
-    let promise = this.load(urls);
-    promise.then(sound => {
-      sound.play();
-    });
-    return promise;
+    return this.load(urls).then(sound => sound.play());
   },
 
   /**
@@ -220,7 +210,6 @@ export default Service.extend(Ember.Evented, {
   _registerEvents(sound) {
     sound.on('audio-played',  () => this.relayEvent('audio-played', sound));
     sound.on('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    sound.on('audio-resumed', () => this.relayEvent('audio-resumed', sound));
     sound.on('audio-stopped', () => this.relayEvent('audio-stopped', sound));
     sound.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
     sound.on('audio-loading', () => this.relayEvent('audio-loading', sound));
@@ -240,10 +229,9 @@ export default Service.extend(Ember.Evented, {
     if (!sound) {
       return;
     }
-
+    console.log(`unregistering ${sound.get('url')}`);
     sound.off('audio-played',  () => this.relayEvent('audio-played', sound));
     sound.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    sound.off('audio-resumed', () => this.relayEvent('audio-resumed', sound));
     sound.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
     sound.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
     sound.off('audio-loading', () => this.relayEvent('audio-loading', sound));

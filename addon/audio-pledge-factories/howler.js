@@ -44,7 +44,6 @@ export default BaseSound.extend({
   setupEvents() {
     this.on('audio-played',    () => this.set('isPlaying', true));
     this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-resumed',   () => this.set('isPlaying', true));
     this.on('audio-stopped',   () => this.set('isPlaying', false));
 
     this.on('audio-loaded',    () => {
