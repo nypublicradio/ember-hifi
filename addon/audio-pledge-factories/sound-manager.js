@@ -73,6 +73,10 @@ let Sound = BaseSound.extend({
     this.get('soundManagerSound').setPosition(position);
   },
 
+  setVolume(volume) {
+    this.get('soundManagerSound').volume(volume);
+  },
+
   play() {
     this.get('soundManagerSound').play();
   },

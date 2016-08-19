@@ -19,8 +19,13 @@ const {
 export default Service.extend(Ember.Evented, {
   currentSound:   null,
   isPlaying:      computed.readOnly('currentSound.isPlaying'),
-  canFastForward: computed.readOnly('currentSound.canFastForward'),
-  canRewind:      computed.readOnly('currentSound.canRewind'),
+
+  // TODO: add the following
+  // isStream:
+  // isFastForwardable: computed.readOnly('currentSound.canFastForward'),
+  // isRewindable:      computed.readOnly('currentSound.canRewind'),
+  // 
+
   isLoading:      computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
@@ -30,6 +35,16 @@ export default Service.extend(Ember.Evented, {
 
   position:       computed.readOnly('currentSound.position'),
   duration:       computed.readOnly('currentSound.duration'),
+  volume:         computed('volume', {
+    get(v) {
+      return v;
+    },
+    set(k, v) {
+      this.get('currentSound').setVolume(v);
+      return v;
+    },
+  }),
+  isMuted:       computed.equal('volume', 0),
 
   /**
    * When the Service is created, activate factories that were specified in the
@@ -72,6 +87,7 @@ export default Service.extend(Ember.Evented, {
     }
 
     urls = urls.compact().uniq();
+    assert("[audio-pledge] urls must be provided in order to load a sound", urls.length > 0);
 
     let promise = new RSVP.Promise((resolve, reject) => {
       let sound = this.get('soundCache').find(urls);
@@ -118,6 +134,7 @@ export default Service.extend(Ember.Evented, {
   setCurrentSound(sound) {
     this._unregisterEvents(this.get('currentSound'));
     this._registerEvents(sound);
+    sound.setVolume(this.get('volume'));
     this.set('currentSound', sound);
   },
 
@@ -194,7 +211,6 @@ export default Service.extend(Ember.Evented, {
     this.get('currentSound').rewind(duration);
   },
 
-
   /**
    * Sets position of the playhead on the current sound
    *
@@ -207,6 +223,18 @@ export default Service.extend(Ember.Evented, {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
 
     this.get('currentSound').setPosition(position);
+  },
+
+  /**
+   * Sets the volume
+   *
+   * @method setPosition
+   * @param {Integer} 0-100
+   * @returns {Void}
+   */
+
+  setVolume(volume) {
+    this.set('volume', volume);
   },
 
   /**

@@ -53,6 +53,10 @@ export default BaseSound.extend({
     this.get('howl').seek(position / 1000);
   },
 
+  setVolume(volume) {
+    this.get('howl').volume(volume/100);
+  },
+
   play() {
     this.get('howl').play();
   },
