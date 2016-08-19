@@ -4,6 +4,8 @@ import { Howl } from 'howler';
 
 export default BaseSound.extend({
   init() {
+    this._super(...arguments);
+
     let urls = this.get('url');
     if (!Ember.isArray(urls)) {
       urls = [urls];
@@ -37,27 +39,18 @@ export default BaseSound.extend({
         sound.trigger('error', error);
       }
     });
-
-    this.setupEvents();
   },
 
-  setupEvents() {
-    this.on('audio-played',    () => this.set('isPlaying', true));
-    this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-stopped',   () => this.set('isPlaying', false));
+  audioDuration() {
+    return this.get('howl').duration() * 1000;
+  },
 
-    this.on('audio-loaded',    () => {
-      this.set('isLoading', false);
-      this.set('duration', this.get('howl').duration());
-    });
+  currentPosition() {
+    return this.get('howl').seek() * 1000;
+  },
 
-    this.on('audio-loading',   () => {
-      this.set('isLoading', true);
-    });
-
-    this.on('audio-load-error',   () => {
-      this.set('isLoading', false);
-    });
+  setPosition(position) {
+    this.get('howl').seek(position / 1000);
   },
 
   play() {
@@ -78,9 +71,5 @@ export default BaseSound.extend({
 
   rewind(duration) {
     this.get('howl').rewind(duration);
-  },
-
-  setPosition(position) {
-    this.get('howl').setPosition(position);
   }
 });

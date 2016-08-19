@@ -18,15 +18,18 @@ const {
 
 export default Service.extend(Ember.Evented, {
   currentSound:   null,
-  isPlaying:      computed.alias('currentSound.isPlaying'),
-  canFastForward: computed.alias('currentSound.canFastForward'),
-  canRewind:      computed.alias('currentSound.canRewind'),
+  isPlaying:      computed.readOnly('currentSound.isPlaying'),
+  canFastForward: computed.readOnly('currentSound.canFastForward'),
+  canRewind:      computed.readOnly('currentSound.canRewind'),
   isLoading:      computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
     },
     set(k, v) { return v; }
   }),
+
+  position:       computed.readOnly('currentSound.position'),
+  duration:       computed.readOnly('currentSound.duration'),
 
   /**
    * When the Service is created, activate factories that were specified in the
@@ -166,7 +169,7 @@ export default Service.extend(Ember.Evented, {
    * Fast forwards current sound if able
    *
    * @method fastForward
-   * @param {Integer} duration
+   * @param {Integer} duration in ms
    * @returns {Void}
    */
 
@@ -181,7 +184,7 @@ export default Service.extend(Ember.Evented, {
    * Rewinds current sound if able
    *
    * @method rewind
-   * @param {Integer} duration
+   * @param {Integer} duration in ms
    * @returns {Void}
    */
 
@@ -190,6 +193,15 @@ export default Service.extend(Ember.Evented, {
 
     this.get('currentSound').rewind(duration);
   },
+
+
+  /**
+   * Sets position of the playhead on the current sound
+   *
+   * @method setPosition
+   * @param {Integer} duration in ms
+   * @returns {Void}
+   */
 
   setPosition(position) {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));

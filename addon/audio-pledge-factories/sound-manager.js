@@ -14,6 +14,8 @@ const ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   init() {
+    this._super(...arguments);
+
     let url = this.get('url');
     let sound = this;
 
@@ -48,9 +50,6 @@ let Sound = BaseSound.extend({
           sound.trigger('audio-load-error', sound);
         }
       },
-      whileplaying() {
-        sound.trigger('audio-position-update', this);
-      },
       whileloading() {
         sound.trigger('audio-loading', this);
         if (this.loaded) {
@@ -60,18 +59,18 @@ let Sound = BaseSound.extend({
     });
 
     soundManagerSound.load();
-    this.setupEvents();
   },
 
-  setupEvents() {
-    this.on('audio-played',    () => this.set('isPlaying', true));
-    this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-stopped',   () => this.set('isPlaying', false));
-    this.on('audio-loaded',    () => {
-      this.set('duration', this.get('soundManagerSound').duration);
-      this.set('isLoading', false);
-    });
-    this.on('audio-loading',   () => this.set('isLoading', true));
+  audioDuration() {
+    return this.get('soundManagerSound').duration;
+  },
+
+  currentPosition() {
+    return this.get('soundManagerSound').position;
+  },
+
+  setPosition(position) {
+    this.get('soundManagerSound').setPosition(position);
   },
 
   play() {
@@ -86,16 +85,12 @@ let Sound = BaseSound.extend({
     this.get('soundManagerSound').stop();
   },
 
-  forward(duration) {
+  fastForward(duration) {
     this.get('soundManagerSound').forward(duration);
   },
 
   rewind(duration) {
     this.get('soundManagerSound').rewind(duration);
-  },
-
-  setPosition(position) {
-    this.get('soundManagerSound').setPosition(position);
   }
 });
 
