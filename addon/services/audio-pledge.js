@@ -8,6 +8,7 @@ import PromiseTry from '../utils/promise-try';
 const {
   Service,
   computed,
+  observer,
   getWithDefault,
   assert,
   get,
@@ -35,16 +36,22 @@ export default Service.extend(Ember.Evented, {
 
   position:       computed.readOnly('currentSound.position'),
   duration:       computed.readOnly('currentSound.duration'),
-  volume:         computed('volume', {
-    get(v) {
-      return v;
+  isMuted:        computed.equal('volume', 0),
+
+  defaultVolume: 50,
+
+  volume: computed({
+    get() {
+      return this.get('currentSound.volume') || this.get('defaultVolume');
     },
     set(k, v) {
-      this.get('currentSound').setVolume(v);
+      if (this.get('currentSound')) {
+        this.get('currentSound')._setVolume(v);
+      }
+
       return v;
-    },
+    }
   }),
-  isMuted:       computed.equal('volume', 0),
 
   /**
    * When the Service is created, activate factories that were specified in the
@@ -66,7 +73,7 @@ export default Service.extend(Ember.Evented, {
     set(this, '_factories', {});
     set(this, 'soundCache', new SoundCache());
     set(this, 'oneAtATime', new OneAtATime());
-
+    set(this, 'volume', 50);
     this.activateFactories(factories);
 
     this.set('isReady', true);
@@ -82,59 +89,67 @@ export default Service.extend(Ember.Evented, {
    */
 
   load(urls) {
-    if (!Ember.isArray(urls)) {
-      urls = [urls];
-    }
-
-    urls = urls.compact().uniq();
-    assert("[audio-pledge] urls must be provided in order to load a sound", urls.length > 0);
-
     let promise = new RSVP.Promise((resolve, reject) => {
-      let sound = this.get('soundCache').find(urls);
+      // This needs to be an array containing no fluff
+      var urlsToTry = Ember.makeArray(urls).uniq().reject(i => Ember.isEmpty(i));
+      if (urlsToTry.length === 0) {
+        reject({error: "Urls must be provided"});
+      }
+
+      let sound = this.get('soundCache').find(urlsToTry);
       if (sound) {
-        resolve(sound);
+        resolve({sound});
       }
       else {
-        let SoundFactory  = this.selectFactory(urls);
         this.set('isLoading', true);
-        let failedUrls = [];
-        return PromiseTry.findFirst(urls, (url, stopAndResolve, tryNext) => {
-          try {
-            let sound = SoundFactory.create({url: url});
-            sound.one('audio-ready', () => {
-              stopAndResolve(sound);}
-            );
-            sound.one('audio-load-error', () => {
-              failedUrls.push(url);
-              tryNext();
-            });
-          }
-          catch(e) {
-            failedUrls.push(url);
-            tryNext();
-          }
-        }).then(sound => {
-          sound.set('failedUrls', failedUrls);
-          resolve(sound);
-        }).catch(() => {
-          reject();
-        });
+        let search = this.loadWorkingAudio(urlsToTry);
+        search.then(results  => resolve({sound: results.success, failedUrls: results.failures}));
+        search.catch(results => reject({failedUrls: results.failures}));
+
+        return search;
       }
     });
 
+    promise.then(({sound}) => this.get('soundCache').cache(sound));
 
-    promise.then(sound => this.get('soundCache').cache(sound));
     // On audio-played this pauses all the other sounds. One at a time!
-    promise.then(sound => this.get('oneAtATime').register(sound));
-    promise.then(sound => sound.on('audio-played', () => this.setCurrentSound(sound)));
+    promise.then(({sound}) => this.get('oneAtATime').register(sound));
+    promise.then(({sound}) => sound.on('audio-played', () => this.setCurrentSound(sound)));
 
     return promise;
+  },
+
+  /**
+   * Given an array of URLS, try each url, select a factory, and then
+   * return the first thing that works
+   *
+   * @method loadWorkingAudio
+   * @param {Array} urlsToTry
+   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
+   */
+
+  loadWorkingAudio(urlsToTry) {
+    return PromiseTry.findFirst(urlsToTry, (url, returnSuccess, markAsFailure) => {
+      // TODO: return multiple factories if multiples "can play"
+      let SoundFactory  = this.selectFactory(url);
+      if (!SoundFactory) {
+        markAsFailure(url);
+      }
+
+      let sound = SoundFactory.create({url: url});
+      sound.one('audio-load-error', () => markAsFailure(url));
+      sound.one('audio-ready',      () => {
+        returnSuccess(sound);
+
+        console.log(`[${SoundFactory.toString()}] ready with ${url}`);
+      });
+    });
   },
 
   setCurrentSound(sound) {
     this._unregisterEvents(this.get('currentSound'));
     this._registerEvents(sound);
-    sound.setVolume(this.get('volume'));
+    sound._setVolume(this.get('volume'));
     this.set('currentSound', sound);
   },
 
@@ -147,7 +162,11 @@ export default Service.extend(Ember.Evented, {
    */
 
   play(urls) {
-    return this.load(urls).then(sound => sound.play());
+    let load = this.load(urls);
+    load.then(({sound}) => sound.play());
+
+    // We want to keep this chainable elsewhere
+    return load;
   },
 
   /**
@@ -161,6 +180,19 @@ export default Service.extend(Ember.Evented, {
   pause() {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
     this.get('currentSound').pause();
+  },
+
+  /**
+   * Pauses the current sound
+   *
+   * @method pause
+   * @param {Void}
+   * @returns {Void}
+   */
+
+  stop() {
+    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    this.get('currentSound').stop();
   },
 
   /**
@@ -226,18 +258,6 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
-   * Sets the volume
-   *
-   * @method setPosition
-   * @param {Integer} 0-100
-   * @returns {Void}
-   */
-
-  setVolume(volume) {
-    this.set('volume', volume);
-  },
-
-  /**
    * Register events on a current sound. Audio events triggered on that sound
    * will be relayed and triggered on this service
    *
@@ -299,14 +319,14 @@ export default Service.extend(Ember.Evented, {
    * @return [Factory] activated factories
    */
 
-  selectFactory(/* urls */) {
+  selectFactory(url) {
     // Select a random factory for testing
 
-    let factories = this.get('_factories');
-    let options = Object.keys(factories);
-    let choice = options[Math.floor(Math.random() * options.length)];
-    console.log(`Choosing ${choice} factory`);
-    return this.get(`_factories.${choice}`);
+    let factoryNames = Object.keys(this.get('_factories'));
+    let factories = factoryNames.map(name => this.get(`_factories.${name}`));
+    let selectedFactory = factories.find(f => f.canPlay(url));
+
+    return selectedFactory;
   },
 
   /**

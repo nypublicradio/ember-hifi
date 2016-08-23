@@ -2,13 +2,21 @@ import Ember from 'ember';
 import BaseSound from './base';
 import soundManager from 'soundManager';
 
-const ClassMethods = Ember.Mixin.create({
+let ClassMethods = Ember.Mixin.create({
   setup() {
     soundManager.setup({
       url: '/assets/swf',
       flashVersion: 9,
       debugMode: false,
     });
+  },
+
+  canPlay(url) {
+    return soundManager.canPlayURL(url);
+  },
+
+  toString() {
+    return 'SoundManager2';
   }
 });
 
@@ -43,18 +51,24 @@ let Sound = BaseSound.extend({
           sound.set('url', this.url);
           sound.set('soundManagerSound', this);
           sound.trigger('audio-ready', sound);
+          sound.trigger('audio-loaded', sound);
         }
         else {
           // Load failed
-          soundManagerSound.destruct();
-          sound.trigger('audio-load-error', sound);
+          sound.trigger('audio-load-error', "load failed");
+          this.destruct();
         }
       },
+      onfailure() {
+        sound.trigger('audio-load-error', "load failed");
+        this.destruct();
+      },
       whileloading() {
-        sound.trigger('audio-loading', this);
-        if (this.loaded) {
-          sound.trigger('audio-loaded');
-        }
+        // sound.trigger('audio-loading', sound);
+      },
+      ondataerror() {
+        sound.trigger('audio-load-error', "data error");
+        this.destruct();
       }
     });
 
@@ -73,8 +87,8 @@ let Sound = BaseSound.extend({
     this.get('soundManagerSound').setPosition(position);
   },
 
-  setVolume(volume) {
-    this.get('soundManagerSound').volume(volume);
+  _setVolume(volume) {
+    this.get('soundManagerSound').setVolume(volume);
   },
 
   play() {
@@ -82,6 +96,7 @@ let Sound = BaseSound.extend({
   },
 
   pause() {
+    // TODO: if it's a stream, we might want to stop it
     this.get('soundManagerSound').pause();
   },
 

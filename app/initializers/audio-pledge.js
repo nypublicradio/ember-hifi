@@ -9,12 +9,12 @@ Resolver.reopen({
 
 export function initialize(application) {
   const { audioPledgeFactories = [
+    {
+      name: 'howler',
+      config: {}
+    },
   {
     name: 'sound-manager',
-    config: {}
-  },
-  {
-    name: 'howler',
     config: {}
   }] } = config;
   const { environment = 'development' } = config;

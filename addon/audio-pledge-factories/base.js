@@ -9,15 +9,20 @@ const {
 
 let ClassMethods = Ember.Mixin.create({
   setup() {
+  },
+
+  canPlay() {
+    return true;
   }
 });
 
 let Sound = Ember.Object.extend(Ember.Evented, {
-  isPlaying:    false,
-  isLoading:    false,
   pollInterval: 1000,
-  position:     0,
-  duration:     0,
+  timeout: 2000,
+  isLoading: false,
+  isPlaying: false,
+  position: 0,
+  duruation: 0,
 
   init: function() {
     this.on('audio-played',    () => {
@@ -26,16 +31,32 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     });
     this.on('audio-paused',    () => this.set('isPlaying', false));
     this.on('audio-stopped',   () => this.set('isPlaying', false));
+
     this.on('audio-ready',    () => {
       this.set('duration', this.audioDuration());
+      this.set('_didNotTimeOut', true);
     });
+    this.on('audio-load-error',    () => {
+      this.set('_didNotTimeOut', true);
+    });
+
     this.on('audio-loaded', () => {
       this.set('isLoading', false);
     });
-    this.on('audio-loading',   () => this.set('isLoading', true));
+
+    this.on('audio-position-changed', (position) => {
+      this.set('position', position);
+    });
+
+    // Ember.run.later(() => {
+    //   if (!this.get("_didNotTimeOut")) {
+    //     console.log(`timeout for ${this.get('url')}`);
+    //     this.trigger('audio-load-error', this);
+    //   }
+    // }, this.get('timeout'));
   },
 
-  __updateAndPollPlayPosition: observer('isPlaying', 'isLoaded', function() {
+  __updateAndPollPlayPosition: observer('position', 'isPlaying', 'isLoaded', function() {
      if (get(this, 'isPlaying')) {
        this.__setCurrentPosition();
        Ember.run.later(() =>  this.__updateAndPollPlayPosition(), get(this, 'pollInterval'));
@@ -50,6 +71,9 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
   /* To be defined on the subclass */
 
+  _setVolume() {
+    assert("[audio-pledge] #_setVolume interface not implemented", false);
+  },
 
   currentPosition() {
     assert("[audio-pledge] #currentPosition interface not implemented", false);

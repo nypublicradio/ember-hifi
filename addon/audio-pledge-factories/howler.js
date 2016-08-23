@@ -2,15 +2,26 @@ import Ember from 'ember';
 import BaseSound from './base';
 import { Howl } from 'howler';
 
-export default BaseSound.extend({
+let ClassMethods = Ember.Mixin.create({
+  setup() {
+  },
+
+  canPlay(/* url */) {
+    return true;
+  },
+
+  toString() {
+    return 'Howler';
+  }
+});
+
+let Sound = BaseSound.extend({
   init() {
     this._super(...arguments);
 
-    let urls = this.get('url');
-    if (!Ember.isArray(urls)) {
-      urls = [urls];
-    }
+    let urls = Ember.makeArray(this.get('url'));
     let sound = this;
+
     this.set('isLoading', true);
 
     new Howl({
@@ -35,8 +46,10 @@ export default BaseSound.extend({
         sound.trigger('audio-ended', sound);
       },
       onloaderror: function(id, error) {
-        sound.trigger('audio-load-error', sound);
-        sound.trigger('error', error);
+        sound.trigger('audio-load-error', error);
+      },
+      onseek: function() {
+        sound.trigger('audio-position-changed', sound.currentPosition());
       }
     });
   },
@@ -53,7 +66,7 @@ export default BaseSound.extend({
     this.get('howl').seek(position / 1000);
   },
 
-  setVolume(volume) {
+  _setVolume(volume) {
     this.get('howl').volume(volume/100);
   },
 
@@ -77,3 +90,7 @@ export default BaseSound.extend({
     this.get('howl').rewind(duration);
   }
 });
+
+Sound.reopenClass(ClassMethods);
+
+export default Sound;
