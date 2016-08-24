@@ -17,12 +17,13 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = Ember.Object.extend(Ember.Evented, {
+  logger: Ember.inject.service('debug-logger'),
   pollInterval: 1000,
   timeout: 2000,
   isLoading: false,
   isPlaying: false,
   position: 0,
-  duruation: 0,
+  duration: 0,
 
   init: function() {
     this.on('audio-played',    () => {
@@ -36,6 +37,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('duration', this.audioDuration());
       this.set('_didNotTimeOut', true);
     });
+
     this.on('audio-load-error',    () => {
       this.set('_didNotTimeOut', true);
     });
@@ -48,26 +50,12 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('position', position);
     });
 
-    // Ember.run.later(() => {
-    //   if (!this.get("_didNotTimeOut")) {
-    //     console.log(`timeout for ${this.get('url')}`);
-    //     this.trigger('audio-load-error', this);
-    //   }
-    // }, this.get('timeout'));
+    Ember.run.later(() => {
+      if (!this.get("_didNotTimeOut")) {
+        this.trigger('audio-load-error', "request timed out");
+      }
+    }, this.get('timeout'));
   },
-
-  __updateAndPollPlayPosition: observer('position', 'isPlaying', 'isLoaded', function() {
-     if (get(this, 'isPlaying')) {
-       this.__setCurrentPosition();
-       Ember.run.later(() =>  this.__updateAndPollPlayPosition(), get(this, 'pollInterval'));
-     }
-  }),
-
-  __setCurrentPosition() {
-    // currentPosition is defined on the subclass
-    set(this, 'position', this.currentPosition());
-  },
-
 
   /* To be defined on the subclass */
 

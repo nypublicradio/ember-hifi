@@ -4,7 +4,7 @@ import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 import PromiseTry from '../utils/promise-try';
-
+import Debug from '../utils/debug';
 const {
   Service,
   computed,
@@ -20,12 +20,12 @@ const {
 export default Service.extend(Ember.Evented, {
   currentSound:   null,
   isPlaying:      computed.readOnly('currentSound.isPlaying'),
-
+  logger:         Ember.inject.service('debug-logger'),
   // TODO: add the following
   // isStream:
   // isFastForwardable: computed.readOnly('currentSound.canFastForward'),
   // isRewindable:      computed.readOnly('currentSound.canRewind'),
-  // 
+  //
 
   isLoading:      computed('currentSound.isLoading', {
     get() {
@@ -37,6 +37,19 @@ export default Service.extend(Ember.Evented, {
   position:       computed.readOnly('currentSound.position'),
   duration:       computed.readOnly('currentSound.duration'),
   isMuted:        computed.equal('volume', 0),
+
+  __updateAndPollPlayPosition: observer('isPlaying', 'isLoaded', function() {
+     if (get(this, 'isPlaying')) {
+       this.__setCurrentPosition();
+       Ember.run.later(() =>  this.__updateAndPollPlayPosition(), get(this, 'pollInterval'));
+     }
+  }),
+
+  __setCurrentPosition() {
+    // currentPosition is defined on the subclass
+    let sound = this.get('currentSound');
+    set(sound, 'position', sound.currentPosition());
+  },
 
   defaultVolume: 50,
 
@@ -88,7 +101,12 @@ export default Service.extend(Ember.Evented, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  load(urls) {
+  load(urls, options) {
+    // If a debugName isn't provided, make up a unique string for easier console spotting
+    options = Ember.merge({
+      debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)
+    }, options);
+
     let promise = new RSVP.Promise((resolve, reject) => {
       // This needs to be an array containing no fluff
       var urlsToTry = Ember.makeArray(urls).uniq().reject(i => Ember.isEmpty(i));
@@ -102,9 +120,9 @@ export default Service.extend(Ember.Evented, {
       }
       else {
         this.set('isLoading', true);
-        let search = this.loadWorkingAudio(urlsToTry);
-        search.then(results  => resolve({sound: results.success, failedUrls: results.failures}));
-        search.catch(results => reject({failedUrls: results.failures}));
+        let search = this.loadWorkingAudio(urlsToTry, options);
+        search.then(results  => resolve({sound: results.success, failures: results.failures}));
+        search.catch(results => reject({failures: results.failures}));
 
         return search;
       }
@@ -128,22 +146,42 @@ export default Service.extend(Ember.Evented, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  loadWorkingAudio(urlsToTry) {
-    return PromiseTry.findFirst(urlsToTry, (url, returnSuccess, markAsFailure) => {
-      // TODO: return multiple factories if multiples "can play"
-      let SoundFactory  = this.selectFactory(url);
-      if (!SoundFactory) {
-        markAsFailure(url);
-      }
+  loadWorkingAudio(urlsToTry, options) {
+    let params = [];
+    let logger = this.get('logger');
+    let loggerName = options.debugName;
 
-      let sound = SoundFactory.create({url: url});
-      sound.one('audio-load-error', () => markAsFailure(url));
+    logger.timeStart(loggerName, "loadWorkingAudio");
+    urlsToTry.forEach(url => {
+      return this.selectWorkingFactories(url).map(factory => {
+        params.push({
+          url: url,
+          factory: factory
+        });
+      });
+    });
+
+    let promise = PromiseTry.findFirst(params, (param, returnSuccess, markAsFailure) => {
+      let Factory = param.factory;
+      let sound = Factory.create({url: param.url});
+      logger.log(loggerName, `LOADING: [${Factory.toString()}] -> ${param.url}`);
+
+      sound.one('audio-load-error', (error) => {
+        param.error = error;
+        markAsFailure(param);
+
+        logger.log(loggerName, `ERROR: [${Factory.toString()}] -> ${error} (${param.url})`);
+      });
       sound.one('audio-ready',      () => {
         returnSuccess(sound);
 
-        console.log(`[${SoundFactory.toString()}] ready with ${url}`);
+        logger.log(loggerName, `SUCCESS: [${Factory.toString()}] -> ${param.url}`);
       });
     });
+
+    promise.finally(() => logger.timeEnd(loggerName, "loadWorkingAudio"));
+
+    return promise;
   },
 
   setCurrentSound(sound) {
@@ -161,8 +199,8 @@ export default Service.extend(Ember.Evented, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  play(urls) {
-    let load = this.load(urls);
+  play(urls, options) {
+    let load = this.load(urls, options);
     load.then(({sound}) => sound.play());
 
     // We want to keep this chainable elsewhere
@@ -289,7 +327,6 @@ export default Service.extend(Ember.Evented, {
     if (!sound) {
       return;
     }
-    console.log(`unregistering ${sound.get('url')}`);
     sound.off('audio-played',  () => this.relayEvent('audio-played', sound));
     sound.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
     sound.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
@@ -307,7 +344,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   relayEvent(eventName, sound) {
-    console.log(`${eventName} -> ${sound.get('url')}`);
+    // console.log(`${eventName} -> ${sound.get('url')}`);
     this.trigger(eventName, sound);
   },
 
@@ -319,14 +356,14 @@ export default Service.extend(Ember.Evented, {
    * @return [Factory] activated factories
    */
 
-  selectFactory(url) {
+  selectWorkingFactories(url) {
     // Select a random factory for testing
 
     let factoryNames = Object.keys(this.get('_factories'));
     let factories = factoryNames.map(name => this.get(`_factories.${name}`));
-    let selectedFactory = factories.find(f => f.canPlay(url));
+    let selectedFactories = factories.filter(f => f.canPlay(url));
 
-    return selectedFactory;
+    return selectedFactories;
   },
 
   /**
@@ -355,8 +392,6 @@ export default Service.extend(Ember.Evented, {
   _activateFactory({ name, config } = {}) {
     const Factory = this._lookupFactory(name);
     assert('[audio-pledge] Could not find audio factory ${name}.', name);
-    console.log(Factory);
-
     Factory.setup(config);
     return Factory;
   },
