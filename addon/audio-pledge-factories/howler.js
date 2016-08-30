@@ -3,9 +3,6 @@ import BaseSound from './base';
 import { Howl } from 'howler';
 
 let ClassMethods = Ember.Mixin.create({
-  setup() {
-  },
-
   canPlay(/* url */) {
     return true;
   },

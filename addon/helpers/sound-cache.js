@@ -1,12 +1,14 @@
 import Ember from 'ember';
-
+const {
+  A: emberArray
+} = Ember;
 export default Ember.Object.extend(Ember.Evented, {
   _cache: new Ember.Map(),
 
   find(urls) {
     let cache = this.get('_cache');
-    let sounds = urls.map(url => cache.get(url)).compact();
-    return sounds[0];
+    let sounds = emberArray(urls).map(url => cache.get(url));
+    return emberArray(sounds).compact()[0];
   },
 
   cache(sound) {

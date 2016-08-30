@@ -8,7 +8,8 @@ const {
 } = Ember;
 
 let ClassMethods = Ember.Mixin.create({
-  setup() {
+  setup(config) {
+    this.config = config;
   },
 
   canPlay() {
@@ -19,7 +20,7 @@ let ClassMethods = Ember.Mixin.create({
 let Sound = Ember.Object.extend(Ember.Evented, {
   logger: Ember.inject.service('debug-logger'),
   pollInterval: 1000,
-  timeout: 2000,
+  timeout: 15000,
   isLoading: false,
   isPlaying: false,
   position: 0,

@@ -4,6 +4,7 @@ import soundManager from 'soundManager';
 
 let ClassMethods = Ember.Mixin.create({
   setup() {
+    this._super(...arguments);
     soundManager.setup({
       url: '/assets/swf',
       flashVersion: 9,

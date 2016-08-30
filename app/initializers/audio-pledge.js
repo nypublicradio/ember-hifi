@@ -10,13 +10,14 @@ Resolver.reopen({
 export function initialize(application) {
   const { audioPledgeFactories = [
     {
-      name: 'howler',
+      name: 'Howler',
       config: {}
     },
-  {
-    name: 'sound-manager',
-    config: {}
-  }] } = config;
+    {
+      name: 'SoundManager',
+      config: {}
+    }
+  ] } = config;
   const { environment = 'development' } = config;
   const options = { audioPledgeFactories, environment };
   application.register('config:audio-pledge', options, { instantiate: false });

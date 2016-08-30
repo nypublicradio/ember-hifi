@@ -14,7 +14,7 @@ const {
   get,
   set,
   A: emberArray,
-  String: { dasherize }
+  String: { dasherize, camelize}
 } = Ember;
 
 export default Service.extend(Ember.Evented, {
@@ -109,7 +109,7 @@ export default Service.extend(Ember.Evented, {
 
     let promise = new RSVP.Promise((resolve, reject) => {
       // This needs to be an array containing no fluff
-      var urlsToTry = Ember.makeArray(urls).uniq().reject(i => Ember.isEmpty(i));
+      var urlsToTry = Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
       if (urlsToTry.length === 0) {
         reject({error: "Urls must be provided"});
       }
@@ -147,39 +147,17 @@ export default Service.extend(Ember.Evented, {
    */
 
   loadWorkingAudio(urlsToTry, options) {
-    let params = [];
-    let logger = this.get('logger');
-    let loggerName = options.debugName;
+    this.get('logger').timeStart(options.debugName, "loadWorkingAudio");
 
-    logger.timeStart(loggerName, "loadWorkingAudio");
-    urlsToTry.forEach(url => {
-      return this.selectWorkingFactories(url).map(factory => {
-        params.push({
-          url: url,
-          factory: factory
-        });
-      });
-    });
+    let params  = this._prepareParamsForLoadWorkingAudio(urlsToTry);
 
     let promise = PromiseTry.findFirst(params, (param, returnSuccess, markAsFailure) => {
       let Factory = param.factory;
       let sound = Factory.create({url: param.url});
-      logger.log(loggerName, `LOADING: [${Factory.toString()}] -> ${param.url}`);
-
-      sound.one('audio-load-error', (error) => {
-        param.error = error;
-        markAsFailure(param);
-
-        logger.log(loggerName, `ERROR: [${Factory.toString()}] -> ${error} (${param.url})`);
-      });
-      sound.one('audio-ready',      () => {
-        returnSuccess(sound);
-
-        logger.log(loggerName, `SUCCESS: [${Factory.toString()}] -> ${param.url}`);
-      });
+      this._waitForSuccessOrFailure(sound, param, returnSuccess, markAsFailure, options);
     });
 
-    promise.finally(() => logger.timeEnd(loggerName, "loadWorkingAudio"));
+    promise.finally(() => this.get('logger').timeEnd(options.debugName, "loadWorkingAudio"));
 
     return promise;
   },
@@ -357,10 +335,8 @@ export default Service.extend(Ember.Evented, {
    */
 
   selectWorkingFactories(url) {
-    // Select a random factory for testing
-
-    let factoryNames = Object.keys(this.get('_factories'));
-    let factories = factoryNames.map(name => this.get(`_factories.${name}`));
+    let factoryNames      = Object.keys(this.get('_factories'));
+    let factories         = factoryNames.map(name => this.get(`_factories.${name}`));
     let selectedFactories = factories.filter(f => f.canPlay(url));
 
     return selectedFactories;
@@ -416,5 +392,57 @@ export default Service.extend(Ember.Evented, {
     assert(`[audio-pledge] Could not load audio factory ${dasherizedFactoryName}`, (localFactory || availableFactory));
 
     return localFactory ? localFactory : availableFactory;
+  },
+
+  /**
+   * Given some urls, it prepares an array of factory and url pairs to try
+   *
+   * @method _prepareParamsForLoadWorkingAudio
+   * @param {Array} urlsToTry
+   * @private
+   * @return {Array} {factory, url}
+   */
+
+  _prepareParamsForLoadWorkingAudio(urlsToTry) {
+    let params = [];
+
+    urlsToTry.forEach(url => {
+      let factories = this.selectWorkingFactories(url);
+      if (!Ember.isEmpty(factories)) {
+        params.push({url: url, factory: factories[0]}); // we just want the first one
+      }
+    });
+
+    return params;
+  },
+
+  /**
+   * Given a sound, it will listen to the events and call success or failure callbacks
+   * This was split out for better clarity and for better test stubbing
+   *
+   * @method _waitForSuccessOrFailure
+   * @param {Sound} sound, param, successCallback, failureCallback, options
+   * @private
+   * @return {Void}
+   */
+
+  _waitForSuccessOrFailure(sound, param, returnSuccess, markAsFailure, options) {
+    let loggerName = options.debugName;
+    let logger = this.get('logger');
+
+    logger.log(loggerName, `LOADING: [${param.factory.toString()}] -> ${param.url}`);
+
+    sound.one('audio-load-error', (error) => {
+      param.error = error;
+      markAsFailure(param);
+
+      logger.log(loggerName, `ERROR: [${param.factory.toString()}] -> ${error} (${param.url})`);
+    });
+
+    sound.one('audio-ready',      () => {
+      returnSuccess(sound);
+
+      logger.log(loggerName, `SUCCESS: [${param.factory.toString()}] -> ${param.url}`);
+    });
   }
 });

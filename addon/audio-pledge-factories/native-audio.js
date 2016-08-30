@@ -2,9 +2,6 @@ import Ember from 'ember';
 import BaseSound from './base';
 
 let ClassMethods = Ember.Mixin.create({
-  setup() {
-  },
-
   canPlay(/* url */) {
     return true;
   },
