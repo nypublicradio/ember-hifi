@@ -13,8 +13,8 @@ test('it should return the even number in this even/odd test', function(assert) 
     else {
       markFailure();
     }
-  }).then(({result}) => {
-    assert.equal(6, result);
+  }).then(({success}) => {
+    assert.equal(6, success);
     done();
   });
 });
@@ -41,9 +41,9 @@ test('findFirst should not try the rest of the items if the first one resolves',
   PromiseTry.findFirst(params, function(nextParam, returnSuccess /*, markFailure */) {
     paramsTried.push(nextParam);
     returnSuccess(nextParam);
-  }).then(({result, failures}) => {
+  }).then(({success, failures}) => {
     assert.equal(paramsTried.length, 1, "should have tried only one parameter");
-    assert.equal(result, 1, "should have returned the first one");
+    assert.equal(success, 1, "should have returned the first one");
     assert.deepEqual(failures, [], "there should be no rejections");
     done();
   });

@@ -1,6 +1,4 @@
 import { moduleFor, test } from 'ember-qunit';
-import sinon from 'sinon';
-import Ember from 'ember';
 
 let baseSound;
 
@@ -13,20 +11,6 @@ moduleFor('audio-pledge@audio-pledge-factory:base', 'Unit | Factory | base', {
       }
     });
   }
-});
-
-test('position only gets updated regularly when isPlaying is true', function(assert) {
-  let done = assert.async();
-  let spy = sinon.stub(baseSound, 'currentPosition');
-
-  baseSound.set('pollInterval', 5); // for testing
-  assert.equal(spy.callCount, 0);
-  baseSound.set('isPlaying', true);
-
-  Ember.run.later(() => {
-    assert.equal(spy.callCount, 4, "should be called once every poll interval");
-    done();
-  }, 20);
 });
 
 test("isPlaying gets set when an 'audio-played' event is fired", function(assert) {

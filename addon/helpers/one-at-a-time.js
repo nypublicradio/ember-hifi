@@ -12,7 +12,6 @@ export default Ember.Object.extend(Ember.Evented, {
   register(sound) {
     let sounds = this.get("sounds");
     sound.on('audio-played', () => this.pauseAll(sound));
-
     sounds.pushObject(sound);
   },
 

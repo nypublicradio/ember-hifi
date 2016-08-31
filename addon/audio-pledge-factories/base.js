@@ -1,10 +1,7 @@
 import Ember from 'ember';
 
 const {
-  assert,
-  observer,
-  get,
-  set
+  assert
 } = Ember;
 
 let ClassMethods = Ember.Mixin.create({

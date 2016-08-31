@@ -4,17 +4,16 @@ import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 import PromiseTry from '../utils/promise-try';
-import Debug from '../utils/debug';
+
 const {
   Service,
   computed,
-  observer,
   getWithDefault,
   assert,
   get,
   set,
   A: emberArray,
-  String: { dasherize, camelize}
+  String: { dasherize }
 } = Ember;
 
 export default Service.extend(Ember.Evented, {
@@ -26,7 +25,6 @@ export default Service.extend(Ember.Evented, {
   // isFastForwardable: computed.readOnly('currentSound.canFastForward'),
   // isRewindable:      computed.readOnly('currentSound.canRewind'),
   //
-
   isLoading:      computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
@@ -38,17 +36,18 @@ export default Service.extend(Ember.Evented, {
   duration:       computed.readOnly('currentSound.duration'),
   isMuted:        computed.equal('volume', 0),
 
-  __updateAndPollPlayPosition: observer('isPlaying', 'isLoaded', function() {
-     if (get(this, 'isPlaying')) {
-       this.__setCurrentPosition();
-       Ember.run.later(() =>  this.__updateAndPollPlayPosition(), get(this, 'pollInterval'));
-     }
-  }),
+  pollInterval: 500,
+
+  pollCurrentSoundForPosition: function() {
+    this.__setCurrentPosition();
+    Ember.run.later(() =>  this.pollCurrentSoundForPosition(), get(this, 'pollInterval'));
+  },
 
   __setCurrentPosition() {
-    // currentPosition is defined on the subclass
     let sound = this.get('currentSound');
-    set(sound, 'position', sound.currentPosition());
+    if (sound) {
+      set(sound, 'position', sound.currentPosition());
+    }
   },
 
   defaultVolume: 50,
@@ -90,6 +89,9 @@ export default Service.extend(Ember.Evented, {
     this.activateFactories(factories);
 
     this.set('isReady', true);
+
+    this.pollCurrentSoundForPosition();
+
     this._super(...arguments);
   },
 

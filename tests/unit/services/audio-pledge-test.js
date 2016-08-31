@@ -1,8 +1,7 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
-import wait from 'ember-test-helpers/wait';
 import sinon from 'sinon';
-const { get, set, K } = Ember;
+const { get } = Ember;
 
 let sandbox, audioPledgeFactories, options;
 
@@ -51,7 +50,12 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
 });
 
 const DummySound = Ember.Object.extend(Ember.Evented, {
-  play() {}
+  play() {},
+  currentPosition() {},
+  _setVolume(v) {
+    console.log(`setting volume to ${v}`);
+    this.set('volume', v);
+  }
 });
 
 function chooseActiveFactories(...factoriesToActivate) {
@@ -157,10 +161,7 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   service.load([badUrl1, badUrl2, goodUrl, unusedUrl]).then(({sound, failures}) => {
     expectedUrl = sound.get('url');
     expectedFailures = failures;
-    done();
-  });
-
-  return wait().then(() => {
+  }).finally(() => {
     assert.equal(localCreateSpy.callCount, 3, "create should only be called three times");
     assert.equal(expectedUrl, goodUrl, "sound returned should have the successful url");
     assert.equal(Ember.A(expectedFailures).mapBy('url').length, 2, "should only have two failures");
@@ -168,6 +169,7 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
     assert.equal(expectedFailures[1].error, error2, `second url should have error: ${error2}`);
     assert.equal(expectedFailures[0].url, badUrl1, `first bad url should be: ${badUrl1}`);
     assert.equal(expectedFailures[1].url, badUrl2, `second bad url should be: ${badUrl2}`);
+    done();
   });
 });
 
@@ -194,9 +196,8 @@ test('When a sound gets created it gets registered with OneAtATime', function(as
 
 test('The second time a url is requested it will be pulled from the cache', function(assert) {
   let done = assert.async();
-  assert.expect(6);
+  assert.expect(5);
   const service = this.subject({ options: chooseActiveFactories('LocalDummyFactory') });
-
   let LocalDummyFactory =  get(service, `_factories.LocalDummyFactory`);
 
   let localFactorySpy = sinon.stub(LocalDummyFactory, 'create', function() {
@@ -208,6 +209,7 @@ test('The second time a url is requested it will be pulled from the cache', func
   let url = "/test/test.mp3";
 
   let soundCache = service.get('soundCache');
+  service.get('soundCache').reset(); // make sure it's at zero
 
   let findSpy = sinon.spy(soundCache, 'find');
   let cacheSpy = sinon.spy(soundCache, 'cache');
@@ -219,11 +221,76 @@ test('The second time a url is requested it will be pulled from the cache', func
 
     service.load(url).then(({sound}) => {
       assert.equal(sound.get('identification'), 'yo', "should be the same sound in sound cache");
-
       assert.equal(localFactorySpy.callCount, 1, "factory should not have been called again");
       assert.equal(findSpy.callCount, 2, "cache should have been checked");
-      assert.equal(localFactorySpy.callCount, 1, "factory should not have been called again");
       done();
     });
   });
+});
+
+test('position gets polled regularly on the currentSound but not on the others', function(assert) {
+  this.clock = sinon.useFakeTimers();
+
+  const service = this.subject({ options });
+
+  const INTERVAL = 500;
+
+  let sound1 = new DummySound({});
+  let sound2 = new DummySound({});
+
+  let spy1 = sinon.spy(sound1, 'currentPosition');
+  let spy2 = sinon.spy(sound2, 'currentPosition');
+
+  assert.equal(spy1.callCount, 0, "sound 1 should not have been polled yet");
+  assert.equal(spy2.callCount, 0, "sound 1 should not have been polled yet");
+  service.set('pollInterval', INTERVAL);
+  service.setCurrentSound(sound1);
+
+  this.clock.tick(INTERVAL * 4);
+
+  assert.equal(spy1.callCount, 4, "sound 1 should have been polled 4 times");
+  assert.equal(spy2.callCount, 0, "sound 2 should not have been polled yet");
+  service.setCurrentSound(sound2);
+
+  this.clock.tick(INTERVAL * 2);
+
+  assert.equal(spy1.callCount, 4, "sound 1 should not have been polled again");
+  assert.equal(spy2.callCount, 2, "sound 2 should have been polled twice");
+
+  this.clock.restore();
+});
+
+test('volume changes are set on the current sound', function(assert) {
+  const service = this.subject({ options });
+
+  let sound1 = new DummySound({});
+  let sound2 = new DummySound({});
+
+  let spy1 = sinon.spy(sound1, '_setVolume');
+  let spy2 = sinon.spy(sound2, '_setVolume');
+
+  let defaultVolume = service.get('defaultVolume');
+
+  assert.equal(service.get('volume'), service.get('defaultVolume'), "service should have default volume");
+
+  assert.equal(spy1.callCount, 0, "volume should not be set");
+
+  service.setCurrentSound(sound1);
+
+  assert.ok(spy1.withArgs(defaultVolume).calledOnce, "volume on sound 1 should be set to default volume");
+
+  service.setCurrentSound(sound2);
+
+  assert.ok(spy2.withArgs(defaultVolume).calledOnce, "volume on sound 2 should be set to default volume after current sound change");
+
+  service.set('volume', 55);
+
+  assert.ok(spy2.withArgs(55).calledOnce, "volume on sound 2 should be set to new system volume");
+
+  service.setCurrentSound(sound1);
+
+  assert.ok(spy1.withArgs(55).calledOnce, "volume on sound 1 should be set to new system volume after current sound change");
+
+  sound1._setVolume(0);
+  assert.equal(service.get('volume'), 55, "setting sound volume individually should have no effect on system volume. Relationship is one way.");
 });
