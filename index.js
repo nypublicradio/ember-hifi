@@ -10,6 +10,12 @@ module.exports = {
     app.import('vendor/howler.js');
 
     app.import({
+      development: app.bowerDirectory + '/hls.js/dist/hls.js',
+      production: app.bowerDirectory + '/hls.js/dist/hls.min.js'
+    });
+    app.import('vendor/hls.js');
+
+    app.import({
       development: app.bowerDirectory + '/soundmanager/swf/soundmanager2_debug.swf',
       production: app.bowerDirectory + '/soundmanager/swf/soundmanager2.swf'
     });

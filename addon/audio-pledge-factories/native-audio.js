@@ -19,6 +19,8 @@ let Sound = BaseSound.extend({
     let audio = new Audio(this.get('url'));
 
     Ember.$(audio).on('canplay',         () => this.trigger('audio-ready', sound));
+    // Ember.$(audio).on('canplaythrough',  () => this.trigger('audio-ready', sound));
+
     Ember.$(audio).on('playing',         () => this.trigger('audio-played', sound));
     Ember.$(audio).on('pause',           () => this.trigger('audio-paused', sound));
     Ember.$(audio).on('error',           (e) => {

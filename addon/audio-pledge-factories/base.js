@@ -57,6 +57,10 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     }, this.get('timeout'));
   },
 
+  debug(message) {
+    this.get('logger').log(this.get('url'), message);
+  },
+
   /* To be defined on the subclass */
 
   _setVolume() {

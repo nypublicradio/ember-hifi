@@ -10,6 +10,10 @@ Resolver.reopen({
 export function initialize(application) {
   const { audioPledgeFactories = [
     {
+      name: 'HLS',
+      config: {}
+    },
+    {
       name: 'Howler',
       config: {}
     },
