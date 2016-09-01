@@ -151,7 +151,7 @@ export default Service.extend(Ember.Evented, {
   loadWorkingAudio(urlsToTry, options) {
     this.get('logger').timeStart(options.debugName, "loadWorkingAudio");
 
-    let params  = this._prepareParamsForLoadWorkingAudio(urlsToTry);
+    let params  = this._prepareParamsForLoadWorkingAudio(urlsToTry, options);
 
     let promise = PromiseTry.findFirst(params, (param, returnSuccess, markAsFailure) => {
       let Factory = param.factory;
@@ -329,17 +329,35 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
+   * Selects a loaded factory by name
+   *
+   * @method selectFactoryByName
+   * @param {Array} name
+   * @return [Factory] by name
+   */
+
+  selectFactoryByName(name) {
+    return this.get(`_factories.${name}`);
+  },
+
+  /**
    * Selects a compatiable factory based on the URL
    *
-   * @method selectFactory
+   * @method selectWorkingFactories
    * @param {Array} urls
-   * @return [Factory] activated factories
+   * @return [Factory] activated factories that claim they can play the URL
    */
 
   selectWorkingFactories(url) {
     let factoryNames      = Object.keys(this.get('_factories'));
     let factories         = factoryNames.map(name => this.get(`_factories.${name}`));
-    let selectedFactories = factories.filter(f => f.canPlay(url));
+    let selectedFactories = factories.filter(f => {
+      let result = f.canPlay(url);
+
+      this.get('logger').log('audio-pledge', `[${f.toString()}] ${result ? 'can play this' : 'can not play this'}`);
+
+      return result;
+    });
 
     return selectedFactories;
   },
@@ -405,11 +423,18 @@ export default Service.extend(Ember.Evented, {
    * @return {Array} {factory, url}
    */
 
-  _prepareParamsForLoadWorkingAudio(urlsToTry) {
+  _prepareParamsForLoadWorkingAudio(urlsToTry, options) {
     let params = [];
 
     urlsToTry.forEach(url => {
-      let factories = this.selectWorkingFactories(url);
+      let factories = [];
+      if (options.use) {
+        factories = Ember.makeArray(this.selectFactoryByName(options.use));
+      }
+      else {
+        factories = this.selectWorkingFactories(url);
+      }
+
       if (!Ember.isEmpty(factories)) {
         params.push({url: url, factory: factories[0]}); // we just want the first one
       }

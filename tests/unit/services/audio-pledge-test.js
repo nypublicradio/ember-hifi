@@ -294,3 +294,22 @@ test('volume changes are set on the current sound', function(assert) {
   sound1._setVolume(0);
   assert.equal(service.get('volume'), 55, "setting sound volume individually should have no effect on system volume. Relationship is one way.");
 });
+
+test("consumer can specify the factory to use with a particular url", function(assert) {
+  let done = assert.async();
+  const service = this.subject({ options: chooseActiveFactories('LocalDummyFactory', 'Howler', 'NativeAudio') });
+
+  let NativeAudioFactory =  get(service, `_factories.NativeAudio`);
+  let nativeAudioSpy = sinon.stub(NativeAudioFactory, 'create', function() {
+    let sound =  DummySound.create(...arguments);
+    Ember.run.next(() => sound.trigger('audio-ready'));
+    return sound;
+  });
+
+  service.load("/first/test.mp3", {use: 'NativeAudio'}).then(() => {
+    service.play("/second/test.mp3", {use: 'NativeAudio'}).then(() => {
+      assert.equal(nativeAudioSpy.callCount, 2, "Native factory should have been called");
+      done();
+    });
+  });
+});
