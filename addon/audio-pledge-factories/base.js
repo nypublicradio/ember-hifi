@@ -24,6 +24,8 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   duration: 0,
 
   init: function() {
+    this.set('isLoading', true);
+
     this.on('audio-played',    () => {
       this.set('isLoading', false);
       this.set('isPlaying', true);

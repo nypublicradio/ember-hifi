@@ -19,8 +19,6 @@ let Sound = BaseSound.extend({
     let urls = Ember.makeArray(this.get('url'));
     let sound = this;
 
-    this.set('isLoading', true);
-
     new Howl({
       src:      urls,
       volume:   1,
