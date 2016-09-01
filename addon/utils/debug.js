@@ -13,7 +13,7 @@ export default class Debug {
   log(content) {
     const colorString = `color: ${this.color}; font-weight: bold;`;
     const name = this.name.slice(0, this.padLength);
-    const titleContent = Array(this.padLength + 3 - this.name.length).join(' ');
+    const titleContent = Array(this.padLength + 3 - name.length).join(' ');
     const title = `%c${name}${titleContent}|`;
 
     console.log(title, colorString, content); // eslint-disable-line no-console
