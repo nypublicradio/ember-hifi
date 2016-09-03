@@ -33,24 +33,26 @@ let Sound = BaseSound.extend({
   },
 
   _setupHLSEvents(hls) {
-    hls.on(window.Hls.Events.MEDIA_ATTACHED, () => {
+    hls.on(HLS.Events.MEDIA_ATTACHED, () => {
       this.debug('media attached');
       hls.loadSource(this.get('url'));
 
-      hls.on(window.Hls.Events.MANIFEST_PARSED, (e, data) => {
+      hls.on(HLS.Events.MANIFEST_PARSED, (e, data) => {
         this.debug(`manifest parsed and loaded, found ${data.levels.length} quality level(s)`);
         this.set('manifest', data);
       });
 
-      hls.on(window.Hls.Events.LEVEL_LOADED, (e, data) => {
+      hls.on(HLS.Events.LEVEL_LOADED, (e, data) => {
         this.debug(`level ${data.level} loaded`);
         this._checkIfAudioIsReady();
       });
-      hls.on(window.Hls.Events.AUDIO_TRACK_LOADED, () => {
+
+      hls.on(HLS.Events.AUDIO_TRACK_LOADED, () => {
         this.debug('audio track loaded');
         this._checkIfAudioIsReady();
       });
-      hls.on(window.Hls.Events.ERROR, (e, data) => this._onHLSError(e, data));
+
+      hls.on(HLS.Events.ERROR, (e, data) => this._onHLSError(e, data));
     });
   },
 
@@ -113,13 +115,14 @@ let Sound = BaseSound.extend({
   },
 
   _onHLSError(error, data) {
+    this.debug("HLS error")
     if (data.fatal) {
       switch(data.type) {
-        case window.Hls.ErrorTypes.NETWORK_ERROR:
+        case HLS.ErrorTypes.NETWORK_ERROR:
           this.debug(data);
           this._giveUpAndDie(`${data.details}`);
           break;
-        case window.Hls.ErrorTypes.MEDIA_ERROR:
+        case HLS.ErrorTypes.MEDIA_ERROR:
           this._tryToRecoverFromMediaError(`${data.details}`);
           break;
         default:
@@ -145,7 +148,7 @@ let Sound = BaseSound.extend({
         break;
       case 2:
         this.debug(`We tried our best and we failed: ${error}`);
-        this.giveUpAndDie(error);
+        this._giveUpAndDie(error);
         break;
     }
 

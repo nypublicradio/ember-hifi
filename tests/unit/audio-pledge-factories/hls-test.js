@@ -1,15 +1,30 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
+import { skip } from 'qunit';
 import sinon from 'sinon';
 import HLSFactory from 'audio-pledge/audio-pledge-factories/hls';
+import { setupHLSSpies, throwMediaError } from '../../helpers/hls-helpers';
+
 
 let sandbox;
+const goodUrl = "http://example.org/good.m3u8";
+const badUrl  = "/bad.m3u8";
 
-moduleFor('audio-pledge@audio-pledge-factory:hls', 'Unit | Factory | base', {
+moduleFor('audio-pledge@audio-pledge-factory:hls', 'Unit | Factory | HLS', {
   needs:['service:debug-logger',
          'audio-pledge@audio-pledge-factory:base'],
   beforeEach() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.sandbox.create({
+      useFakeServer: sinon.fakeServerWithClock
+    });
+
+    sandbox.server.respondWith(goodUrl, function (xhr) {
+      xhr.respond(200, {}, []);
+    });
+
+    sandbox.server.respondWith(badUrl, function (xhr) {
+      xhr.respond(404, {}, []);
+    });
   },
   afterEach() {
     sandbox.restore();
@@ -41,13 +56,69 @@ test("HLS factory should say it can play files with m3u8 extension", function(as
 });
 
 test("On first media error stream will attempt a retry", function(assert) {
-  
+  let sound = this.subject({url: goodUrl});
+
+  let {
+    destroySpy, switchSpy, recoverSpy
+  } = setupHLSSpies(sound.get('hls'));
+
+  throwMediaError(sound);
+
+  assert.equal(recoverSpy.callCount, 1, "should try media recovery");
+  assert.equal(switchSpy.callCount, 0, "should not try codec switching yet");
+  assert.equal(destroySpy.callCount, 0, "should not destroy");
 });
 
-test("On second media error stream will switch codecs", function(assert) {
+test("On second media error stream will try switching codecs", function(assert) {
+  let sound           = this.subject({url: goodUrl});
 
+  let {
+    destroySpy, switchSpy, recoverSpy
+  } = setupHLSSpies(sound.get('hls'));
+
+  throwMediaError(sound);
+  throwMediaError(sound);
+
+  assert.equal(recoverSpy.callCount, 2, "should try media recovery");
+  assert.equal(switchSpy.callCount, 1, "should try switching yet");
+  assert.equal(destroySpy.callCount, 0, "should not destroy");
 });
 
 test("On third media error we will give up", function(assert) {
+  let sound           = this.subject({url: goodUrl});
+  let loadErrorFired = false;
 
+  sound.on('audio-load-error', function() {
+    loadErrorFired = true;
+  });
+
+  let {
+    destroySpy, switchSpy, recoverSpy
+  } = setupHLSSpies(sound.get('hls'));
+
+  throwMediaError(sound);
+  throwMediaError(sound);
+  throwMediaError(sound);
+
+  assert.equal(recoverSpy.callCount, 2, "should try media recovery");
+  assert.equal(switchSpy.callCount, 1, "should try switching yet");
+  assert.equal(destroySpy.callCount, 1, "should destroy");
+  assert.ok(loadErrorFired, "should have triggered audio load error");
+});
+
+// TODO make this work
+skip("If we 404, we give up", function(assert) {
+  let done = assert.async();
+  let sound           = this.subject({url: goodUrl});
+  let loadErrorFired = false;
+
+  sound.on('audio-load-error', function() {
+    loadErrorFired = true;
+    done();
+  });
+
+  let { destroySpy } = setupHLSSpies(sound.get('hls'));
+
+  assert.equal(destroySpy.callCount, 1, "should destroy");
+  assert.ok(loadErrorFired, "should have triggered audio load error");
 });
