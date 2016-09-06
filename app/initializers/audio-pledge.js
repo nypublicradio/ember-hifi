@@ -9,18 +9,10 @@ Resolver.reopen({
 
 export function initialize(application) {
   const { audioPledgeFactories = [
-    {
-      name: 'HLS',
-      config: {}
-    },
-    {
-      name: 'Howler',
-      config: {}
-    },
-    {
-      name: 'SoundManager',
-      config: {}
-    }
+    {name: 'NativeAudio', config: {}},
+    {name: 'HLS', config: {}},
+    {name: 'Howler', config: {}},
+    {name: 'SoundManager', config: {}}
   ] } = config;
   const { environment = 'development' } = config;
   const options = { audioPledgeFactories, environment };

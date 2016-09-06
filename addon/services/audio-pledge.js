@@ -186,7 +186,7 @@ export default Service.extend(Ember.Evented, {
   play(urls, options) {
     let load = this.load(urls, options);
     load.then(({sound}) => {
-      this.get('logger').log("Audio pledge", "Finished load, tell sound to play");
+      this.get('logger').log("audio-pledge", "Finished load, tell sound to play");
       sound.play();
     });
 
@@ -357,11 +357,9 @@ export default Service.extend(Ember.Evented, {
   selectWorkingFactories(url) {
     let factoryNames      = Object.keys(this.get('_factories'));
     let factories         = factoryNames.map(name => this.get(`_factories.${name}`));
+
     let selectedFactories = factories.filter(f => {
       let result = f.canPlay(url);
-
-      this.get('logger').log('audio-pledge', `[${f.toString()}] ${result ? 'can play this' : 'can not play this'}`);
-
       return result;
     });
 
@@ -431,19 +429,28 @@ export default Service.extend(Ember.Evented, {
 
   _prepareParamsForLoadWorkingAudio(urlsToTry, options) {
     let params = [];
-
+    let logger = this.get('logger');
     urlsToTry.forEach(url => {
       let factories = [];
       if (options.use) {
+        logger.log('audio-pledge', `${options.use} factory requested`);
         factories = Ember.makeArray(this.selectFactoryByName(options.use));
       }
       else {
         factories = this.selectWorkingFactories(url);
+
+        let factoryNames = Ember.A(factories).map(f => f.toString()).join(", ");
+        logger.log('audio-pledge', `Compatible factories for ${url}: ${factoryNames}`);
       }
 
-      if (!Ember.isEmpty(factories)) {
-        params.push({url: url, factory: factories[0]}); // we just want the first one
-      }
+
+      factories.forEach(f => {
+        params.push({url: url, factory: f}); // we just want the first one
+      });
+
+      // if (!Ember.isEmpty(factories)) {
+        // params.push({url: url, factory: factories[0]}); // we just want the first one
+      // }
     });
 
     return params;
