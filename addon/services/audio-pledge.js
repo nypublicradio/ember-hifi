@@ -443,14 +443,11 @@ export default Service.extend(Ember.Evented, {
         logger.log('audio-pledge', `Compatible factories for ${url}: ${factoryNames}`);
       }
 
-
-      factories.forEach(f => {
-        params.push({url: url, factory: f}); // we just want the first one
-      });
-
-      // if (!Ember.isEmpty(factories)) {
-        // params.push({url: url, factory: factories[0]}); // we just want the first one
-      // }
+      if (!Ember.isEmpty(factories)) {
+        factories.forEach(f => {
+          params.push({url: url, factory: f}); 
+        });
+      }
     });
 
     return params;

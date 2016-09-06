@@ -54,7 +54,9 @@ let Sound = BaseSound.extend({
       this.trigger('audio-load-error', error);
     });
 
-    Ember.$(audio).on('durationchange',  () => this.set('duration', this.duration));
+    Ember.$(audio).on('durationchange',  () => {
+      this.set('duration', (this.get('audio').duration * 1000));
+    });
 
     audio.load();
 
@@ -66,11 +68,11 @@ let Sound = BaseSound.extend({
   },
 
   currentPosition() {
-    return this.get('audio').currentTime;
+    return this.get('audio').currentTime * 1000;
   },
 
   setPosition(position) {
-    this.get('audio').seek(position / 1000);
+    this.get('audio').currentTime = (position / 1000);
   },
 
   _setVolume(volume) {
