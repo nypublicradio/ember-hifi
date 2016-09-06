@@ -25,10 +25,16 @@ let Sound = BaseSound.extend({
 
     this.set('video', video);
     this.set('hls', hls);
-    hls.attachMedia(video);
-
-    this._setupHLSEvents(hls);
-    this._setupPlayerEvents(video);
+    try {
+      hls.attachMedia(video);
+      this._setupHLSEvents(hls);
+      this._setupPlayerEvents(video);
+    }
+    catch(e) {
+      Ember.run.next(() => {
+        this.trigger('audio-load-error', "could not attach media");
+      });
+    }
   },
 
   _setupHLSEvents(hls) {
@@ -114,7 +120,6 @@ let Sound = BaseSound.extend({
   },
 
   _onHLSError(error, data) {
-    this.debug("HLS error")
     if (data.fatal) {
       switch(data.type) {
         case HLS.ErrorTypes.NETWORK_ERROR:

@@ -50,6 +50,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('isLoading', false);
       this.set('isPlaying', true);
     });
+
     this.on('audio-paused',    () => this.set('isPlaying', false));
     this.on('audio-stopped',   () => this.set('isPlaying', false));
 
