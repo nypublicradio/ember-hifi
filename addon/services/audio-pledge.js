@@ -109,6 +109,10 @@ export default Service.extend(Ember.Evented, {
       debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)
     }, options);
 
+    if (this.get('isPlaying')) {
+      this.pause();
+    }
+
     let promise = new RSVP.Promise((resolve, reject) => {
       // This needs to be an array containing no fluff
       var urlsToTry = Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
@@ -181,7 +185,10 @@ export default Service.extend(Ember.Evented, {
 
   play(urls, options) {
     let load = this.load(urls, options);
-    load.then(({sound}) => sound.play());
+    load.then(({sound}) => {
+      this.get('logger').log("Audio pledge", "Finished load, tell sound to play");
+      sound.play();
+    });
 
     // We want to keep this chainable elsewhere
     return load;
@@ -324,7 +331,6 @@ export default Service.extend(Ember.Evented, {
    */
 
   relayEvent(eventName, sound) {
-    // console.log(`${eventName} -> ${sound.get('url')}`);
     this.trigger(eventName, sound);
   },
 

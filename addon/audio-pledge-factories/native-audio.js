@@ -34,27 +34,30 @@ let Sound = BaseSound.extend({
     Ember.$(audio).on('error',           (e) => {
       let error = "";
       switch (e.target.error.code) {
-         case e.target.error.MEDIA_ERR_ABORTED:
-           error = 'You aborted the audio playback.';
-           break;
-         case e.target.error.MEDIA_ERR_NETWORK:
-           error = 'A network error caused the audio download to fail.';
-           break;
-         case e.target.error.MEDIA_ERR_DECODE:
-           error = 'Decoder error.';
-           break;
-         case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-           error = 'Audio source format is not supported.';
-           break;
-         default:
-           error = 'unknown error.';
-           break;
-       }
+        case e.target.error.MEDIA_ERR_ABORTED:
+          error = 'You aborted the audio playback.';
+          break;
+        case e.target.error.MEDIA_ERR_NETWORK:
+          error = 'A network error caused the audio download to fail.';
+          break;
+        case e.target.error.MEDIA_ERR_DECODE:
+          error = 'Decoder error.';
+          break;
+        case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          error = 'Audio source format is not supported.';
+          break;
+        default:
+          error = 'unknown error.';
+          break;
+      }
 
       this.trigger('audio-load-error', error);
     });
 
     Ember.$(audio).on('durationchange',  () => this.set('duration', this.duration));
+
+    audio.load();
+
     this.set('audio', audio);
   },
 
