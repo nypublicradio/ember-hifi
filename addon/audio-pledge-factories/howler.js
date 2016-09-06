@@ -3,9 +3,7 @@ import BaseSound from './base';
 import { Howl } from 'howler';
 
 let ClassMethods = Ember.Mixin.create({
-  canPlay(/* url */) {
-    return true;
-  },
+  extensionBlackList: ['m3u8'],
 
   toString() {
     return 'Howler';

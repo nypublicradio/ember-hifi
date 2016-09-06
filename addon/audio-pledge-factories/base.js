@@ -9,8 +9,28 @@ let ClassMethods = Ember.Mixin.create({
     this.config = config;
   },
 
-  canPlay() {
+  canPlay(url) {
+    let urlExtension = url.split('.').pop().split('?').shift().split('#').shift();
+    return this.canUseFactory(url) && this.canPlayExtension(urlExtension);
+  },
+
+  canUseFactory() {
     return true;
+  },
+
+  canPlayExtension(extension) {
+    let whiteList = this.extensionWhiteList;
+    let blackList = this.extensionBlackList;
+
+    if (whiteList) {
+      return Ember.A(whiteList).contains(extension);
+    }
+    else if (blackList){
+      return !Ember.A(blackList).contains(extension);
+    }
+    else {
+      return true; // assume true
+    }
   }
 });
 

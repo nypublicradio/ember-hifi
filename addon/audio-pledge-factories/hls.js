@@ -3,11 +3,10 @@ import BaseSound from './base';
 import HLS from 'hls';
 
 let ClassMethods = Ember.Mixin.create({
-  canPlay(url) {
-    let supportedExtensions = Ember.A(['m3u8']);
-    let urlExtension = url.split('.').pop().split('?').shift().split('#').shift();
+  extensionWhiteList: ['m3u8'],
 
-    return HLS.isSupported() && supportedExtensions.contains(urlExtension);
+  canUseFactory(/* audioUrl */) {
+    return HLS.isSupported();
   },
 
   toString() {

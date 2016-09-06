@@ -2,8 +2,16 @@ import Ember from 'ember';
 import BaseSound from './base';
 
 let ClassMethods = Ember.Mixin.create({
-  canPlay(/* url */) {
-    return true;
+  canPlayExtension(extension) {
+    let audio = new Audio();
+
+    if (Ember.A(['m3u8', 'm3u']).contains(extension)) {
+      return audio.canPlayType(`audio/mpeg`) !== "";
+    }
+    else {
+      // it returns "probably" and "maybe". Both are worth trying. Empty is bad.
+      return (audio.canPlayType(`audio/${extension}`) !== "");
+    }
   },
 
   toString() {
