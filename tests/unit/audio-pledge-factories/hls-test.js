@@ -1,14 +1,14 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
-import { skip } from 'qunit';
 import sinon from 'sinon';
+import { skip } from 'qunit';
 import HLSFactory from 'audio-pledge/audio-pledge-factories/hls';
 import { setupHLSSpies, throwMediaError } from '../../helpers/hls-helpers';
 
 
 let sandbox;
 const goodUrl = "http://example.org/good.m3u8";
-const badUrl  = "/bad.m3u8";
+const badUrl  = "http://example.org/bad.m3u8";
 
 moduleFor('audio-pledge@audio-pledge-factory:hls', 'Unit | Factory | HLS', {
   needs:['service:debug-logger',
@@ -106,19 +106,16 @@ test("On third media error we will give up", function(assert) {
   assert.ok(loadErrorFired, "should have triggered audio load error");
 });
 
-// TODO make this work
 skip("If we 404, we give up", function(assert) {
-  let done = assert.async();
-  let sound           = this.subject({url: goodUrl});
-  let loadErrorFired = false;
+  assert.expect(3);
+  let sound           = this.subject({url: badUrl});
+  let { destroySpy }  = setupHLSSpies(sound.get('hls'));
+  // let giveUpSpy = sinon.spy(sound, '_giveUpAndDie');
 
   sound.on('audio-load-error', function() {
-    loadErrorFired = true;
-    done();
+    assert.ok(true, "should have triggered audio load error");
   });
 
-  let { destroySpy } = setupHLSSpies(sound.get('hls'));
-
+  assert.ok(sound);
   assert.equal(destroySpy.callCount, 1, "should destroy");
-  assert.ok(loadErrorFired, "should have triggered audio load error");
 });

@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
-import { skip } from 'qunit';
 import sinon from 'sinon';
 import HowlerFactory from 'audio-pledge/audio-pledge-factories/howler';
 // import { Howl } from 'howler';
@@ -55,17 +54,13 @@ test("Howler should say it cannot play hls streams", function(assert) {
   });
 });
 
-
-// TODO make this work
-skip("If we 404, we give up", function(assert) {
+test("If we 404, we give up", function(assert) {
+  assert.expect(1);
   let done = assert.async();
   let sound           = this.subject({url: badUrl});
-  let loadErrorFired = false;
 
   sound.on('audio-load-error', function() {
-    loadErrorFired = true;
+    assert.ok(true, "should have triggered audio load error");
     done();
   });
-
-  assert.ok(loadErrorFired, "should have triggered audio load error");
 });
