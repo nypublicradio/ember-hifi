@@ -20,11 +20,6 @@ export default Service.extend(Ember.Evented, {
   currentSound:   null,
   isPlaying:      computed.readOnly('currentSound.isPlaying'),
   logger:         Ember.inject.service('debug-logger'),
-  // TODO: add the following
-  // isStream:
-  // isFastForwardable: computed.readOnly('currentSound.canFastForward'),
-  // isRewindable:      computed.readOnly('currentSound.canRewind'),
-  //
   isLoading:      computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
@@ -32,9 +27,13 @@ export default Service.extend(Ember.Evented, {
     set(k, v) { return v; }
   }),
 
-  position:       computed.readOnly('currentSound.position'),
-  duration:       computed.readOnly('currentSound.duration'),
-  isMuted:        computed.equal('volume', 0),
+  isStream:          computed.readOnly('currentSound.isStream'),
+  isFastForwardable: computed.readOnly('currentSound.canFastForward'),
+  isRewindable:      computed.readOnly('currentSound.canRewind'),
+  isMuted:           computed.equal('volume', 0),
+
+  position:          computed.readOnly('currentSound.position'),
+  duration:          computed.readOnly('currentSound.duration'),
 
   pollInterval: 500,
 
@@ -114,8 +113,30 @@ export default Service.extend(Ember.Evented, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  load(urls, options) {
-    // If a debugName isn't provided, make up a unique string for easier console spotting
+  loadUrls(urlsOrPromise) {
+    let logger = this.get('logger');
+    let prepare = (urls) => {
+      return Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
+    };
+
+    return new RSVP.Promise(resolve => {
+      if (urlsOrPromise.then) { // If this is already a promise, return it
+        logger.log('audio-pledge', "#load passed URL promise");
+        return urlsOrPromise.then(urls => {
+          urls = prepare(urls);
+          logger.log('audio-pledge', `promise resolved yielding urls: ${urls.join(', ')}`);
+          resolve(urls);
+        });
+      }
+      else {
+        let urls = prepare(urlsOrPromise);
+        logger.log('audio-pledge', `passed urls: ${urls.join(', ')}`);
+        resolve(urls);
+      }
+    });
+  },
+
+  load(urlsOrPromise, options) {
     options = Ember.merge({
       debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)
     }, options);
@@ -125,24 +146,25 @@ export default Service.extend(Ember.Evented, {
     }
 
     let promise = new RSVP.Promise((resolve, reject) => {
-      // This needs to be an array containing no fluff
-      var urlsToTry = Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
-      if (urlsToTry.length === 0) {
-        reject({error: "Urls must be provided"});
-      }
+      return this.loadUrls(urlsOrPromise).then(urlsToTry => {
+        if (urlsToTry.length === 0) {
+          reject({error: "Urls must be provided"});
+        }
 
-      let sound = this.get('soundCache').find(urlsToTry);
-      if (sound) {
-        resolve({sound});
-      }
-      else {
-        this.set('isLoading', true);
-        let search = this.loadWorkingAudio(urlsToTry, options);
-        search.then(results  => resolve({sound: results.success, failures: results.failures}));
-        search.catch(results => reject({failures: results.failures}));
+        let sound = this.get('soundCache').find(urlsToTry);
+        if (sound) {
+          resolve({sound});
+        }
+        else {
+          this.set('isLoading', true);
+          let search = this.loadWorkingAudio(urlsToTry, options);
+          
+          search.then(results  => resolve({sound: results.success, failures: results.failures}));
+          search.catch(results => reject({failures: results.failures}));
 
-        return search;
-      }
+          return search;
+        }
+      });
     });
 
     promise.then(({sound}) => this.get('soundCache').cache(sound));
@@ -194,8 +216,8 @@ export default Service.extend(Ember.Evented, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  play(urls, options) {
-    let load = this.load(urls, options);
+  play(urlsOrPromise, options) {
+    let load = this.load(urlsOrPromise, options);
     load.then(({sound}) => {
       this.get('logger').log("audio-pledge", "Finished load, tell sound to play");
       sound.play();

@@ -171,6 +171,26 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   });
 });
 
+test('#load can take a promise that resolves urls', function(assert) {
+  const service      = this.subject({ options: chooseActiveFactories('LocalDummyFactory') });
+  let done           = assert.async();
+
+  let localCreateSpy = stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
+  let goodUrl        = "http://example.org/good.mp3";
+  let urlPromise     = new Ember.RSVP.Promise(resolve => {
+    Ember.run.later(() => resolve([goodUrl]), 800);
+  });
+  let expectedUrl;
+
+  service.load(urlPromise).then(({sound}) => {
+    expectedUrl = sound.get('url');
+  }).finally(() => {
+    assert.equal(localCreateSpy.callCount, 1, "create should only be called once");
+    assert.equal(expectedUrl, goodUrl, "sound returned should have the successful url");
+    done();
+  });
+});
+
 test('When a sound gets created it gets registered with OneAtATime', function(assert) {
   let done = assert.async();
   assert.expect(1);
