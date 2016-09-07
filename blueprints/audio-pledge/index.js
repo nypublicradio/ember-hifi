@@ -12,8 +12,6 @@ module.exports = {
   afterInstall: function(options) {
     return this.addBowerPackagesToProject([
       {name:"hls.js", target: "^0.6.1"},
-      {name:"soundmanager", target: "V2.97a.20140901"},
-      {name:"ember-cli-soundmanager-shim", target: "^0.0.1"},
       {name: "howler.js", target: "^2.0.0"}
     ]);
   }

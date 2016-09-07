@@ -11,8 +11,7 @@ export function initialize(application) {
   const { audioPledgeFactories = [
     {name: 'NativeAudio', config: {}},
     {name: 'HLS', config: {}},
-    {name: 'Howler', config: {}},
-    {name: 'SoundManager', config: {}}
+    {name: 'Howler', config: {}}
   ] } = config;
   const { environment = 'development' } = config;
   const options = { audioPledgeFactories, environment };
