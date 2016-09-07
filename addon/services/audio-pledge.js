@@ -91,8 +91,19 @@ export default Service.extend(Ember.Evented, {
     this.set('isReady', true);
 
     this.pollCurrentSoundForPosition();
-
     this._super(...arguments);
+  },
+
+  /**
+   * Returns the list of activated and available factories
+   *
+   * @method availableFactories
+   * @param {Void}
+   * @return {Array}
+   */
+
+  availableFactories() {
+    return Object.keys(this.get('_factories'));
   },
 
   /**
@@ -427,6 +438,28 @@ export default Service.extend(Ember.Evented, {
    * @return {Array} {factory, url}
    */
 
+  /*  TODO: implement two different strategies
+
+   _prepareParamsForLoadWorkingAudioForMobile
+    - for [url, url2, url3]
+    - try all urls that work on NativeAudio on NativeAudio
+    - try the rest
+
+    - NativeAudio - url1
+    - NativeAudio - url2
+    - NativeAudio - url3
+    - HLS - url1
+    - HLS - url2
+
+   _prepareParamsForLoadWorkingAudioForDesktop
+   - for [url, url2, url3]
+   - NativeAudio - url1
+   - HLS - url1
+   - NativeAudio - url2
+   - HLS - url2
+   - NativeAudio - url3
+
+   */
   _prepareParamsForLoadWorkingAudio(urlsToTry, options) {
     let params = [];
     let logger = this.get('logger');

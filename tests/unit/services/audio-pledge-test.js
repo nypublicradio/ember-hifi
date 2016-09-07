@@ -2,6 +2,8 @@ import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 const { get } = Ember;
+import DummySound from 'dummy/tests/helpers/dummy-sound';
+import { stubFactoryCreateWithSuccess } from '../../helpers/audio-pledge-test-helpers';
 
 let sandbox, audioPledgeFactories, options;
 
@@ -49,15 +51,6 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
   }
 });
 
-const DummySound = Ember.Object.extend(Ember.Evented, {
-  play() {},
-  currentPosition() {},
-  _setVolume(v) {
-    console.log(`setting volume to ${v}`);
-    this.set('volume', v);
-  }
-});
-
 function chooseActiveFactories(...factoriesToActivate) {
   let factories = [];
   Ember.A(factoriesToActivate).forEach(name => {
@@ -87,6 +80,11 @@ test('#activateFactories activates an array of factories', function(assert) {
     assert.ok(get(service, `_factories.${factory.name}`), `it activated the ${factory.name} factory`);
     assert.equal(get(service, `_factories.${factory.name}.config.testOption`), factory.name, `it passes config options to the ${factory} factory`);
   });
+});
+
+test('it returns a list of the available factories', function(assert) {
+  const service = this.subject({ options });
+  assert.deepEqual(service.availableFactories(), ["Howler", "NativeAudio", "LocalDummyFactory"]);
 });
 
 test('#load tries the first factory that says it can handle the url', function(assert) {
@@ -142,8 +140,8 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   let LocalDummyFactory =  get(service, `_factories.LocalDummyFactory`);
   sinon.stub(LocalDummyFactory, 'canPlay').returns(true);
 
-  let localCreateSpy    = sinon.stub(LocalDummyFactory, 'create', function() {
-    let sound =  DummySound.create(...arguments);
+  let localCreateSpy = sinon.stub(LocalDummyFactory, 'create', function() {
+    let sound = DummySound.create(...arguments);
 
     if (sound.get('url') === goodUrl) {
       Ember.run.next(() => sound.trigger('audio-ready'));
@@ -177,14 +175,7 @@ test('When a sound gets created it gets registered with OneAtATime', function(as
   let done = assert.async();
   assert.expect(1);
   const service = this.subject({ options: chooseActiveFactories('LocalDummyFactory') });
-
-  let LocalDummyFactory =  get(service, `_factories.LocalDummyFactory`);
-
-  sinon.stub(LocalDummyFactory, 'create', function() {
-    let sound =  DummySound.create(...arguments);
-    Ember.run.next(() => sound.trigger('audio-ready'));
-    return sound;
-  });
+  stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
 
   let url = "/test/test.mp3";
 
@@ -194,17 +185,33 @@ test('When a sound gets created it gets registered with OneAtATime', function(as
   });
 });
 
+test('When a sound plays it gets set as the currentSound', function(assert) {
+  assert.expect(3);
+  const service = this.subject({ options: chooseActiveFactories('NativeAudio') });
+  stubFactoryCreateWithSuccess(service, "NativeAudio");
+
+  let sound1, sound2;
+  return service.load("/test/test.mp3").then(({sound}) => {
+    sound1 = sound;
+    return service.load("/test/test2.mp3").then(({sound}) => {
+      sound2 = sound;
+
+      assert.notOk(service.get('currentSound'), "sound should not be set as current sound yet");
+
+      sound1.play();
+      assert.deepEqual(service.get('currentSound'), sound1, "sound1 should be set as current sound");
+
+      sound2.play();
+      assert.deepEqual(service.get('currentSound'), sound2, "sound2 should be set as current sound");
+    });
+  });
+});
+
 test('The second time a url is requested it will be pulled from the cache', function(assert) {
   let done = assert.async();
   assert.expect(5);
   const service = this.subject({ options: chooseActiveFactories('LocalDummyFactory') });
-  let LocalDummyFactory =  get(service, `_factories.LocalDummyFactory`);
-
-  let localFactorySpy = sinon.stub(LocalDummyFactory, 'create', function() {
-    let sound =  DummySound.create(...arguments);
-    Ember.run.next(() => sound.trigger('audio-ready'));
-    return sound;
-  });
+  let localFactorySpy = stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
 
   let url = "/test/test.mp3";
 
@@ -298,13 +305,7 @@ test('volume changes are set on the current sound', function(assert) {
 test("consumer can specify the factory to use with a particular url", function(assert) {
   let done = assert.async();
   const service = this.subject({ options: chooseActiveFactories('LocalDummyFactory', 'Howler', 'NativeAudio') });
-
-  let NativeAudioFactory =  get(service, `_factories.NativeAudio`);
-  let nativeAudioSpy = sinon.stub(NativeAudioFactory, 'create', function() {
-    let sound =  DummySound.create(...arguments);
-    Ember.run.next(() => sound.trigger('audio-ready'));
-    return sound;
-  });
+  let nativeAudioSpy = stubFactoryCreateWithSuccess(service, "NativeAudio");
 
   service.load("/first/test.mp3", {use: 'NativeAudio'}).then(() => {
     service.play("/second/test.mp3", {use: 'NativeAudio'}).then(() => {

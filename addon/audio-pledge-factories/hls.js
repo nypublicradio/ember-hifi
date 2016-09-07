@@ -6,6 +6,7 @@ let ClassMethods = Ember.Mixin.create({
   extensionWhiteList: ['m3u8'],
 
   canUseFactory(/* audioUrl */) {
+    // We basically never want to use this on a mobile device
     return HLS.isSupported();
   },
 

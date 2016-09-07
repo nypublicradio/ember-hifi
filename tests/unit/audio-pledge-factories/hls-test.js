@@ -3,7 +3,7 @@ import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 import { skip } from 'qunit';
 import HLSFactory from 'audio-pledge/audio-pledge-factories/hls';
-import { setupHLSSpies, throwMediaError } from '../../helpers/hls-helpers';
+import { setupHLSSpies, throwMediaError } from '../../helpers/hls-test-helpers';
 
 
 let sandbox;
