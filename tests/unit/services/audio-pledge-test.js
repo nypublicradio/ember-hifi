@@ -3,7 +3,7 @@ import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 const { get } = Ember;
 import DummySound from 'dummy/tests/helpers/dummy-sound';
-import { stubFactoryCreateWithSuccess } from '../../helpers/audio-pledge-test-helpers';
+import { stubFactoryCreateWithSuccess, stubFactoryCreateWithFailure } from '../../helpers/audio-pledge-test-helpers';
 
 let sandbox, audioPledgeFactories, options;
 
@@ -50,6 +50,8 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
     sandbox.restore();
   }
 });
+
+// TODO: stub soundCache so it doesn't mess up testing by not getting reset
 
 function chooseActiveFactories(...factoriesToActivate) {
   let factories = [];
@@ -103,24 +105,30 @@ test('#load tries the first factory that says it can handle the url', function(a
 
   let sound             = new DummySound();
 
-  let nativeCreateSpy   = sinon.stub(NativeAudio, 'create').returns(sound);
+  let nativeCreateSpy   = sinon.stub(NativeAudio, 'create', function() {
+    let sound =  DummySound.create(...arguments);
+    Ember.run.next(() => sound.trigger('audio-ready'));
+
+    return sound;
+  });
+
   let howlerCreateSpy   = sinon.stub(Howler, 'create').returns(sinon.createStubInstance(Howler));
   let localCreateSpy    = sinon.stub(LocalDummyFactory, 'create').returns(sinon.createStubInstance(LocalDummyFactory));
 
   let promise = service.load(testUrl);
+
   promise.then(() => {
+    sound.trigger('audio-ready');
+
+    assert.ok(howlerSpy.calledOnce, "howler canPlay should have been called");
+    assert.ok(nativeSpy.calledOnce, "nativeSpy canPlay should have been called");
+    assert.ok(localSpy.calledOnce, "local canPlay should not have been called");
+
+    assert.equal(howlerCreateSpy.callCount, 0, "Howler factory should not have been used");
+    assert.equal(nativeCreateSpy.callCount, 1, "Native factory should have been used");
+    assert.equal(localCreateSpy.callCount, 0, "Local factory should not have been used");
     done();
   });
-
-  sound.trigger('audio-ready');
-
-  assert.ok(howlerSpy.calledOnce, "howler canPlay should have been called");
-  assert.ok(nativeSpy.calledOnce, "nativeSpy canPlay should have been called");
-  assert.ok(localSpy.calledOnce, "local canPlay should not have been called");
-
-  assert.equal(howlerCreateSpy.callCount, 0, "Howler factory should not have been used");
-  assert.ok(nativeCreateSpy.calledWith({url: testUrl}), "Native factory should have been used");
-  assert.equal(localCreateSpy.callCount, 0, "Local factory should not have been used");
 });
 
 test('#load stops trying urls after a sound loads and reports accurately', function(assert) {
@@ -211,9 +219,9 @@ test('When a sound plays it gets set as the currentSound', function(assert) {
   stubFactoryCreateWithSuccess(service, "NativeAudio");
 
   let sound1, sound2;
-  return service.load("/test/test.mp3").then(({sound}) => {
+  return service.load("/test/yes.mp3").then(({sound}) => {
     sound1 = sound;
-    return service.load("/test/test2.mp3").then(({sound}) => {
+    return service.load("/test/another-yes.mp3").then(({sound}) => {
       sound2 = sound;
 
       assert.notOk(service.get('currentSound'), "sound should not be set as current sound yet");
@@ -324,12 +332,32 @@ test('volume changes are set on the current sound', function(assert) {
 
 test("consumer can specify the factory to use with a particular url", function(assert) {
   let done = assert.async();
-  const service = this.subject({ options: chooseActiveFactories('LocalDummyFactory', 'Howler', 'NativeAudio') });
+  let service = this.subject({ options: chooseActiveFactories('LocalDummyFactory', 'Howler', 'NativeAudio') });
   let nativeAudioSpy = stubFactoryCreateWithSuccess(service, "NativeAudio");
 
-  service.load("/first/test.mp3", {use: 'NativeAudio'}).then(() => {
-    service.play("/second/test.mp3", {use: 'NativeAudio'}).then(() => {
+  service.load("/here/is/a/test/url/test.mp3", {useFactories: ['NativeAudio']}).then(() => {
+    assert.equal(nativeAudioSpy.callCount, 1, "Native factory should have been called");
+    done();
+  });
+});
+
+test("consumer can specify the order of factories to be used with a some urls", function(assert) {
+  let done = assert.async();
+
+  let service           = this.subject({ options: chooseActiveFactories('LocalDummyFactory', 'Howler', 'NativeAudio') });
+  let nativeAudioSpy    = stubFactoryCreateWithFailure(service, "NativeAudio");
+  let localAudioSpy     = stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
+  let howlerAudioSpy    = stubFactoryCreateWithSuccess(service, "Howler");
+
+  return service.load("/first/test.mp3", {useFactories: ['NativeAudio', 'LocalDummyFactory']}).then(() => {
+    assert.equal(nativeAudioSpy.callCount, 1, "Native factory should have been called");
+    assert.equal(localAudioSpy.callCount, 1, "local factory should have been called");
+    assert.ok(nativeAudioSpy.calledBefore(localAudioSpy), "native audio should have been tried before local");
+
+    return service.play("/second/test.mp3", {useFactories: ['NativeAudio', 'Howler']}).then(() => {
       assert.equal(nativeAudioSpy.callCount, 2, "Native factory should have been called");
+      assert.equal(howlerAudioSpy.callCount, 1, "Native factory should have been called");
+      assert.ok(nativeAudioSpy.calledBefore(howlerAudioSpy), "native audio should have been tried before howler");
       done();
     });
   });

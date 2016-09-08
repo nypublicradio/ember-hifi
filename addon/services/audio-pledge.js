@@ -9,6 +9,7 @@ const {
   Service,
   computed,
   getWithDefault,
+  getProperties,
   assert,
   get,
   set,
@@ -17,10 +18,10 @@ const {
 } = Ember;
 
 export default Service.extend(Ember.Evented, {
-  currentSound:   null,
-  isPlaying:      computed.readOnly('currentSound.isPlaying'),
-  logger:         Ember.inject.service('debug-logger'),
-  isLoading:      computed('currentSound.isLoading', {
+  currentSound:      null,
+  isPlaying:         computed.readOnly('currentSound.isPlaying'),
+  logger:            Ember.inject.service('debug-logger'),
+  isLoading:         computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
     },
@@ -36,18 +37,6 @@ export default Service.extend(Ember.Evented, {
   duration:          computed.readOnly('currentSound.duration'),
 
   pollInterval: 500,
-
-  pollCurrentSoundForPosition: function() {
-    this.__setCurrentPosition();
-    Ember.run.later(() =>  this.pollCurrentSoundForPosition(), get(this, 'pollInterval'));
-  },
-
-  __setCurrentPosition() {
-    let sound = this.get('currentSound');
-    if (sound) {
-      set(sound, 'position', sound.currentPosition());
-    }
-  },
 
   defaultVolume: 50,
 
@@ -85,11 +74,16 @@ export default Service.extend(Ember.Evented, {
     set(this, 'soundCache', new SoundCache());
     set(this, 'oneAtATime', new OneAtATime());
     set(this, 'volume', 50);
-    this.activateFactories(factories);
+    this._activateFactories(factories);
 
     this.set('isReady', true);
 
-    this.pollCurrentSoundForPosition();
+    // Set if this is a mobile device, so we can change strategies later
+    this.set('isMobileDevice', !!window.ontouchstart);
+
+    this._pollCurrentSoundForPosition();
+
+    this._setupDebugger();
     this._super(...arguments);
   },
 
@@ -113,41 +107,14 @@ export default Service.extend(Ember.Evented, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  loadUrls(urlsOrPromise) {
-    let logger = this.get('logger');
-    let prepare = (urls) => {
-      return Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
-    };
-
-    return new RSVP.Promise(resolve => {
-      if (urlsOrPromise.then) { // If this is already a promise, return it
-        logger.log('audio-pledge', "#load passed URL promise");
-        return urlsOrPromise.then(urls => {
-          urls = prepare(urls);
-          logger.log('audio-pledge', `promise resolved yielding urls: ${urls.join(', ')}`);
-          resolve(urls);
-        });
-      }
-      else {
-        let urls = prepare(urlsOrPromise);
-        logger.log('audio-pledge', `passed urls: ${urls.join(', ')}`);
-        resolve(urls);
-      }
-    });
-  },
-
   load(urlsOrPromise, options) {
-    options = Ember.merge({
-      debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)
-    }, options);
+    let audioElement = this._createAndUnlockAudio();
 
-    if (this.get('isPlaying')) {
-      this.pause();
-    }
+    options = Ember.assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
 
     let promise = new RSVP.Promise((resolve, reject) => {
-      return this.loadUrls(urlsOrPromise).then(urlsToTry => {
-        if (urlsToTry.length === 0) {
+      return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
+        if (Ember.isEmpty(urlsToTry)) {
           reject({error: "Urls must be provided"});
         }
 
@@ -157,8 +124,30 @@ export default Service.extend(Ember.Evented, {
         }
         else {
           this.set('isLoading', true);
-          let search = this.loadWorkingAudio(urlsToTry, options);
-          
+          let strategies = [];
+          if (options.useFactories) {
+            // If the consumer has specified a factory to prefer, use it
+            let factoryNames  = options.useFactories;
+            strategies = this._prepareStrategies(urlsToTry, factoryNames);
+          }
+          else if (this.get('isMobileDevice')) {
+            // If we're on a mobile device, we want to try NativeAudio first
+            strategies  = this._prepareMobileStrategies(urlsToTry, options);
+          }
+          else {
+            strategies  = this._prepareStandardStrategies(urlsToTry, options);
+          }
+
+          if (this.get('isMobileDevice')) {
+            // If we're on a mobile device, attach the audioElement to be passed
+            // into each factory to combat autoplay blocking issues on touch devices
+            strategies  = strategies.map(s => {
+              s.audioElement = audioElement;
+              return s;
+            });
+          }
+
+          let search      = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
           search.catch(results => reject({failures: results.failures}));
 
@@ -177,50 +166,22 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
-   * Given an array of URLS, try each url, select a factory, and then
-   * return the first thing that works
+   * Given an array of URLs, return a sound and play it.
    *
-   * @method loadWorkingAudio
-   * @param {Array} urlsToTry
-   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
-   */
-
-  loadWorkingAudio(urlsToTry, options) {
-    this.get('logger').timeStart(options.debugName, "loadWorkingAudio");
-
-    let params  = this._prepareParamsForLoadWorkingAudio(urlsToTry, options);
-
-    let promise = PromiseTry.findFirst(params, (param, returnSuccess, markAsFailure) => {
-      let Factory = param.factory;
-      let sound = Factory.create({url: param.url});
-      this._waitForSuccessOrFailure(sound, param, returnSuccess, markAsFailure, options);
-    });
-
-    promise.finally(() => this.get('logger').timeEnd(options.debugName, "loadWorkingAudio"));
-
-    return promise;
-  },
-
-  setCurrentSound(sound) {
-    this._unregisterEvents(this.get('currentSound'));
-    this._registerEvents(sound);
-    sound._setVolume(this.get('volume'));
-    this.set('currentSound', sound);
-  },
-
-  /**
-   * Given an array of URLS, return a sound and play it.
-   *
-   * @method load
+   * @method play
    * @param {Array} urls
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
   play(urlsOrPromise, options) {
+    if (this.get('isPlaying')) {
+      this.pause();
+    }
+
     let load = this.load(urlsOrPromise, options);
     load.then(({sound}) => {
-      this.get('logger').log("audio-pledge", "Finished load, tell sound to play");
-      sound.play();
+      this.debug("audio-pledge", "Finished load, trying to play sound");
+      this._attemptToPlaySound(sound);
     });
 
     // We want to keep this chainable elsewhere
@@ -286,7 +247,6 @@ export default Service.extend(Ember.Evented, {
     this.get('currentSound').fastforward(duration);
   },
 
-
   /**
    * Rewinds current sound if able
    *
@@ -316,6 +276,60 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
+   * Set the current sound and wire up all the events the sound fires so they
+   * trigger through the service, remove the ones on the previous current sound,
+   * and set the new current sound to the system volume
+   *
+   * @method setCurrentSound
+   * @param {sound}
+   * @returns {void}
+   */
+
+  setCurrentSound(sound) {
+    this._unregisterEvents(this.get('currentSound'));
+    this._registerEvents(sound);
+    sound._setVolume(this.get('volume'));
+    this.set('currentSound', sound);
+  },
+
+/* ------------------------ PRIVATE(ISH) METHODS ---------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+  /**
+   * Polls the current sound for position. We wanted to make it easy/flexible
+   * for factory authors, and since we only play one sound at a time, we don't
+   * need other non-active sounds telling us position info
+   *
+   * @method _pollCurrentSoundForPosition
+   * @param {Void}
+   * @private
+   * @return {Void}
+   */
+
+  _pollCurrentSoundForPosition: function() {
+    this._setCurrentPosition();
+    Ember.run.later(() =>  this._pollCurrentSoundForPosition(), get(this, 'pollInterval'));
+  },
+
+  /**
+   * Sets the current sound with its current position, so the sound doesn't have
+   * to deal with timers. The service runs the show.
+   *
+   * @method _pollCurrentSoundForPosition
+   * @param {Void}
+   * @private
+   * @return {Void}
+   */
+
+  _setCurrentPosition() {
+    let sound = this.get('currentSound');
+    if (sound) {
+      set(sound, 'position', sound.currentPosition());
+    }
+  },
+
+  /**
    * Register events on a current sound. Audio events triggered on that sound
    * will be relayed and triggered on this service
    *
@@ -326,11 +340,11 @@ export default Service.extend(Ember.Evented, {
    */
 
   _registerEvents(sound) {
-    sound.on('audio-played',  () => this.relayEvent('audio-played', sound));
-    sound.on('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    sound.on('audio-stopped', () => this.relayEvent('audio-stopped', sound));
-    sound.on('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
-    sound.on('audio-loading', () => this.relayEvent('audio-loading', sound));
+    sound.on('audio-played',  () => this._relayEvent('audio-played', sound));
+    sound.on('audio-paused',  () => this._relayEvent('audio-paused', sound));
+    sound.on('audio-stopped', () => this._relayEvent('audio-stopped', sound));
+    sound.on('audio-loaded',  () => this._relayEvent('audio-loaded', sound));
+    sound.on('audio-loading', () => this._relayEvent('audio-loading', sound));
   },
 
   /**
@@ -347,11 +361,11 @@ export default Service.extend(Ember.Evented, {
     if (!sound) {
       return;
     }
-    sound.off('audio-played',  () => this.relayEvent('audio-played', sound));
-    sound.off('audio-paused',  () => this.relayEvent('audio-paused', sound));
-    sound.off('audio-stopped', () => this.relayEvent('audio-stopped', sound));
-    sound.off('audio-loaded',  () => this.relayEvent('audio-loaded', sound));
-    sound.off('audio-loading', () => this.relayEvent('audio-loading', sound));
+    sound.off('audio-played',  () => this._relayEvent('audio-played', sound));
+    sound.off('audio-paused',  () => this._relayEvent('audio-paused', sound));
+    sound.off('audio-stopped', () => this._relayEvent('audio-stopped', sound));
+    sound.off('audio-loaded',  () => this._relayEvent('audio-loaded', sound));
+    sound.off('audio-loading', () => this._relayEvent('audio-loading', sound));
   },
 
   /**
@@ -363,20 +377,22 @@ export default Service.extend(Ember.Evented, {
    * @return {Void}
    */
 
-  relayEvent(eventName, sound) {
+  _relayEvent(eventName, sound) {
     this.trigger(eventName, sound);
   },
 
   /**
-   * Selects a loaded factory by name
+   * Selects loaded factories by name
    *
-   * @method selectFactoryByName
-   * @param {Array} name
-   * @return [Factory] by name
+   * @method selectFactoriesByName
+   * @param {Array} names
+   * @return [Factory] by names
    */
 
-  selectFactoryByName(name) {
-    return this.get(`_factories.${name}`);
+  selectFactoriesByName(names) {
+    names = Ember.makeArray(names);
+    let factories = this.availableFactories();
+    return getProperties(factories, names);
   },
 
   /**
@@ -384,43 +400,47 @@ export default Service.extend(Ember.Evented, {
    *
    * @method selectWorkingFactories
    * @param {Array} urls
-   * @return [Factory] activated factories that claim they can play the URL
+   * @return {Array} activated factories that claim they can play the URL
    */
 
   selectWorkingFactories(url) {
-    let factoryNames      = Object.keys(this.get('_factories'));
+    let factoryNames      = this.availableFactories();
     let factories         = factoryNames.map(name => this.get(`_factories.${name}`));
 
-    let selectedFactories = factories.filter(f => {
-      let result = f.canPlay(url);
-      return result;
-    });
-
-    return selectedFactories;
+    return factories.filter(f => f.canPlay(url));
   },
 
   /**
    * Activates the factories as specified in the config options
    *
-   * @method activateFactories
+   * @method _activateFactories
+   * @private
    * @param {Array} factoryOptions
    * @return {Object} instantiated factories
    */
 
-  activateFactories(factoryOptions = []) {
-   const cachedFactories = get(this, '_factories');
-   const activatedFactories = {};
+  _activateFactories(factoryOptions = []) {
+    const cachedFactories = get(this, '_factories');
+    const activatedFactories = {};
 
-   factoryOptions
-     .forEach((factoryOption) => {
-       const { name } = factoryOption;
-       const factory = cachedFactories[name] ? cachedFactories[name] : this._activateFactory(factoryOption);
+    factoryOptions.forEach((factoryOption) => {
+      const { name } = factoryOption;
+      const factory = cachedFactories[name] ? cachedFactories[name] : this._activateFactory(factoryOption);
 
-       set(activatedFactories, name, factory);
-     });
+      set(activatedFactories, name, factory);
+    });
 
-   return set(this, '_factories', activatedFactories);
+    return set(this, '_factories', activatedFactories);
   },
+
+ /**
+  * Activates the a single factory
+  *
+  * @method _activateFactory
+  * @private
+  * @param {Object} {name, config}
+  * @return {Factory} instantiated Factory
+  */
 
   _activateFactory({ name, config } = {}) {
     const Factory = this._lookupFactory(name);
@@ -452,6 +472,68 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
+   * URLs given to load or play may be a promise, resolve this promise and get the urls
+   * or promisify an array/string and
+   * @method _resolveUrls
+   * @param {Array or String or Promise} urlOrPromise
+   * @private
+   * @returns {Promise.<urls>} a promise resolving to a cleaned up array of URLS
+   */
+
+  _resolveUrls(urlsOrPromise) {
+    let prepare = (urls) => {
+      return Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
+    };
+
+    if (urlsOrPromise.then) {
+      this.debug('audio-pledge', "#load passed URL promise");
+    }
+
+    return RSVP.Promise.resolve(urlsOrPromise).then(urls => {
+      urls = prepare(urls);
+      this.debug('audio-pledge', `given urls: ${urls.join(', ')}`);
+      return urls;
+    });
+  },
+
+  /**
+   * Given an array of strategies with {factory, url} try the factory and url
+   * return the first thing that works
+   *
+   * @method _findFirstPlayableSound
+   * @param {Array} urlsToTry
+   * @private
+   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
+   */
+
+  _findFirstPlayableSound(strategies, options) {
+    this.timeStart(options.debugName, "_findFirstPlayableSound");
+
+    let promise = PromiseTry.findFirst(strategies, (strategy, returnSuccess, markAsFailure) => {
+      let Factory        = strategy.factory;
+      let factoryOptions = getProperties(strategy, 'url', 'factoryName', 'audioElement');
+      let sound          = Factory.create(factoryOptions);
+
+      this.debug(options.debugName, `TRYING: [${strategy.factoryName}] -> ${strategy.url}`);
+
+      sound.one('audio-load-error', (error) => {
+        strategy.error = error;
+        markAsFailure(strategy);
+        this.debug(options.debugName, `FAILED: [${strategy.factoryName}] -> ${error} (${strategy.url})`);
+      });
+
+      sound.one('audio-ready',      () => {
+        returnSuccess(sound);
+        this.debug(options.debugName, `SUCCESS: [${strategy.factoryName}] -> (${strategy.url})`);
+      });
+    });
+
+    promise.finally(() => this.timeEnd(options.debugName, "_findFirstPlayableSound"));
+
+    return promise;
+  },
+
+  /**
    * Given some urls, it prepares an array of factory and url pairs to try
    *
    * @method _prepareParamsForLoadWorkingAudio
@@ -460,81 +542,155 @@ export default Service.extend(Ember.Evented, {
    * @return {Array} {factory, url}
    */
 
-  /*  TODO: implement two different strategies
+  /**
+   * Take our standard strategy and reorder it to prioritize native audio
+   * first since it's most likely to succeed and play immediately with our
+   * audio unlock logic
 
-   _prepareParamsForLoadWorkingAudioForMobile
-    - for [url, url2, url3]
-    - try all urls that work on NativeAudio on NativeAudio
-    - try the rest
+   * we try each url on each compatible factory in order
+   * [{factory: NativeAudio, url: url1},
+   *  {factory: NativeAudio, url: url2},
+   *  {factory: HLS, url: url1},
+   *  {factory: Other, url: url1},
+   *  {factory: HLS, url: url2},
+   *  {factory: Other, url: url2}]
 
-    - NativeAudio - url1
-    - NativeAudio - url2
-    - NativeAudio - url3
-    - HLS - url1
-    - HLS - url2
-
-   _prepareParamsForLoadWorkingAudioForDesktop
-   - for [url, url2, url3]
-   - NativeAudio - url1
-   - HLS - url1
-   - NativeAudio - url2
-   - HLS - url2
-   - NativeAudio - url3
-
+   * @method _prepareMobileStrategies
+   * @param {Array} urlsToTry
+   * @private
+   * @return {Array} {factory, url}
    */
-  _prepareParamsForLoadWorkingAudio(urlsToTry, options) {
-    let params = [];
-    let logger = this.get('logger');
-    urlsToTry.forEach(url => {
-      let factories = [];
-      if (options.use) {
-        logger.log('audio-pledge', `${options.use} factory requested`);
-        factories = Ember.makeArray(this.selectFactoryByName(options.use));
+
+  _prepareMobileStrategies(urlsToTry) {
+    let strategies = this._prepareStandardStrategies(urlsToTry);
+    this.debug("modifying standard strategy for to work best on mobile");
+
+    return strategies.sort(function(strategy) {
+      if (strategy.factoryKey === 'NativeAudio') {
+        return -1; // sort the Native Audio to the front
       }
       else {
-        factories = this.selectWorkingFactories(url);
-
-        let factoryNames = Ember.A(factories).map(f => f.toString()).join(", ");
-        logger.log('audio-pledge', `Compatible factories for ${url}: ${factoryNames}`);
-      }
-
-      if (!Ember.isEmpty(factories)) {
-        factories.forEach(f => {
-          params.push({url: url, factory: f}); 
-        });
+        return 1;
       }
     });
-
-    return params;
   },
 
   /**
-   * Given a sound, it will listen to the events and call success or failure callbacks
-   * This was split out for better clarity and for better test stubbing
+   * Given a list of urls, prepare the strategy that we think will succeed best
    *
-   * @method _waitForSuccessOrFailure
-   * @param {Sound} sound, param, successCallback, failureCallback, options
+   * Breadth first: we try each url on each compatible factory in order
+   * [{factory: NativeAudio, url: url1},
+   *  {factory: HLS, url: url1},
+   *  {factory: Other, url: url1},
+   *  {factory: NativeAudio, url: url2},
+   *  {factory: HLS, url: url2},
+   *  {factory: Other, url: url2}]
+
+   * @method _prepareStandardStrategies
+   * @param {Array} urlsToTry
    * @private
-   * @return {Void}
+   * @return {Array} {factory, url}
    */
 
-  _waitForSuccessOrFailure(sound, param, returnSuccess, markAsFailure, options) {
-    let loggerName = options.debugName;
+  _prepareStandardStrategies(urlsToTry, options) {
+    return this._prepareStrategies(urlsToTry, this.availableFactories(), options);
+  },
+
+  /**
+   * Given a list of urls and a list of factories, assemble array of
+   * strategy objects to be tried in order. Each strategy object
+   * should contain a factory, a factoryName, a url, and in some cases
+   * an audioElement
+
+   * @method _prepareStrategies
+   * @param {Array} urlsToTry
+   * @private
+   * @return {Array} {factory, url}
+   */
+
+  _prepareStrategies(urlsToTry, factoryNames) {
+    factoryNames = Ember.makeArray(factoryNames);
+    let strategies = [];
+
+    urlsToTry.forEach(url => {
+      let factorySuccesses = [];
+      factoryNames.forEach(factoryName => {
+        let factory = this.get(`_factories.${factoryName}`);
+        if (factory.canPlay(url)) {
+          factorySuccesses.push(factoryName);
+          strategies.push({
+            factoryName:  factoryName,
+            factory:      factory,
+            url:          url
+          });
+        }
+      });
+      this.debug(`Compatible factories for ${url}: ${factorySuccesses.join(", ")}`);
+    });
+    return strategies;
+  },
+
+  /**
+   * Creates an empty audio element and plays it to unlock audio on a mobile (iOS)
+   * device at the beggining of a play event.
+   *
+   * @method _createAndUnlockAudio
+   * @private
+   * @param {Void}
+   * @returns {element} an audio element
+   */
+
+   _createAndUnlockAudio() {
+    let audioElement = document.createElement('audio');
+    audioElement.play();
+
+    return audioElement;
+  },
+
+  /**
+   * Attempts to play the sound after a load, which in certain cases can fail on mobile
+   * @method _attemptToPlaySoundOnMobile
+   * @param {sound}
+   * @private
+   * @returns {void}
+   */
+
+  _attemptToPlaySound(sound) {
+    if (this.get('isMobileDevice')) {
+      let blockCheck = Ember.run.later(() => {
+        this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
+      }, 1000);
+      sound.one('audio-played', () => Ember.run.cancel(blockCheck));
+    }
+    sound.play();
+  },
+
+  /**
+   * Make the debug log service a little nicer to interact with in this service
+   * @method _setupDebugger
+   * @param {void}
+   * @private
+   * @returns {void}
+   */
+
+  _setupDebugger() {
     let logger = this.get('logger');
+    this.debug = function() {
+      if (arguments.length === 1) {
+        logger.log('audio-pledge', arguments[0]);
+      }
+      else if (arguments.length === 2) {
+        logger.log(arguments[0], arguments[1]);
+      }
+    };
 
-    logger.log(loggerName, `LOADING: [${param.factory.toString()}] -> ${param.url}`);
+    this.timeStart = function() {
+      logger.timeStart(...arguments);
+    };
 
-    sound.one('audio-load-error', (error) => {
-      param.error = error;
-      markAsFailure(param);
-
-      logger.log(loggerName, `ERROR: [${param.factory.toString()}] -> ${error} (${param.url})`);
-    });
-
-    sound.one('audio-ready',      () => {
-      returnSuccess(sound);
-
-      logger.log(loggerName, `SUCCESS: [${param.factory.toString()}] -> ${param.url}`);
-    });
+    this.timeEnd = function() {
+      logger.timeEnd(...arguments);
+    };
   }
+
 });

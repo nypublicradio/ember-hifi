@@ -19,6 +19,21 @@ function stubFactoryCreateWithSuccess(service, factoryName) {
   return factorySpy;
 }
 
+function stubFactoryCreateWithFailure(service, factoryName) {
+  let Factory =  get(service, `_factories.${factoryName}`);
+  sinon.stub(Factory, 'canPlay').returns(true);
+
+  let factorySpy = sinon.stub(Factory, 'create', function() {
+    console.log(`stubbed ${Factory} create called`);
+    let sound =  DummySound.create(...arguments);
+    Ember.run.next(() => sound.trigger('audio-load-error'));
+    return sound;
+  });
+
+  return factorySpy;
+}
+
 export {
-  stubFactoryCreateWithSuccess
+  stubFactoryCreateWithSuccess,
+  stubFactoryCreateWithFailure
 };

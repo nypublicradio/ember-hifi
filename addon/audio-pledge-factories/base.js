@@ -1,7 +1,8 @@
 import Ember from 'ember';
 
 const {
-  assert
+  assert,
+  computed
 } = Ember;
 
 let ClassMethods = Ember.Mixin.create({
@@ -35,13 +36,16 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = Ember.Object.extend(Ember.Evented, {
-  logger: Ember.inject.service('debug-logger'),
-  pollInterval: 1000,
-  timeout: 15000,
-  isLoading: false,
-  isPlaying: false,
-  position: 0,
-  duration: 0,
+  logger:         Ember.inject.service('debug-logger'),
+  pollInterval:   1000,
+  timeout:        15000,
+  isLoading:      false,
+  isPlaying:      false,
+  position:       0,
+  duration:       0,
+  isStream:       computed.equal('duration', Infinity),
+  canFastForward: computed.not('isStream'),
+  canRewind:      computed.not('isStream'),
 
   init: function() {
     this.set('isLoading', true);
