@@ -2,7 +2,8 @@ import Ember from 'ember';
 const {
   A: emberArray
 } = Ember;
-export default Ember.Object.extend(Ember.Evented, {
+
+export default Ember.Service.extend({
   _cache: new Ember.Map(),
 
   reset() {

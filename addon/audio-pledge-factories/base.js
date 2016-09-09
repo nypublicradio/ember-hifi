@@ -60,11 +60,6 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
     this.on('audio-ready',    () => {
       this.set('duration', this.audioDuration());
-      this.set('_didNotTimeOut', true);
-    });
-
-    this.on('audio-load-error',    () => {
-      this.set('_didNotTimeOut', true);
     });
 
     this.on('audio-loaded', () => {
@@ -75,11 +70,18 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('position', position);
     });
 
-    Ember.run.later(() => {
-      if (!this.get("_didNotTimeOut")) {
-        this.trigger('audio-load-error', "request timed out");
-      }
-    }, this.get('timeout'));
+    this._detectTimeouts();
+  },
+
+  _detectTimeouts() {
+    if (this.get('timeout')) {
+      let timeout = Ember.run.later(() => {
+          this.trigger('audio-load-error', "request timed out");
+      }, this.get('timeout'));
+
+      this.on('audio-ready',      () => Ember.run.cancel(timeout));
+      this.on('audio-load-error', () => Ember.run.cancel(timeout));
+    }
   },
 
   debug(message) {

@@ -5,7 +5,6 @@ import { skip } from 'qunit';
 import HLSFactory from 'audio-pledge/audio-pledge-factories/hls';
 import { setupHLSSpies, throwMediaError } from '../../helpers/hls-test-helpers';
 
-
 let sandbox;
 const goodUrl = "http://example.org/good.m3u8";
 const badUrl  = "http://example.org/bad.m3u8";

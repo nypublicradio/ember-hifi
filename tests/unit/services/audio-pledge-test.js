@@ -12,6 +12,7 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
 
   needs: [
     'service:debug-logger',
+    'service:sound-cache',
     'audio-pledge@audio-pledge-factory:howler',
     'audio-pledge@audio-pledge-factory:native-audio',
     'audio-pledge-factory:local-dummy-factory'
@@ -44,6 +45,21 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
     options = {
       audioPledgeFactories
     };
+
+    const soundCacheStub = Ember.Service.extend({
+      find() {
+        return false;
+      },
+      cache() {
+
+      },
+      reset() {
+
+      }
+    });
+
+    this.register('service:sound-cache', soundCacheStub);
+    this.inject.service('sound-cache', { as: 'soundCache' });
   },
 
   afterEach() {
@@ -244,15 +260,16 @@ test('The second time a url is requested it will be pulled from the cache', func
   let url = "/test/test.mp3";
 
   let soundCache = service.get('soundCache');
-  service.get('soundCache').reset(); // make sure it's at zero
+  let findSpy = sinon.stub(soundCache, 'find');
+  let cacheSpy = sinon.stub(soundCache, 'cache');
 
-  let findSpy = sinon.spy(soundCache, 'find');
-  let cacheSpy = sinon.spy(soundCache, 'cache');
+  findSpy.onFirstCall().returns(false);
 
   service.load(url).then(({sound}) => {
     assert.equal(findSpy.callCount, 1, "cache should have been checked");
     assert.equal(cacheSpy.callCount, 1, "sound should be registered with sound cache");
     sound.set('identification', 'yo');
+    findSpy.onSecondCall().returns(sound);
 
     service.load(url).then(({sound}) => {
       assert.equal(sound.get('identification'), 'yo', "should be the same sound in sound cache");
@@ -360,5 +377,131 @@ test("consumer can specify the order of factories to be used with a some urls", 
       assert.ok(nativeAudioSpy.calledBefore(howlerAudioSpy), "native audio should have been tried before howler");
       done();
     });
+  });
+});
+
+test("for desktop devices, try each url on each factory", function(assert) {
+  let done = assert.async();
+  let urls              = ["first-test-url.mp3", "second-test-url.mp3", "third-test-url.mp3"];
+  let factories         = ['LocalDummyFactory', 'Howler', 'NativeAudio'];
+
+  let service           = this.subject({ options: chooseActiveFactories(...factories) });
+  service.set('isMobileDevice', false);
+
+  stubFactoryCreateWithSuccess(service, "NativeAudio");
+  stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
+  stubFactoryCreateWithSuccess(service, "Howler");
+
+  let strategySpy       = sinon.spy(service, '_prepareStandardStrategies');
+  let findAudioSpy      = sinon.spy(service, '_findFirstPlayableSound');
+
+  return service.load(urls).then(() => {
+    assert.equal(strategySpy.callCount, 1, "Standard strategy should have been used");
+    assert.equal(findAudioSpy.callCount, 1, "Should have called internal find method with strategies");
+
+    let correctOrder = [
+      `${factories[0]}:${urls[0]}`,
+      `${factories[1]}:${urls[0]}`,
+      `${factories[2]}:${urls[0]}`,
+      `${factories[0]}:${urls[1]}`,
+      `${factories[1]}:${urls[1]}`,
+      `${factories[2]}:${urls[1]}`,
+      `${factories[0]}:${urls[2]}`,
+      `${factories[1]}:${urls[2]}`,
+      `${factories[2]}:${urls[2]}`,
+    ];
+    let strategies = findAudioSpy.firstCall.args[0];
+    let actualOrder = [];
+    strategies.forEach(strategy => {
+      actualOrder.push(`${strategy.factoryName}:${strategy.url}`);
+    });
+
+    assert.deepEqual(actualOrder, correctOrder, "Breadth-first strategy should have been used");
+    done();
+  });
+});
+
+test("for mobile devices, try all the urls on the native audio factory first, and pass along an audio element", function(assert) {
+  let done = assert.async();
+  let urls              = ["first-test-url.mp3", "second-test-url.mp3", "third-test-url.mp3"];
+  let factories         = ['LocalDummyFactory', 'Howler', 'NativeAudio'];
+  let service           = this.subject({ options: chooseActiveFactories(...factories) });
+
+  stubFactoryCreateWithSuccess(service, "NativeAudio");
+  stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
+  stubFactoryCreateWithSuccess(service, "Howler");
+
+  let strategySpy       = sinon.spy(service, '_prepareMobileStrategies');
+  let findAudioSpy      = sinon.spy(service, '_findFirstPlayableSound');
+
+  service.set('isMobileDevice', true);
+
+  return service.load(urls).then(() => {
+    assert.equal(strategySpy.callCount, 1, "Mobile strategy should have been used");
+    assert.equal(findAudioSpy.callCount, 1, "Should have called internal find method with strategies");
+
+    let correctOrder = [
+      `${factories[2]}:${urls[0]}`,
+      `${factories[2]}:${urls[1]}`,
+      `${factories[2]}:${urls[2]}`,
+      `${factories[0]}:${urls[0]}`,
+      `${factories[1]}:${urls[0]}`,
+      `${factories[0]}:${urls[1]}`,
+      `${factories[1]}:${urls[1]}`,
+      `${factories[0]}:${urls[2]}`,
+      `${factories[1]}:${urls[2]}`,
+    ];
+
+    let actualOrder = [];
+    let strategies = findAudioSpy.firstCall.args[0];
+    strategies.forEach(strategy => {
+      actualOrder.push(`${strategy.factoryName}:${strategy.url}`);
+    });
+
+    assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
+    let audioElements = Ember.A(Ember.A(strategies).map(s => s.audioElement)).compact();
+    assert.equal(audioElements.length, strategies.length, "audio element should have been included with the strategies");
+    done();
+  });
+});
+
+test("for mobile devices, audio element should still be passed if a custom strategy is used", function(assert) {
+  let done       = assert.async();
+  let urls       = ["first-test-url.mp3", "second-test-url.mp3", "third-test-url.mp3"];
+  let factories  = ['LocalDummyFactory', 'Howler', 'NativeAudio'];
+  let service    = this.subject({ options: chooseActiveFactories(...factories) });
+
+  stubFactoryCreateWithSuccess(service, "NativeAudio");
+  stubFactoryCreateWithSuccess(service, "LocalDummyFactory");
+  stubFactoryCreateWithSuccess(service, "Howler");
+
+  let strategySpy       = sinon.spy(service, '_prepareMobileStrategies');
+  let customStrategySpy = sinon.spy(service, '_prepareStrategies');
+  let findAudioSpy      = sinon.spy(service, '_findFirstPlayableSound');
+
+  service.set('isMobileDevice', true);
+
+  return service.load(urls, {useFactories:['LocalDummyFactory']}).then(() => {
+    assert.equal(strategySpy.callCount, 0, "Mobile strategy should not been used");
+    assert.equal(customStrategySpy.callCount, 1, "custom strategy should have been used");
+    assert.equal(findAudioSpy.callCount, 1, "Should have called internal find method with strategies");
+
+    let correctOrder = [
+      `${factories[0]}:${urls[0]}`,
+      `${factories[0]}:${urls[1]}`,
+      `${factories[0]}:${urls[2]}`,
+    ];
+
+    let actualOrder = [];
+    let strategies = findAudioSpy.firstCall.args[0];
+
+    findAudioSpy.firstCall.args[0].forEach(strategy => {
+      actualOrder.push(`${strategy.factoryName}:${strategy.url}`);
+    });
+
+    assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
+    let audioElements = Ember.A(Ember.A(strategies).map(s => s.audioElement)).compact();
+    assert.equal(audioElements.length, strategies.length, "audio element should have been included with the strategies");
+    done();
   });
 });

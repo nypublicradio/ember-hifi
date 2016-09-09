@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import SoundCache from '../helpers/sound-cache';
 import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
@@ -18,9 +17,17 @@ const {
 } = Ember;
 
 export default Service.extend(Ember.Evented, {
+  soundCache:        Ember.inject.service('sound-cache'),
+  logger:            Ember.inject.service('debug-logger'),
+  isMobileDevice:    computed({
+    get() {
+      return !!window.ontouchstart;
+    },
+    set(k, v) { return v; }
+  }),
+
   currentSound:      null,
   isPlaying:         computed.readOnly('currentSound.isPlaying'),
-  logger:            Ember.inject.service('debug-logger'),
   isLoading:         computed('currentSound.isLoading', {
     get() {
       return this.get('currentSound.isLoading');
@@ -32,11 +39,9 @@ export default Service.extend(Ember.Evented, {
   isFastForwardable: computed.readOnly('currentSound.canFastForward'),
   isRewindable:      computed.readOnly('currentSound.canRewind'),
   isMuted:           computed.equal('volume', 0),
-
   position:          computed.readOnly('currentSound.position'),
   duration:          computed.readOnly('currentSound.duration'),
-
-  pollInterval: 500,
+  pollInterval:      500,
 
   defaultVolume: 50,
 
@@ -71,15 +76,11 @@ export default Service.extend(Ember.Evented, {
 
     set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
     set(this, '_factories', {});
-    set(this, 'soundCache', new SoundCache());
     set(this, 'oneAtATime', new OneAtATime());
     set(this, 'volume', 50);
     this._activateFactories(factories);
 
     this.set('isReady', true);
-
-    // Set if this is a mobile device, so we can change strategies later
-    this.set('isMobileDevice', !!window.ontouchstart);
 
     this._pollCurrentSoundForPosition();
 
@@ -565,14 +566,11 @@ export default Service.extend(Ember.Evented, {
     let strategies = this._prepareStandardStrategies(urlsToTry);
     this.debug("modifying standard strategy for to work best on mobile");
 
-    return strategies.sort(function(strategy) {
-      if (strategy.factoryKey === 'NativeAudio') {
-        return -1; // sort the Native Audio to the front
-      }
-      else {
-        return 1;
-      }
-    });
+    let nativeStrategies  = Ember.A(strategies).filter(s => (s.factoryName === 'NativeAudio'));
+    let otherStrategies   = Ember.A(strategies).reject(s => (s.factoryName === 'NativeAudio'));
+    let orderedStrategies = nativeStrategies.concat(otherStrategies);
+    
+    return orderedStrategies;
   },
 
   /**
