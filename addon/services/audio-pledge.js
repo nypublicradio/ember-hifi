@@ -21,7 +21,7 @@ export default Service.extend(Ember.Evented, {
   logger:            Ember.inject.service('debug-logger'),
   isMobileDevice:    computed({
     get() {
-      return !!window.ontouchstart;
+      return ('ontouchstart' in window);
     },
     set(k, v) { return v; }
   }),
