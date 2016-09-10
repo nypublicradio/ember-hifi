@@ -39,7 +39,7 @@ export default Service.extend(Ember.Evented, {
   isFastForwardable: computed.readOnly('currentSound.canFastForward'),
   isRewindable:      computed.readOnly('currentSound.canRewind'),
   isMuted:           computed.equal('volume', 0),
-  position:          computed.readOnly('currentSound.position'),
+  position:          computed.alias('currentSound.position'),
   duration:          computed.readOnly('currentSound.duration'),
   pollInterval:      500,
 
