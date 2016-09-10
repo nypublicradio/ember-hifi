@@ -67,8 +67,6 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
   }
 });
 
-// TODO: stub soundCache so it doesn't mess up testing by not getting reset
-
 function chooseActiveFactories(...factoriesToActivate) {
   let factories = [];
   Ember.A(factoriesToActivate).forEach(name => {

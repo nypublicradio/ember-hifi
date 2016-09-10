@@ -105,6 +105,7 @@ test("On third media error we will give up", function(assert) {
   assert.ok(loadErrorFired, "should have triggered audio load error");
 });
 
+// TODO: make this work
 skip("If we 404, we give up", function(assert) {
   assert.expect(3);
   let sound           = this.subject({url: badUrl});

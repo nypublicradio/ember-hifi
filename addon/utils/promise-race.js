@@ -10,13 +10,13 @@ import Ember from 'ember';
  * Your callback should do what it needs to do and if that thing is good, pass it to
  * returnSuccess. If that thing is bad call markAsFailure
  *
- * @method findFirst
+ * @method start
  * @param {Array} params
  * @param {Function} callback(nextParam, returnSuccess, markAsFailure)
  * @returns {Promise  {result, failures} }
  */
 
-function findFirst(params, callback) {
+function start(params, callback) {
   return new RSVP.Promise((resolve, reject) => {
     let paramsToTry = Ember.copy(params);
     var failures = [];
@@ -49,5 +49,5 @@ function promisifyCallback(callback, nextParam) {
 }
 
 export default {
-  findFirst: findFirst
+  start: start
 };

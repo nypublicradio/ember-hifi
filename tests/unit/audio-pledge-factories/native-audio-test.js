@@ -13,12 +13,14 @@ moduleFor('audio-pledge@audio-pledge-factory:native-audio', 'Unit | Factory | Na
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock
     });
-    sandbox.server.respondImmediately = true;
+    // sandbox.server.respondImmediately = true;
     sandbox.server.respondWith(goodUrl, function (xhr) {
+      console.log("responded good");
       xhr.respond(200, {}, []);
     });
 
     sandbox.server.respondWith(badUrl, function (xhr) {
+      console.log("responded bad");
       xhr.respond(404, {}, []);
     });
   },

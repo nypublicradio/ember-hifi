@@ -1,4 +1,4 @@
-import PromiseTry from 'dummy/utils/promise-try';
+import PromiseRace from 'dummy/utils/promise-race';
 import { module, test } from 'qunit';
 
 module('Unit | Utility | promise try');
@@ -6,7 +6,7 @@ module('Unit | Utility | promise try');
 test('it should return the even number in this even/odd test', function(assert) {
   let done = assert.async();
 
-  PromiseTry.findFirst([1,3,5,6,8,9], function(nextParam, returnSuccess, markFailure) {
+  PromiseRace.start([1,3,5,6,8,9], function(nextParam, returnSuccess, markFailure) {
     if ((nextParam % 2) === 0) {
       returnSuccess(nextParam);
     }
@@ -23,7 +23,7 @@ test('findFirst should reject if all the params have been tried and nothing call
   let done = assert.async();
   let paramsTried = [];
   let params = [1,3,5,6,8,9];
-  PromiseTry.findFirst(params, function(nextParam, returnSuccess, markFailure) {
+  PromiseRace.start(params, function(nextParam, returnSuccess, markFailure) {
     paramsTried.push(nextParam);
     markFailure(nextParam);
   }).catch(({failures}) => {
@@ -38,7 +38,7 @@ test('findFirst should not try the rest of the items if the first one resolves',
   let done = assert.async();
   let paramsTried = [];
   let params = [1,3,5,6,8,9];
-  PromiseTry.findFirst(params, function(nextParam, returnSuccess /*, markFailure */) {
+  PromiseRace.start(params, function(nextParam, returnSuccess /*, markFailure */) {
     paramsTried.push(nextParam);
     returnSuccess(nextParam);
   }).then(({success, failures}) => {

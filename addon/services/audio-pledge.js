@@ -2,7 +2,7 @@ import Ember from 'ember';
 import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
-import PromiseTry from '../utils/promise-try';
+import PromiseRace from '../utils/promise-race';
 
 const {
   Service,
@@ -510,7 +510,7 @@ export default Service.extend(Ember.Evented, {
   _findFirstPlayableSound(strategies, options) {
     this.timeStart(options.debugName, "_findFirstPlayableSound");
 
-    let promise = PromiseTry.findFirst(strategies, (strategy, returnSuccess, markAsFailure) => {
+    let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
       let Factory        = strategy.factory;
       let factoryOptions = getProperties(strategy, 'url', 'factoryName', 'audioElement');
       let sound          = Factory.create(factoryOptions);
@@ -569,7 +569,7 @@ export default Service.extend(Ember.Evented, {
     let nativeStrategies  = Ember.A(strategies).filter(s => (s.factoryName === 'NativeAudio'));
     let otherStrategies   = Ember.A(strategies).reject(s => (s.factoryName === 'NativeAudio'));
     let orderedStrategies = nativeStrategies.concat(otherStrategies);
-    
+
     return orderedStrategies;
   },
 

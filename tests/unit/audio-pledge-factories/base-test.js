@@ -3,7 +3,7 @@ import { moduleFor, test } from 'ember-qunit';
 let baseSound;
 
 moduleFor('audio-pledge@audio-pledge-factory:base', 'Unit | Factory | base', {
-  needs:['util:promise-try'],
+  needs:['util:promise-race'],
   beforeEach() {
     baseSound = this.subject({
       currentPosition: function() {
