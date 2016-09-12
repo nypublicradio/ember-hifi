@@ -38,14 +38,16 @@ let ClassMethods = Ember.Mixin.create({
 let Sound = Ember.Object.extend(Ember.Evented, {
   logger:         Ember.inject.service('debug-logger'),
   pollInterval:   1000,
-  timeout:        15000,
+  timeout:        30000,
   isLoading:      false,
   isPlaying:      false,
-  duration:       0,
   isStream:       computed.equal('duration', Infinity),
   canFastForward: computed.not('isStream'),
   canRewind:      computed.not('isStream'),
+
+  duration:       0,
   position:       0,
+  percentLoaded:  0,
 
   init: function() {
     this.set('isLoading', true);
@@ -66,7 +68,22 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('isLoading', false);
     });
 
+    this.on('audio-loading', (info) => {
+      if (info && info.percentLoaded) {
+        this.set('percentLoaded', info.percentLoaded);
+      }
+    });
+
     this._detectTimeouts();
+
+    try {
+      this.setup();
+    }
+    catch(e) {
+      Ember.run.next(() => {
+        this.trigger('audio-load-error', `Error in setup ${e.message}`);
+      });
+    }
   },
 
   _detectTimeouts() {
@@ -84,7 +101,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     this.get('logger').log(this.get('url'), message);
   },
 
-  fastforward(duration) {
+  fastForward(duration) {
     let audioLength     = this.audioDuration();
     let currentPosition = this.currentPosition();
     let newPosition     = (currentPosition + duration);
@@ -101,8 +118,16 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
   /* To be defined on the subclass */
 
+  setup() {
+    assert("[audio-pledge] #setup interface not implemented", false);
+  },
+
   _setVolume() {
     assert("[audio-pledge] #_setVolume interface not implemented", false);
+  },
+
+  audioDuration() {
+    assert("[audio-pledge] #audioDuration interface not implemented", false);
   },
 
   currentPosition() {
@@ -123,6 +148,14 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
   stop() {
     assert("[audio-pledge] #stop interface not implemented", false);
+  },
+
+  teardown() {
+    // optionally implemented in subclasses
+  },
+
+  willDestroy() {
+    this.teardown();
   }
 });
 

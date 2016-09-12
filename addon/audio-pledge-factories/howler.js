@@ -11,9 +11,7 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = BaseSound.extend({
-  init() {
-    this._super(...arguments);
-
+  setup() {
     let urls = Ember.makeArray(this.get('url'));
     let sound = this;
 
@@ -47,8 +45,11 @@ let Sound = BaseSound.extend({
     });
   },
 
-  willDestroy() {
-    this.get('howl').unload();
+  teardown() {
+    let howl = this.get('howl');
+    if (howl) {
+      howl.unload();
+    }
   },
 
   audioDuration() {

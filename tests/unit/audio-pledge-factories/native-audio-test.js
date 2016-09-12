@@ -51,3 +51,15 @@ test("If passed an audio element on initialize, use it instead of creating one",
 
   assert.equal(sound.get('audio').testFlag, testFlag, "should have used passed audio element");
 });
+
+test("If it's a stream, we stop on pause", function(assert) {
+  let sound   = this.subject({url: goodUrl, timeout: false});
+  let stopSpy = sinon.spy(sound, 'stop');
+
+  sound.play();
+  assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
+
+  sound.stop();
+  assert.equal(sound.get('audio').src, "", "audio src attribute is not set");
+  assert.equal(stopSpy.callCount, 1, "stop was called");
+});

@@ -41,6 +41,7 @@ export default Service.extend(Ember.Evented, {
   isMuted:           computed.equal('volume', 0),
   position:          computed.alias('currentSound.position'),
   duration:          computed.readOnly('currentSound.duration'),
+  percentLoaded:     computed.readOnly('currentSound.percentLoaded'),
   pollInterval:      500,
 
   defaultVolume: 50,
@@ -133,10 +134,10 @@ export default Service.extend(Ember.Evented, {
           }
           else if (this.get('isMobileDevice')) {
             // If we're on a mobile device, we want to try NativeAudio first
-            strategies  = this._prepareMobileStrategies(urlsToTry, options);
+            strategies  = this._prepareMobileStrategies(urlsToTry);
           }
           else {
-            strategies  = this._prepareStandardStrategies(urlsToTry, options);
+            strategies  = this._prepareStandardStrategies(urlsToTry);
           }
 
           if (this.get('isMobileDevice')) {
@@ -244,7 +245,7 @@ export default Service.extend(Ember.Evented, {
 
   fastForward(duration) {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
-    this.get('currentSound').fastforward(duration);
+    this.get('currentSound').fastForward(duration);
   },
 
   /**
@@ -324,7 +325,12 @@ export default Service.extend(Ember.Evented, {
   _setCurrentPosition() {
     let sound = this.get('currentSound');
     if (sound) {
-      set(sound, 'position', sound.currentPosition());
+      try {
+        set(sound, 'position', sound.currentPosition());
+      }
+      catch(e) {
+
+      }
     }
   },
 
@@ -342,6 +348,7 @@ export default Service.extend(Ember.Evented, {
     sound.on('audio-played',           () => this._relayEvent('audio-played', sound));
     sound.on('audio-paused',           () => this._relayEvent('audio-paused', sound));
     sound.on('audio-stopped',          () => this._relayEvent('audio-stopped', sound));
+    sound.on('audio-ended',            () => this._relayEvent('audio-ended', sound));
     sound.on('audio-duration-changed', () => this._relayEvent('audio-duration-changed', sound));
     sound.on('audio-position-changed', () => this._relayEvent('audio-position-changed', sound));
     sound.on('audio-loaded',           () => this._relayEvent('audio-loaded', sound));
@@ -365,6 +372,7 @@ export default Service.extend(Ember.Evented, {
     sound.off('audio-played',           () => this._relayEvent('audio-played', sound));
     sound.off('audio-paused',           () => this._relayEvent('audio-paused', sound));
     sound.off('audio-stopped',          () => this._relayEvent('audio-stopped', sound));
+    sound.off('audio-ended',            () => this._relayEvent('audio-ended', sound));
     sound.off('audio-duration-changed', () => this._relayEvent('audio-duration-changed', sound));
     sound.off('audio-position-changed', () => this._relayEvent('audio-position-changed', sound));
     sound.off('audio-loaded',           () => this._relayEvent('audio-loaded', sound));

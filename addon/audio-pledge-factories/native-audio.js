@@ -20,8 +20,7 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = BaseSound.extend({
-  init() {
-    this._super(...arguments);
+  setup() {
     let audio = this.get('audioElement');
     if (!audio) {
       audio = document.createElement('audio');
@@ -37,6 +36,7 @@ let Sound = BaseSound.extend({
     let audio = this.get('audio');
 
     Ember.$(audio).on('canplay',         ()  => this._handleAudioEvent('canplay'));
+    Ember.$(audio).on('canplaythrough',  ()  => this._handleAudioEvent('canplaythrough'));
     Ember.$(audio).on('error',           (e) => this._handleAudioEvent('error', e));
     Ember.$(audio).on('playing',         ()  => this._handleAudioEvent('playing'));
     Ember.$(audio).on('pause',           ()  => this._handleAudioEvent('pause'));
@@ -49,6 +49,7 @@ let Sound = BaseSound.extend({
     let audio = this.get('audio');
 
     Ember.$(audio).off('canplay',         ()  => this._handleAudioEvent('canplay'));
+    Ember.$(audio).off('canplaythrough',  ()  => this._handleAudioEvent('canplaythrough'));
     Ember.$(audio).off('error',           (e) => this._handleAudioEvent('error', e));
     Ember.$(audio).off('playing',         ()  => this._handleAudioEvent('playing'));
     Ember.$(audio).off('pause',           ()  => this._handleAudioEvent('pause'));
@@ -83,8 +84,8 @@ let Sound = BaseSound.extend({
     }
   },
 
-  _onAudioProgress(e) {
-    this.trigger('audio-loading');
+  _onAudioProgress() {
+    this.trigger('audio-loading', this._calculatePercentLoaded());
   },
 
   _onAudioDurationChanged() {
@@ -130,10 +131,32 @@ let Sound = BaseSound.extend({
     this.trigger('audio-ready', this);
   },
 
-  percentLoaded() {
+  _calculatePercentLoaded() {
     let audio = this.get('audio');
-    return (audio.buffered.end(0) / audio.duration);
+
+    if (audio && audio.ranges && audio.ranges.length) {
+      let ranges = audio.buffered;
+      let totals = [];
+      for( var index = 0; index < ranges.length; index++ ) {
+        totals.push(ranges.end(index) - ranges.start(index));
+      }
+
+      let total = Ember.A(totals).reduce((a, b) => (a + b), 0);
+
+      this.debug(`ms loaded: ${total * 1000}`);
+      this.debug(`duration: ${this.audioDuration()}`);
+
+      this.debug(`percent loaded = ${(total / audio.duration) * 100}`);
+
+      return (total / audio.duration);
+    }
+    else {
+      return 0;
+    }
   },
+
+
+  /* Public interface */
 
   audioDuration() {
     return this.get('audio').duration * 1000;
@@ -152,15 +175,26 @@ let Sound = BaseSound.extend({
   },
 
   play() {
-    this.get('audio').play();
+    let audio = this.get('audio');
+    if (!audio.hasAttribute('src')) {
+      audio.setAttribute('src', this.get('url'));
+    }
+    audio.play();
   },
 
   pause() {
-    this.get('audio').pause();
+    if (this.get('isStream')) {
+      this.stop(); // we don't want to the stream to continue loading while paused
+    }
+    else {
+      this.get('audio').pause();
+    }
   },
 
   stop() {
-    this.get('audio').pause();
+    let audio = this.get('audio');
+    audio.pause();
+    audio.removeAttribute('src');
   },
 
   willDestroy() {

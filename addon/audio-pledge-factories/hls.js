@@ -19,23 +19,15 @@ let Sound = BaseSound.extend({
   loaded: false,
   mediaRecoveryAttempts: 0,
 
-  init() {
-    this._super(...arguments);
+  setup() {
     let hls   = new HLS({debug: false, startFragPrefetch: true});
     let video = document.createElement('video');
 
     this.set('video', video);
     this.set('hls', hls);
-    try {
-      hls.attachMedia(video);
-      this._setupHLSEvents(hls);
-      this._setupPlayerEvents(video);
-    }
-    catch(e) {
-      Ember.run.next(() => {
-        this.trigger('audio-load-error', "could not attach media");
-      });
-    }
+    hls.attachMedia(video);
+    this._setupHLSEvents(hls);
+    this._setupPlayerEvents(video);
   },
 
   _setupHLSEvents(hls) {
@@ -75,6 +67,7 @@ let Sound = BaseSound.extend({
     Ember.$(video).on('pause',           ()  => this.trigger('audio-paused', this));
     Ember.$(video).on('durationchange',  ()  => this.trigger('audio-duration-changed', this));
     Ember.$(video).on('seeked',          ()  => this.trigger('audio-position-changed', this));
+    Ember.$(video).on('progress',        ()  => this.trigger('audio-loading'));
     Ember.$(video).on('error',           (e) => this._onVideoError(e));
   },
 
@@ -170,7 +163,7 @@ let Sound = BaseSound.extend({
   /* Public interface to sound */
 
   audioDuration() {
-    return this.get('video').duration;
+    return Infinity; // only streams
   },
 
   currentPosition() {
@@ -195,19 +188,17 @@ let Sound = BaseSound.extend({
   },
 
   pause() {
-    this.get('video').pause();
+    this.stop(); // We always want to stop the stream so it doesn't continue to download
   },
 
   stop() {
     this.get('video').pause();
-
     this.get('hls').stopLoad();
     this.set('loadStopped', true);
   },
 
-  willDestroy() {
+  teardown() {
     this.get('hls').destroy();
-    this._super(...arguments);
   }
 });
 
