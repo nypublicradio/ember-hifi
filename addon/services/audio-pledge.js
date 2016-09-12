@@ -244,8 +244,6 @@ export default Service.extend(Ember.Evented, {
 
   fastForward(duration) {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
-
-    //TODO just do this through set position and get position
     this.get('currentSound').fastforward(duration);
   },
 
@@ -259,8 +257,6 @@ export default Service.extend(Ember.Evented, {
 
   rewind(duration) {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
-    
-    //TODO just do this through set position and get position
     this.get('currentSound').rewind(duration);
   },
 

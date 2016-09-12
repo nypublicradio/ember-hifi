@@ -84,6 +84,21 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     this.get('logger').log(this.get('url'), message);
   },
 
+  fastforward(duration) {
+    let audioLength     = this.audioDuration();
+    let currentPosition = this.currentPosition();
+    let newPosition     = (currentPosition + duration);
+
+    this.setPosition(newPosition > audioLength ? audioLength : newPosition);
+  },
+
+  rewind(duration) {
+    let currentPosition = this.currentPosition();
+    let newPosition     = (currentPosition - duration);
+
+    this.setPosition(newPosition < 0 ? 0 : newPosition);
+  },
+
   /* To be defined on the subclass */
 
   _setVolume() {
@@ -108,14 +123,6 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
   stop() {
     assert("[audio-pledge] #stop interface not implemented", false);
-  },
-
-  forward() {
-    assert("[audio-pledge] #forward interface not implemented", false);
-  },
-
-  rewind() {
-    assert("[audio-pledge] #rewind interface not implemented", false);
   }
 });
 
