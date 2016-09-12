@@ -47,6 +47,10 @@ let Sound = BaseSound.extend({
     });
   },
 
+  willDestroy() {
+    this.get('howl').unload();
+  },
+
   audioDuration() {
     return this.get('howl').duration() * 1000;
   },
@@ -73,14 +77,6 @@ let Sound = BaseSound.extend({
 
   stop() {
     this.get('howl').stop();
-  },
-
-  fastForward(duration) {
-    this.get('howl').forward(duration);
-  },
-
-  rewind(duration) {
-    this.get('howl').rewind(duration);
   }
 });
 

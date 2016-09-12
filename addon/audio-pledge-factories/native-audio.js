@@ -36,38 +36,34 @@ let Sound = BaseSound.extend({
   _registerEvents() {
     let audio = this.get('audio');
 
-    Ember.$(audio).on('canplay',         ()  => this._relayEvent('canplay'));
-    Ember.$(audio).on('error',           (e) => this._relayEvent('error', e));
-    Ember.$(audio).on('playing',         ()  => this._relayEvent('playing'));
-    Ember.$(audio).on('pause',           ()  => this._relayEvent('pause'));
-    Ember.$(audio).on('durationchange',  ()  => this._relayEvent('durationchange'));
+    Ember.$(audio).on('canplay',         ()  => this._handleAudioEvent('canplay'));
+    Ember.$(audio).on('error',           (e) => this._handleAudioEvent('error', e));
+    Ember.$(audio).on('playing',         ()  => this._handleAudioEvent('playing'));
+    Ember.$(audio).on('pause',           ()  => this._handleAudioEvent('pause'));
+    Ember.$(audio).on('durationchange',  ()  => this._handleAudioEvent('durationchange'));
+    Ember.$(audio).on('ended',           ()  => this._handleAudioEvent('ended'));
+    Ember.$(audio).on('progress',        (e) => this._handleAudioEvent('progress', e));
   },
 
   _unregisterEvents() {
     let audio = this.get('audio');
 
-    Ember.$(audio).off('canplay',         ()  => this._relayEvent('canplay'));
-    Ember.$(audio).off('error',           (e) => this._relayEvent('error', e));
-    Ember.$(audio).off('playing',         ()  => this._relayEvent('playing'));
-    Ember.$(audio).off('pause',           ()  => this._relayEvent('pause'));
-    Ember.$(audio).off('durationchange',  ()  => this._relayEvent('durationchange'));
+    Ember.$(audio).off('canplay',         ()  => this._handleAudioEvent('canplay'));
+    Ember.$(audio).off('error',           (e) => this._handleAudioEvent('error', e));
+    Ember.$(audio).off('playing',         ()  => this._handleAudioEvent('playing'));
+    Ember.$(audio).off('pause',           ()  => this._handleAudioEvent('pause'));
+    Ember.$(audio).off('durationchange',  ()  => this._handleAudioEvent('durationchange'));
+    Ember.$(audio).off('ended',           ()  => this._handleAudioEvent('ended'));
+    Ember.$(audio).off('progress',        (e) => this._handleAudioEvent('progress', e));
   },
 
-  _relayEvent(eventName) {
-    // if (this.constructor.currentUrl !== this.get('url')) {
-    //   this.debug(`✋🏻 ignored ${eventName} for ${this.get('url')}`);
-    //   return;
-    // }
-    // else {
-    //   this.debug(`✅ passed through ${eventName} for ${this.get('url')} ✅`);
-    // }
-
+  _handleAudioEvent(eventName, e) {
     switch(eventName) {
       case 'canplay':
         this._onAudioReady();
         break;
       case 'error':
-        this._onAudioError(arguments[1]);
+        this._onAudioError(e);
         break;
       case 'playing':
         this._onAudioPlayed();
@@ -78,16 +74,29 @@ let Sound = BaseSound.extend({
       case 'durationchange':
         this._onAudioDurationChanged();
         break;
+      case 'ended':
+        this._onAudioEnded();
+        break;
+      case 'progress':
+        this._onAudioProgress(e);
+        break;
     }
   },
 
+  _onAudioProgress(e) {
+    this.trigger('audio-loading');
+  },
+
   _onAudioDurationChanged() {
-    let audio = this.get('audio');
-    this.set('duration', (audio.duration * 1000));
+    this.trigger('audio-duration-changed', this);
   },
 
   _onAudioPlayed() {
     this.trigger('audio-played', this);
+  },
+
+  _onAudioEnded() {
+    this.trigger('audio-ended', this);
   },
 
   _onAudioError(e) {
@@ -121,8 +130,13 @@ let Sound = BaseSound.extend({
     this.trigger('audio-ready', this);
   },
 
+  percentLoaded() {
+    let audio = this.get('audio');
+    return (audio.buffered.end(0) / audio.duration);
+  },
+
   audioDuration() {
-    return this.duration;
+    return this.get('audio').duration * 1000;
   },
 
   currentPosition() {

@@ -45,17 +45,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   isStream:       computed.equal('duration', Infinity),
   canFastForward: computed.not('isStream'),
   canRewind:      computed.not('isStream'),
-  position:       computed({
-    get() {
-      return this.currentPosition();
-    },
-    set(k, v) {
-      this.setPosition(v);
-
-      return this.currentPosition();
-    }
-  }),
-
+  position:       0,
 
   init: function() {
     this.set('isLoading', true);
@@ -74,10 +64,6 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
     this.on('audio-loaded', () => {
       this.set('isLoading', false);
-    });
-
-    this.on('audio-position-changed', (position) => {
-      this.set('position', position);
     });
 
     this._detectTimeouts();

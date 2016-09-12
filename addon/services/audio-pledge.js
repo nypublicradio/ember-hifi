@@ -245,6 +245,7 @@ export default Service.extend(Ember.Evented, {
   fastForward(duration) {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
 
+    //TODO just do this through set position and get position
     this.get('currentSound').fastforward(duration);
   },
 
@@ -258,7 +259,8 @@ export default Service.extend(Ember.Evented, {
 
   rewind(duration) {
     assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
-
+    
+    //TODO just do this through set position and get position
     this.get('currentSound').rewind(duration);
   },
 
@@ -341,11 +343,13 @@ export default Service.extend(Ember.Evented, {
    */
 
   _registerEvents(sound) {
-    sound.on('audio-played',  () => this._relayEvent('audio-played', sound));
-    sound.on('audio-paused',  () => this._relayEvent('audio-paused', sound));
-    sound.on('audio-stopped', () => this._relayEvent('audio-stopped', sound));
-    sound.on('audio-loaded',  () => this._relayEvent('audio-loaded', sound));
-    sound.on('audio-loading', () => this._relayEvent('audio-loading', sound));
+    sound.on('audio-played',           () => this._relayEvent('audio-played', sound));
+    sound.on('audio-paused',           () => this._relayEvent('audio-paused', sound));
+    sound.on('audio-stopped',          () => this._relayEvent('audio-stopped', sound));
+    sound.on('audio-duration-changed', () => this._relayEvent('audio-duration-changed', sound));
+    sound.on('audio-position-changed', () => this._relayEvent('audio-position-changed', sound));
+    sound.on('audio-loaded',           () => this._relayEvent('audio-loaded', sound));
+    sound.on('audio-loading',          () => this._relayEvent('audio-loading', sound));
   },
 
   /**
@@ -362,11 +366,13 @@ export default Service.extend(Ember.Evented, {
     if (!sound) {
       return;
     }
-    sound.off('audio-played',  () => this._relayEvent('audio-played', sound));
-    sound.off('audio-paused',  () => this._relayEvent('audio-paused', sound));
-    sound.off('audio-stopped', () => this._relayEvent('audio-stopped', sound));
-    sound.off('audio-loaded',  () => this._relayEvent('audio-loaded', sound));
-    sound.off('audio-loading', () => this._relayEvent('audio-loading', sound));
+    sound.off('audio-played',           () => this._relayEvent('audio-played', sound));
+    sound.off('audio-paused',           () => this._relayEvent('audio-paused', sound));
+    sound.off('audio-stopped',          () => this._relayEvent('audio-stopped', sound));
+    sound.off('audio-duration-changed', () => this._relayEvent('audio-duration-changed', sound));
+    sound.off('audio-position-changed', () => this._relayEvent('audio-position-changed', sound));
+    sound.off('audio-loaded',           () => this._relayEvent('audio-loaded', sound));
+    sound.off('audio-loading',          () => this._relayEvent('audio-loading', sound));
   },
 
   /**

@@ -73,7 +73,8 @@ let Sound = BaseSound.extend({
     });
 
     Ember.$(video).on('pause',           ()  => this.trigger('audio-paused', this));
-    Ember.$(video).on('durationchange',  ()  => this.set('duration', video.duration));
+    Ember.$(video).on('durationchange',  ()  => this.trigger('audio-duration-changed', this));
+    Ember.$(video).on('seeked',          ()  => this.trigger('audio-position-changed', this));
     Ember.$(video).on('error',           (e) => this._onVideoError(e));
   },
 
@@ -169,7 +170,7 @@ let Sound = BaseSound.extend({
   /* Public interface to sound */
 
   audioDuration() {
-    return this.get('duration');
+    return this.get('video').duration;
   },
 
   currentPosition() {
@@ -206,6 +207,7 @@ let Sound = BaseSound.extend({
 
   willDestroy() {
     this.get('hls').destroy();
+    this._super(...arguments);
   }
 });
 
