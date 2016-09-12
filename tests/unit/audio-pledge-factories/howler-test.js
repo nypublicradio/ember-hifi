@@ -29,7 +29,6 @@ moduleFor('audio-pledge@audio-pledge-factory:howler', 'Unit | Factory | Howler',
   }
 });
 
-
 test("Howler should say it cannot play hls streams", function(assert) {
   let badUrls = Ember.A([
     "http://example.org/test.m3u8",

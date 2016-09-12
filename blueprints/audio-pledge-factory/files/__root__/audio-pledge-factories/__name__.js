@@ -6,12 +6,12 @@ const {
 
 let ClassMethods = Ember.Mixin.create({
   canPlayExtension(/* extension */) {
-    // TODO: check if factory can play file with this extension
+    // check if factory can play file with this extension
     return true;
   },
 
   canUseFactory() {
-    // TODO: check to see if this factory will work on this browser/platform
+    // check to see if this factory will work on this browser/platform
     return true;
   }
 });
@@ -22,12 +22,13 @@ let Sound = BaseSound.extend({
     let url   = this.get('url');
     let sound = this;
 
-    // TODO: using the URL, try loading up your sound.
+    // Using the URL, try loading up your sound.
 
-    // TODO: wire up your audio library so it fires these events on this sound class
+    // Wire up your audio library so it fires these events on this sound class
 
     // sound.trigger('audio-ready')                     -> when sound is ready to play
     // sound.trigger('audio-load-error', errorMessage)  -> when sound encounters an loading error
+    // sound.trigger('audio-loading', info)             -> when sound is loading, optionally include {percentLoaded}
 
     // sound.trigger('audio-played')                    -> when sound is played
     // sound.trigger('audio-paused')                    -> when sound is paused
@@ -37,14 +38,14 @@ let Sound = BaseSound.extend({
     // sound.trigger('audio-position-changed')          -> when the audio position changes
   },
 
-  // TODO: implement these methods to control your sound
+  // implement these methods to control your sound
 
   _setVolume() {
     assert('[audio-pledge-factory: <%= name %>] #_setVolume interface not implemented', false);
   },
 
   audioDuration() {
-    // TODO: return Infinity if source is an audio stream
+    // return Infinity if source is an audio stream
     assert("[audio-pledge-factory: <%= name %>] #audioDuration interface not implemented", false);
   },
 
@@ -65,6 +66,7 @@ let Sound = BaseSound.extend({
   },
 
   stop() {
+    // Stop playback and make sure no more audio is downloading
     assert("[audio-pledge-factory: <%= name %>] #stop interface not implemented", false);
   }
 });
