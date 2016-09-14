@@ -40,7 +40,7 @@ let Sound = BaseSound.extend({
         sound.trigger('audio-load-error', error);
       },
       onseek: function() {
-        sound.trigger('audio-position-changed', sound.currentPosition());
+        sound.trigger('audio-position-changed', sound._currentPosition());
       }
     });
   },
@@ -52,15 +52,15 @@ let Sound = BaseSound.extend({
     }
   },
 
-  audioDuration() {
+  _audioDuration() {
     return this.get('howl').duration() * 1000;
   },
 
-  currentPosition() {
+  _currentPosition() {
     return this.get('howl').seek() * 1000;
   },
 
-  setPosition(position) {
+  _setPosition(position) {
     this.get('howl').seek(position / 1000);
   },
 

@@ -36,18 +36,28 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = Ember.Object.extend(Ember.Evented, {
-  logger:         Ember.inject.service('debug-logger'),
-  pollInterval:   1000,
-  timeout:        30000,
-  isLoading:      false,
-  isPlaying:      false,
-  isStream:       computed.equal('duration', Infinity),
-  canFastForward: computed.not('isStream'),
-  canRewind:      computed.not('isStream'),
+  logger:            Ember.inject.service('debug-logger'),
+  pollInterval:      1000,
+  timeout:           30000,
+  isLoading:         false,
+  isPlaying:         false,
+  isStream:          computed.equal('duration', Infinity),
+  isFastForwardable: computed.not('isStream'),
+  isRewindable:      computed.not('isStream'),
 
-  duration:       0,
-  position:       0,
-  percentLoaded:  0,
+  duration:          0,
+  percentLoaded:     0,
+
+  // _position is updated by the service on the currently playing sound
+  position:          computed('_position', {
+    get() {
+      return this._currentPosition();
+    },
+    set(k, v) {
+      this._setPosition(v);
+      return v;
+    }
+  }),
 
   init: function() {
     this.set('isLoading', true);
@@ -61,7 +71,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     this.on('audio-stopped',   () => this.set('isPlaying', false));
 
     this.on('audio-ready',    () => {
-      this.set('duration', this.audioDuration());
+      this.set('duration', this._audioDuration());
     });
 
     this.on('audio-loaded', () => {
@@ -102,18 +112,18 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   },
 
   fastForward(duration) {
-    let audioLength     = this.audioDuration();
-    let currentPosition = this.currentPosition();
+    let audioLength     = this._audioDuration();
+    let currentPosition = this._currentPosition();
     let newPosition     = (currentPosition + duration);
 
-    this.setPosition(newPosition > audioLength ? audioLength : newPosition);
+    this._setPosition(newPosition > audioLength ? audioLength : newPosition);
   },
 
   rewind(duration) {
-    let currentPosition = this.currentPosition();
+    let currentPosition = this._currentPosition();
     let newPosition     = (currentPosition - duration);
 
-    this.setPosition(newPosition < 0 ? 0 : newPosition);
+    this._setPosition(newPosition < 0 ? 0 : newPosition);
   },
 
   /* To be defined on the subclass */
@@ -126,7 +136,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     assert("[audio-pledge] #_setVolume interface not implemented", false);
   },
 
-  audioDuration() {
+  _audioDuration() {
     assert("[audio-pledge] #audioDuration interface not implemented", false);
   },
 

@@ -44,9 +44,9 @@ let Sound = BaseSound.extend({
     assert('[audio-pledge-factory: <%= name %>] #_setVolume interface not implemented', false);
   },
 
-  audioDuration() {
+  _audioDuration() {
     // return Infinity if source is an audio stream
-    assert("[audio-pledge-factory: <%= name %>] #audioDuration interface not implemented", false);
+    assert("[audio-pledge-factory: <%= name %>] #_audioDuration interface not implemented", false);
   },
 
   currentPosition() {

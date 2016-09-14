@@ -38,15 +38,16 @@ export default Service.extend(Ember.Evented, {
   }),
 
   isStream:          computed.readOnly('currentSound.isStream'),
-  isFastForwardable: computed.readOnly('currentSound.canFastForward'),
-  isRewindable:      computed.readOnly('currentSound.canRewind'),
+  isFastForwardable: computed.readOnly('currentSound.isFastForwardable'),
+  isRewindable:      computed.readOnly('currentSound.isRewindable'),
   isMuted:           computed.equal('volume', 0),
-  position:          computed.alias('currentSound.position'),
   duration:          computed.readOnly('currentSound.duration'),
   percentLoaded:     computed.readOnly('currentSound.percentLoaded'),
   pollInterval:      500,
 
   defaultVolume: 50,
+
+  position:          computed.alias('currentSound.position'),
 
   volume: computed({
     get() {
@@ -271,20 +272,6 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
-   * Sets position of the playhead on the current sound
-   *
-   * @method setPosition
-   * @param {Integer} duration in ms
-   * @returns {Void}
-   */
-
-  setPosition(position) {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
-
-    this.get('currentSound').setPosition(position);
-  },
-
-  /**
    * Set the current sound and wire up all the events the sound fires so they
    * trigger through the service, remove the ones on the previous current sound,
    * and set the new current sound to the system volume
@@ -319,7 +306,7 @@ export default Service.extend(Ember.Evented, {
     let sound = this.get('currentSound');
     if (sound) {
       try {
-        set(sound, 'position', sound.currentPosition());
+        set(sound, '_position', sound._currentPosition());
       }
       catch(e) {
 

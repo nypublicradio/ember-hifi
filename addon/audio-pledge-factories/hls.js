@@ -162,15 +162,15 @@ let Sound = BaseSound.extend({
 
   /* Public interface to sound */
 
-  audioDuration() {
+  _audioDuration() {
     return Infinity; // only streams
   },
 
-  currentPosition() {
+  _currentPosition() {
     return this.get('video').currentTime;
   },
 
-  setPosition(position) {
+  _setPosition(position) {
     this.get('video').currentTime = position;
   },
 

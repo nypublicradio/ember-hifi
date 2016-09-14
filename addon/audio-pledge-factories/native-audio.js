@@ -144,8 +144,7 @@ let Sound = BaseSound.extend({
       let total = Ember.A(totals).reduce((a, b) => (a + b), 0);
 
       this.debug(`ms loaded: ${total * 1000}`);
-      this.debug(`duration: ${this.audioDuration()}`);
-
+      this.debug(`duration: ${this._audioDuration()}`);
       this.debug(`percent loaded = ${(total / audio.duration) * 100}`);
 
       return (total / audio.duration);
@@ -158,15 +157,15 @@ let Sound = BaseSound.extend({
 
   /* Public interface */
 
-  audioDuration() {
+  _audioDuration() {
     return this.get('audio').duration * 1000;
   },
 
-  currentPosition() {
+  _currentPosition() {
     return this.get('audio').currentTime * 1000;
   },
 
-  setPosition(position) {
+  _setPosition(position) {
     this.get('audio').currentTime = (position / 1000);
   },
 
