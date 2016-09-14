@@ -11,6 +11,7 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
   // Specify the other units that are required for this test.
 
   needs: [
+    'service:poll',
     'service:debug-logger',
     'service:sound-cache',
     'audio-pledge@audio-pledge-factory:howler',

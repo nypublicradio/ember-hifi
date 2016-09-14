@@ -3,6 +3,7 @@ import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
+import { bind } from 'ember-runloop';
 
 const {
   Service,
@@ -17,6 +18,7 @@ const {
 } = Ember;
 
 export default Service.extend(Ember.Evented, {
+  poll:              Ember.inject.service(),
   soundCache:        Ember.inject.service('sound-cache'),
   logger:            Ember.inject.service('debug-logger'),
   isMobileDevice:    computed({
@@ -85,7 +87,13 @@ export default Service.extend(Ember.Evented, {
 
     this.set('isReady', true);
 
-    this._pollCurrentSoundForPosition();
+   // Polls the current sound for position. We wanted to make it easy/flexible
+   // for factory authors, and since we only play one sound at a time, we don't
+   // need other non-active sounds telling us position info
+    this.get('poll').addPoll({
+      interval: get(this, 'pollInterval'),
+      callback: bind(this, this._setCurrentPosition)
+    });
 
     this._super(...arguments);
   },
@@ -298,26 +306,10 @@ export default Service.extend(Ember.Evented, {
 /* -------------------------------------------------------------------------- */
 
   /**
-   * Polls the current sound for position. We wanted to make it easy/flexible
-   * for factory authors, and since we only play one sound at a time, we don't
-   * need other non-active sounds telling us position info
-   *
-   * @method _pollCurrentSoundForPosition
-   * @param {Void}
-   * @private
-   * @return {Void}
-   */
-
-  _pollCurrentSoundForPosition: function() {
-    this._setCurrentPosition();
-    Ember.run.later(() =>  this._pollCurrentSoundForPosition(), get(this, 'pollInterval'));
-  },
-
-  /**
    * Sets the current sound with its current position, so the sound doesn't have
    * to deal with timers. The service runs the show.
    *
-   * @method _pollCurrentSoundForPosition
+   * @method _setCurrentSoundForPosition
    * @param {Void}
    * @private
    * @return {Void}
