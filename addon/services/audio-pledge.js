@@ -69,8 +69,10 @@ export default Service.extend(Ember.Evented, {
    */
 
   init() {
-    const factories = getWithDefault(this, 'options.audioPledgeFactories', emberArray());
+    const factories = getWithDefault(this, 'options.audioPledge.factories', emberArray());
     const owner = getOwner(this);
+    const debugEnabled = getWithDefault(this, 'options.audioPledge.debug', false);
+    this._setupDebugger(debugEnabled);
 
     owner.registerOptionsForType('audio-pledge@audio-pledge-factory', { instantiate: false });
     owner.registerOptionsForType('audio-pledge-factory', { instantiate: false });
@@ -85,7 +87,6 @@ export default Service.extend(Ember.Evented, {
 
     this._pollCurrentSoundForPosition();
 
-    this._setupDebugger();
     this._super(...arguments);
   },
 
@@ -681,8 +682,10 @@ export default Service.extend(Ember.Evented, {
    * @returns {void}
    */
 
-  _setupDebugger() {
+  _setupDebugger(enabled) {
     let logger = this.get('logger');
+    logger.set('enabled', enabled);
+
     this.debug = function() {
       if (arguments.length === 1) {
         logger.log('audio-pledge', arguments[0]);

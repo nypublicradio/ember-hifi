@@ -8,13 +8,15 @@ Resolver.reopen({
 });
 
 export function initialize(application) {
-  const { audioPledgeFactories = [
-    {name: 'NativeAudio', config: {}},
-    {name: 'HLS', config: {}},
-    {name: 'Howler', config: {}}
-  ] } = config;
+  const { audioPledge = {
+    debug: false,
+    factories: [
+      {name: 'NativeAudio', config: {}},
+      {name: 'HLS', config: {}},
+      {name: 'Howler', config: {}}
+  ]} } = config;
   const { environment = 'development' } = config;
-  const options = { audioPledgeFactories, environment };
+  const options = { audioPledge, environment };
   application.register('config:audio-pledge', options, { instantiate: false });
   application.inject('service:audio-pledge', 'options', 'config:audio-pledge');
 }

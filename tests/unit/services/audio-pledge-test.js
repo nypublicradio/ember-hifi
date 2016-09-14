@@ -43,7 +43,10 @@ moduleFor('service:audio-pledge', 'Unit | Service | audio pledge', {
     ];
 
     options = {
-      audioPledgeFactories
+      audioPledge: {
+        debug: false,
+        factories: audioPledgeFactories
+      }
     };
 
     const soundCacheStub = Ember.Service.extend({
@@ -77,7 +80,10 @@ function chooseActiveFactories(...factoriesToActivate) {
   });
 
   return {
-    audioPledgeFactories: factories
+    audioPledge: {
+      debug: false,
+      factories: factories
+    }
   };
 }
 

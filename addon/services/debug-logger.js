@@ -5,6 +5,8 @@ export default Ember.Service.extend({
   // at loading a url with multiple audio factories, basically wrapping
   // the Debug() class
 
+  enabled: true,
+
   init() {
     this.set('loggers', new Ember.Map());
   },
@@ -22,14 +24,20 @@ export default Ember.Service.extend({
   },
 
   log(name, message) {
-    this.findOrCreateLogger(name).log(message);
+    if (this.get('enabled')) {
+      this.findOrCreateLogger(name).log(message);
+    }
   },
 
   timeStart(name, timerName) {
-    this.findOrCreateLogger(name).time(timerName);
+    if (this.get('enabled')) {
+      this.findOrCreateLogger(name).time(timerName);
+    }
   },
 
   timeEnd(name, timerName) {
-    this.findOrCreateLogger(name).timeEnd(timerName);
+    if (this.get('enabled')) {
+      this.findOrCreateLogger(name).timeEnd(timerName);
+    }
   }
 });
