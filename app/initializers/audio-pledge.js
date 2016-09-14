@@ -1,5 +1,5 @@
 import config from '../config/environment';
-import Resolver from 'ember-resolver';
+import Resolver from '../resolver';
 
 Resolver.reopen({
   pluralizedTypes: {
