@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import AudioPledgeInitializer from 'dummy/initializers/audio-pledge';
+import AudioPledgeInitializer from 'dummy/instance-initializers/audio-pledge';
 import { module, test } from 'qunit';
 
 let application;
