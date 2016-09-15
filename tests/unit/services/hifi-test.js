@@ -2,7 +2,7 @@ import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 const { get } = Ember;
-import DummySound from 'dummy/tests/helpers/dummy-sound';
+import DummyConnection from 'dummy/tests/helpers/dummy-connection';
 import { stubConnectionCreateWithSuccess, stubConnectionCreateWithFailure } from '../../helpers/ember-hifi-test-helpers';
 
 let sandbox, hifiConnections, options;
@@ -124,10 +124,10 @@ test('#load tries the first connection that says it can handle the url', functio
   let nativeSpy         = sinon.stub(NativeAudio, 'canPlay').returns(true);
   let localSpy          = sinon.stub(LocalDummyConnection, 'canPlay').returns(false);
 
-  let sound             = new DummySound();
+  let sound             = new DummyConnection();
 
   let nativeCreateSpy   = sinon.stub(NativeAudio, 'create', function() {
-    let sound =  DummySound.create(...arguments);
+    let sound =  DummyConnection.create(...arguments);
     Ember.run.next(() => sound.trigger('audio-ready'));
 
     return sound;
@@ -170,7 +170,7 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   sinon.stub(LocalDummyConnection, 'canPlay').returns(true);
 
   let localCreateSpy = sinon.stub(LocalDummyConnection, 'create', function() {
-    let sound = DummySound.create(...arguments);
+    let sound = DummyConnection.create(...arguments);
 
     if (sound.get('url') === goodUrl) {
       Ember.run.next(() => sound.trigger('audio-ready'));

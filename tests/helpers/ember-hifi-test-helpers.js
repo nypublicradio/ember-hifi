@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import sinon from 'sinon';
-import DummySound from 'dummy/tests/helpers/dummy-sound';
+import DummyConnection from 'dummy/tests/helpers/dummy-connection';
 
 const {
   get
@@ -11,7 +11,7 @@ function stubConnectionCreateWithSuccess(service, connectionName) {
   sinon.stub(Connection, 'canPlay').returns(true);
 
   let connectionSpy = sinon.stub(Connection, 'create', function() {
-    let sound =  DummySound.create(...arguments);
+    let sound =  DummyConnection.create(...arguments);
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
   });
@@ -25,7 +25,7 @@ function stubConnectionCreateWithFailure(service, connectionName) {
 
   let connectionSpy = sinon.stub(Connection, 'create', function() {
     console.log(`stubbed ${Connection} create called`);
-    let sound =  DummySound.create(...arguments);
+    let sound =  DummyConnection.create(...arguments);
     Ember.run.next(() => sound.trigger('audio-load-error'));
     return sound;
   });
