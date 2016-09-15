@@ -1,7 +1,7 @@
 {
-  "name": "audio-pledge",
+  "name": "ember-hifi",
   "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "Play audio in your ember app with as little headache as possible.",
   "directories": {
     "doc": "doc",
     "test": "tests"

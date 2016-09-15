@@ -1,14 +1,14 @@
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
-// import NativeAudio from 'audio-pledge/audio-pledge-factories/native-audio';
+// import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
 let sandbox;
 const goodUrl = "http://example.org/good.aac";
 const badUrl  = "http://example.org/there-aint-nothing-here.aac";
 
-moduleFor('audio-pledge@audio-pledge-factory:native-audio', 'Unit | Factory | Native Audio', {
+moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native Audio', {
   needs:['service:debug-logger',
-         'audio-pledge@audio-pledge-factory:base'],
+         'ember-hifi@hifi-connection:base'],
   beforeEach() {
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock

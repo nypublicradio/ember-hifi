@@ -2,16 +2,16 @@ import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 import { skip } from 'qunit';
-import HLSFactory from 'audio-pledge/audio-pledge-factories/hls';
+import HLSConnection from 'ember-hifi/hifi-connections/hls';
 import { setupHLSSpies, throwMediaError } from '../../helpers/hls-test-helpers';
 
 let sandbox;
 const goodUrl = "http://example.org/good.m3u8";
 const badUrl  = "http://example.org/bad.m3u8";
 
-moduleFor('audio-pledge@audio-pledge-factory:hls', 'Unit | Factory | HLS', {
+moduleFor('ember-hifi@hifi-connection:hls', 'Unit | Connection | HLS', {
   needs:['service:debug-logger',
-         'audio-pledge@audio-pledge-factory:base'],
+         'ember-hifi@hifi-connection:base'],
   beforeEach() {
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock
@@ -30,7 +30,7 @@ moduleFor('audio-pledge@audio-pledge-factory:hls', 'Unit | Factory | HLS', {
   }
 });
 
-test("HLS factory should say it can play files with m3u8 extension", function(assert) {
+test("HLS connection should say it can play files with m3u8 extension", function(assert) {
   let goodUrls = Ember.A([
     "http://example.org/test.m3u8",
     "http://example.org/test.m3u8?query_params",
@@ -46,11 +46,11 @@ test("HLS factory should say it can play files with m3u8 extension", function(as
   assert.expect(badUrls.length + goodUrls.length);
 
   badUrls.forEach(url => {
-    assert.equal(HLSFactory.canPlay(url), false, `Should not play file with ${url}`);
+    assert.equal(HLSConnection.canPlay(url), false, `Should not play file with ${url}`);
   });
 
   goodUrls.forEach(url => {
-    assert.equal(HLSFactory.canPlay(url), true, `Should be able to play file with ${url}`);
+    assert.equal(HLSConnection.canPlay(url), true, `Should be able to play file with ${url}`);
   });
 });
 

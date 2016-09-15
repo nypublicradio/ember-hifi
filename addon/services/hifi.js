@@ -63,7 +63,7 @@ export default Service.extend(Ember.Evented, {
   }),
 
   /**
-   * When the Service is created, activate factories that were specified in the
+   * When the Service is created, activate connections that were specified in the
    * configuration. This config is injected into the Service as `options`.
    *
    * @method init
@@ -72,24 +72,24 @@ export default Service.extend(Ember.Evented, {
    */
 
   init() {
-    const factories = getWithDefault(this, 'options.audioPledge.factories', emberArray());
+    const connections = getWithDefault(this, 'options.emberHifi.connections', emberArray());
     const owner = getOwner(this);
-    const debugEnabled = getWithDefault(this, 'options.audioPledge.debug', false);
+    const debugEnabled = getWithDefault(this, 'options.emberHifi.debug', false);
     this._setupDebugger(debugEnabled);
 
-    owner.registerOptionsForType('audio-pledge@audio-pledge-factory', { instantiate: false });
-    owner.registerOptionsForType('audio-pledge-factory', { instantiate: false });
+    owner.registerOptionsForType('ember-hifi@hifi-connection', { instantiate: false });
+    owner.registerOptionsForType('hifi-connection', { instantiate: false });
 
     set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
-    set(this, '_factories', {});
+    set(this, '_connections', {});
     set(this, 'oneAtATime', new OneAtATime());
     set(this, 'volume', 50);
-    this._activateFactories(factories);
+    this._activateConnections(connections);
 
     this.set('isReady', true);
 
    // Polls the current sound for position. We wanted to make it easy/flexible
-   // for factory authors, and since we only play one sound at a time, we don't
+   // for connection authors, and since we only play one sound at a time, we don't
    // need other non-active sounds telling us position info
     this.get('poll').addPoll({
       interval: get(this, 'pollInterval'),
@@ -100,15 +100,15 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
-   * Returns the list of activated and available factories
+   * Returns the list of activated and available connections
    *
-   * @method availableFactories
+   * @method availableConnections
    * @param {Void}
    * @return {Array}
    */
 
-  availableFactories() {
-    return Object.keys(this.get('_factories'));
+  availableConnections() {
+    return Object.keys(this.get('_connections'));
   },
 
   /**
@@ -137,10 +137,10 @@ export default Service.extend(Ember.Evented, {
         else {
           this.set('isLoading', true);
           let strategies = [];
-          if (options.useFactories) {
-            // If the consumer has specified a factory to prefer, use it
-            let factoryNames  = options.useFactories;
-            strategies = this._prepareStrategies(urlsToTry, factoryNames);
+          if (options.useConnections) {
+            // If the consumer has specified a connection to prefer, use it
+            let connectionNames  = options.useConnections;
+            strategies = this._prepareStrategies(urlsToTry, connectionNames);
           }
           else if (this.get('isMobileDevice')) {
             // If we're on a mobile device, we want to try NativeAudio first
@@ -152,7 +152,7 @@ export default Service.extend(Ember.Evented, {
 
           if (this.get('isMobileDevice')) {
             // If we're on a mobile device, attach the audioElement to be passed
-            // into each factory to combat autoplay blocking issues on touch devices
+            // into each connection to combat autoplay blocking issues on touch devices
             strategies  = strategies.map(s => {
               s.audioElement = audioElement;
               return s;
@@ -191,7 +191,7 @@ export default Service.extend(Ember.Evented, {
 
     let load = this.load(urlsOrPromise, options);
     load.then(({sound}) => {
-      this.debug("audio-pledge", "Finished load, trying to play sound");
+      this.debug("ember-hifi", "Finished load, trying to play sound");
       this._attemptToPlaySound(sound);
     });
 
@@ -208,7 +208,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   pause() {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    assert('[ember-hifi] Nothing is playing.', this.get('currentSound'));
     this.get('currentSound').pause();
   },
 
@@ -221,7 +221,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   stop() {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    assert('[ember-hifi] Nothing is playing.', this.get('currentSound'));
     this.get('currentSound').stop();
   },
 
@@ -234,7 +234,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   togglePause() {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    assert('[ember-hifi] Nothing is playing.', this.get('currentSound'));
 
     if (this.get('isPlaying')) {
       this.get('currentSound').pause();
@@ -253,7 +253,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   fastForward(duration) {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    assert('[ember-hifi] Nothing is playing.', this.get('currentSound'));
     this.get('currentSound').fastForward(duration);
   },
 
@@ -266,7 +266,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   rewind(duration) {
-    assert('[audio-pledge] Nothing is playing.', this.get('currentSound'));
+    assert('[ember-hifi] Nothing is playing.', this.get('currentSound'));
     this.get('currentSound').rewind(duration);
   },
 
@@ -372,93 +372,64 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
-   * Selects loaded factories by name
+   * Activates the connections as specified in the config options
    *
-   * @method selectFactoriesByName
-   * @param {Array} names
-   * @return [Factory] by names
-   */
-
-  selectFactoriesByName(names) {
-    names = Ember.makeArray(names);
-    let factories = this.availableFactories();
-    return getProperties(factories, names);
-  },
-
-  /**
-   * Selects a compatiable factory based on the URL
-   *
-   * @method selectWorkingFactories
-   * @param {Array} urls
-   * @return {Array} activated factories that claim they can play the URL
-   */
-
-  selectWorkingFactories(url) {
-    let factoryNames      = this.availableFactories();
-    let factories         = factoryNames.map(name => this.get(`_factories.${name}`));
-
-    return factories.filter(f => f.canPlay(url));
-  },
-
-  /**
-   * Activates the factories as specified in the config options
-   *
-   * @method _activateFactories
+   * @method _activateConnections
    * @private
-   * @param {Array} factoryOptions
-   * @return {Object} instantiated factories
+   * @param {Array} connectionOptions
+   * @return {Object} instantiated connections
    */
 
-  _activateFactories(factoryOptions = []) {
-    const cachedFactories = get(this, '_factories');
-    const activatedFactories = {};
+  _activateConnections(options = []) {
+    const cachedConnections = get(this, '_connections');
+    const activatedConnections = {};
 
-    factoryOptions.forEach((factoryOption) => {
-      const { name } = factoryOption;
-      const factory = cachedFactories[name] ? cachedFactories[name] : this._activateFactory(factoryOption);
+    options.forEach((connectionOption) => {
+      const { name } = connectionOption;
+      const connection = cachedConnections[name] ? cachedConnections[name] : this._activateConnection(connectionOption);
 
-      set(activatedFactories, name, factory);
+      set(activatedConnections, name, connection);
     });
 
-    return set(this, '_factories', activatedFactories);
+    return set(this, '_connections', activatedConnections);
   },
 
  /**
-  * Activates the a single factory
+  * Activates the a single connection
   *
-  * @method _activateFactory
+  * @method _activateConnection
   * @private
   * @param {Object} {name, config}
-  * @return {Factory} instantiated Factory
+  * @return {Connection} instantiated Connection
   */
 
-  _activateFactory({ name, config } = {}) {
-    const Factory = this._lookupFactory(name);
-    assert('[audio-pledge] Could not find audio factory ${name}.', name);
-    Factory.setup(config);
-    return Factory;
+  _activateConnection({ name, config } = {}) {
+    const Connection = this._lookupConnection(name);
+    assert('[ember-hifi] Could not find hifi connection ${name}.', name);
+    Connection.setup(config);
+    return Connection;
   },
 
   /**
-   * Looks up the factory from the container. Prioritizes the consuming app's
-   * factories over the addon's factories.
+   * Looks up the connection from the container. Prioritizes the consuming app's
+   * connections over the addon's connections.
    *
-   * @method _lookupFactory
-   * @param {String} factoryName
+   * @method _lookupConnection
+   * @param {String} connectionName
    * @private
-   * @return {Factory} a local factory or an factory from the addon
+   * @return {Connection} a local connection or a connection from the addon
    */
 
-  _lookupFactory(factoryName) {
-    assert('[audio-pledge] Could not find audio factory without a name.', factoryName);
+  _lookupConnection(connectionName) {
+    assert('[ember-hifi] Could not find a hifi connection without a name.', connectionName);
 
-    const dasherizedFactoryName = dasherize(factoryName);
-    const availableFactory = getOwner(this).lookup(`audio-pledge@audio-pledge-factory:${dasherizedFactoryName}`);
-    const localFactory = getOwner(this).lookup(`audio-pledge-factory:${dasherizedFactoryName}`);
+    const dasherizedConnectionName = dasherize(connectionName);
+    const availableConnection      = getOwner(this).lookup(`ember-hifi@hifi-connection:${dasherizedConnectionName}`);
+    const localConnection          = getOwner(this).lookup(`hifi-connection:${dasherizedConnectionName}`);
 
-    assert(`[audio-pledge] Could not load audio factory ${dasherizedFactoryName}`, (localFactory || availableFactory));
+    assert(`[ember-hifi] Could not load hifi connection ${dasherizedConnectionName}`, (localConnection || availableConnection));
 
-    return localFactory ? localFactory : availableFactory;
+    return localConnection ? localConnection : availableConnection;
   },
 
   /**
@@ -476,18 +447,18 @@ export default Service.extend(Ember.Evented, {
     };
 
     if (urlsOrPromise.then) {
-      this.debug('audio-pledge', "#load passed URL promise");
+      this.debug('ember-hifi', "#load passed URL promise");
     }
 
     return RSVP.Promise.resolve(urlsOrPromise).then(urls => {
       urls = prepare(urls);
-      this.debug('audio-pledge', `given urls: ${urls.join(', ')}`);
+      this.debug('ember-hifi', `given urls: ${urls.join(', ')}`);
       return urls;
     });
   },
 
   /**
-   * Given an array of strategies with {factory, url} try the factory and url
+   * Given an array of strategies with {connection, url} try the connection and url
    * return the first thing that works
    *
    * @method _findFirstPlayableSound
@@ -500,21 +471,21 @@ export default Service.extend(Ember.Evented, {
     this.timeStart(options.debugName, "_findFirstPlayableSound");
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
-      let Factory        = strategy.factory;
-      let factoryOptions = getProperties(strategy, 'url', 'factoryName', 'audioElement');
-      let sound          = Factory.create(factoryOptions);
+      let Connection         = strategy.connection;
+      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'audioElement');
+      let sound              = Connection.create(connectionOptions);
 
-      this.debug(options.debugName, `TRYING: [${strategy.factoryName}] -> ${strategy.url}`);
+      this.debug(options.debugName, `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
 
       sound.one('audio-load-error', (error) => {
         strategy.error = error;
         markAsFailure(strategy);
-        this.debug(options.debugName, `FAILED: [${strategy.factoryName}] -> ${error} (${strategy.url})`);
+        this.debug(options.debugName, `FAILED: [${strategy.connectionName}] -> ${error} (${strategy.url})`);
       });
 
       sound.one('audio-ready',      () => {
         returnSuccess(sound);
-        this.debug(options.debugName, `SUCCESS: [${strategy.factoryName}] -> (${strategy.url})`);
+        this.debug(options.debugName, `SUCCESS: [${strategy.connectionName}] -> (${strategy.url})`);
       });
     });
 
@@ -524,12 +495,12 @@ export default Service.extend(Ember.Evented, {
   },
 
   /**
-   * Given some urls, it prepares an array of factory and url pairs to try
+   * Given some urls, it prepares an array of connection and url pairs to try
    *
    * @method _prepareParamsForLoadWorkingAudio
    * @param {Array} urlsToTry
    * @private
-   * @return {Array} {factory, url}
+   * @return {Array} {connection, url}
    */
 
   /**
@@ -537,26 +508,26 @@ export default Service.extend(Ember.Evented, {
    * first since it's most likely to succeed and play immediately with our
    * audio unlock logic
 
-   * we try each url on each compatible factory in order
-   * [{factory: NativeAudio, url: url1},
-   *  {factory: NativeAudio, url: url2},
-   *  {factory: HLS, url: url1},
-   *  {factory: Other, url: url1},
-   *  {factory: HLS, url: url2},
-   *  {factory: Other, url: url2}]
+   * we try each url on each compatible connection in order
+   * [{connection: NativeAudio, url: url1},
+   *  {connection: NativeAudio, url: url2},
+   *  {connection: HLS, url: url1},
+   *  {connection: Other, url: url1},
+   *  {connection: HLS, url: url2},
+   *  {connection: Other, url: url2}]
 
    * @method _prepareMobileStrategies
    * @param {Array} urlsToTry
    * @private
-   * @return {Array} {factory, url}
+   * @return {Array} {connection, url}
    */
 
   _prepareMobileStrategies(urlsToTry) {
     let strategies = this._prepareStandardStrategies(urlsToTry);
     this.debug("modifying standard strategy for to work best on mobile");
 
-    let nativeStrategies  = Ember.A(strategies).filter(s => (s.factoryName === 'NativeAudio'));
-    let otherStrategies   = Ember.A(strategies).reject(s => (s.factoryName === 'NativeAudio'));
+    let nativeStrategies  = Ember.A(strategies).filter(s => (s.connectionName === 'NativeAudio'));
+    let otherStrategies   = Ember.A(strategies).reject(s => (s.connectionName === 'NativeAudio'));
     let orderedStrategies = nativeStrategies.concat(otherStrategies);
 
     return orderedStrategies;
@@ -565,54 +536,54 @@ export default Service.extend(Ember.Evented, {
   /**
    * Given a list of urls, prepare the strategy that we think will succeed best
    *
-   * Breadth first: we try each url on each compatible factory in order
-   * [{factory: NativeAudio, url: url1},
-   *  {factory: HLS, url: url1},
-   *  {factory: Other, url: url1},
-   *  {factory: NativeAudio, url: url2},
-   *  {factory: HLS, url: url2},
-   *  {factory: Other, url: url2}]
+   * Breadth first: we try each url on each compatible connection in order
+   * [{connection: NativeAudio, url: url1},
+   *  {connection: HLS, url: url1},
+   *  {connection: Other, url: url1},
+   *  {connection: NativeAudio, url: url2},
+   *  {connection: HLS, url: url2},
+   *  {connection: Other, url: url2}]
 
    * @method _prepareStandardStrategies
    * @param {Array} urlsToTry
    * @private
-   * @return {Array} {factory, url}
+   * @return {Array} {connection, url}
    */
 
   _prepareStandardStrategies(urlsToTry, options) {
-    return this._prepareStrategies(urlsToTry, this.availableFactories(), options);
+    return this._prepareStrategies(urlsToTry, this.availableConnections(), options);
   },
 
   /**
-   * Given a list of urls and a list of factories, assemble array of
+   * Given a list of urls and a list of connections, assemble array of
    * strategy objects to be tried in order. Each strategy object
-   * should contain a factory, a factoryName, a url, and in some cases
+   * should contain a connection, a connectionName, a url, and in some cases
    * an audioElement
 
    * @method _prepareStrategies
    * @param {Array} urlsToTry
    * @private
-   * @return {Array} {factory, url}
+   * @return {Array} {connection, url}
    */
 
-  _prepareStrategies(urlsToTry, factoryNames) {
-    factoryNames = Ember.makeArray(factoryNames);
+  _prepareStrategies(urlsToTry, connectionNames) {
+    connectionNames = Ember.makeArray(connectionNames);
     let strategies = [];
 
     urlsToTry.forEach(url => {
-      let factorySuccesses = [];
-      factoryNames.forEach(factoryName => {
-        let factory = this.get(`_factories.${factoryName}`);
-        if (factory.canPlay(url)) {
-          factorySuccesses.push(factoryName);
+      let connectionSuccesses = [];
+      connectionNames.forEach(name => {
+        let connection = this.get(`_connections.${name}`);
+        if (connection.canPlay(url)) {
+          connectionSuccesses.push(name);
           strategies.push({
-            factoryName:  factoryName,
-            factory:      factory,
-            url:          url
+            connectionName:  name,
+            connection:      connection,
+            url:             url
           });
         }
       });
-      this.debug(`Compatible factories for ${url}: ${factorySuccesses.join(", ")}`);
+      this.debug(`Compatible connections for ${url}: ${connectionSuccesses.join(", ")}`);
     });
     return strategies;
   },
@@ -666,7 +637,7 @@ export default Service.extend(Ember.Evented, {
 
     this.debug = function() {
       if (arguments.length === 1) {
-        logger.log('audio-pledge', arguments[0]);
+        logger.log('ember-hifi', arguments[0]);
       }
       else if (arguments.length === 2) {
         logger.log(arguments[0], arguments[1]);

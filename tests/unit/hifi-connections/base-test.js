@@ -2,7 +2,7 @@ import { moduleFor, test } from 'ember-qunit';
 
 let baseSound;
 
-moduleFor('audio-pledge@audio-pledge-factory:base', 'Unit | Factory | base', {
+moduleFor('ember-hifi@hifi-connection:base', 'Unit | Connection | base', {
   needs:['util:promise-race'],
   beforeEach() {
     baseSound = this.subject({

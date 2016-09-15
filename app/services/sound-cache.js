@@ -1,1 +1,1 @@
-export { default } from 'audio-pledge/services/sound-cache';
+export { default } from 'ember-hifi/services/sound-cache';

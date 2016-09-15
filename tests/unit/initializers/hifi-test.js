@@ -1,10 +1,10 @@
 import Ember from 'ember';
-import AudioPledgeInitializer from 'dummy/instance-initializers/audio-pledge';
+import EmberHifiInitializer from 'dummy/instance-initializers/ember-hifi';
 import { module, test } from 'qunit';
 
 let application;
 
-module('Unit | Initializer | audio pledge', {
+module('Unit | Initializer | ember-hifi', {
   beforeEach() {
     Ember.run(function() {
       application = Ember.Application.create();
@@ -15,7 +15,7 @@ module('Unit | Initializer | audio pledge', {
 
 // Replace this with your real tests.
 test('it works', function(assert) {
-  AudioPledgeInitializer.initialize(application);
+  EmberHifiInitializer.initialize(application);
 
   // you would normally confirm the results of the initializer here
   assert.ok(true);

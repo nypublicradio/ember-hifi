@@ -6,12 +6,12 @@ const {
 
 let ClassMethods = Ember.Mixin.create({
   canPlayExtension(/* extension */) {
-    // check if factory can play file with this extension
+    // check if connection can play file with this extension
     return true;
   },
 
-  canUseFactory() {
-    // check to see if this factory will work on this browser/platform
+  canUseConnection() {
+    // check to see if this connection will work on this browser/platform
     return true;
   }
 });
@@ -41,33 +41,33 @@ let Sound = BaseSound.extend({
   // implement these methods to control your sound
 
   _setVolume() {
-    assert('[audio-pledge-factory: <%= name %>] #_setVolume interface not implemented', false);
+    assert('[hifi-connection: <%= name %>] #_setVolume interface not implemented', false);
   },
 
   _audioDuration() {
     // return Infinity if source is an audio stream
-    assert("[audio-pledge-factory: <%= name %>] #_audioDuration interface not implemented", false);
+    assert("[hifi-connection: <%= name %>] #_audioDuration interface not implemented", false);
   },
 
   currentPosition() {
-    assert("[audio-pledge-factory: <%= name %>] #currentPosition interface not implemented", false);
+    assert("[hifi-connection: <%= name %>] #currentPosition interface not implemented", false);
   },
 
   setPosition() {
-    assert("[audio-pledge-factory: <%= name %>] #setPosition interface not implemented", false);
+    assert("[hifi-connection: <%= name %>] #setPosition interface not implemented", false);
   },
 
   play() {
-    assert("[audio-pledge-factory: <%= name %>] #play interface not implemented", false);
+    assert("[hifi-connection: <%= name %>] #play interface not implemented", false);
   },
 
   pause() {
-    assert("[audio-pledge-factory: <%= name %>] #pause interface not implemented", false);
+    assert("[hifi-connection: <%= name %>] #pause interface not implemented", false);
   },
 
   stop() {
     // Stop playback and make sure no more audio is downloading
-    assert("[audio-pledge-factory: <%= name %>] #stop interface not implemented", false);
+    assert("[hifi-connection: <%= name %>] #stop interface not implemented", false);
   }
 });
 

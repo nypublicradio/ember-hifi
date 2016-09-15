@@ -2,7 +2,7 @@ import Ember from 'ember';
 import Debug from '../utils/debug';
 export default Ember.Service.extend({
   // A service to help try and keep track of the requests and attempts
-  // at loading a url with multiple audio factories, basically wrapping
+  // at loading a url with multiple audio connections, basically wrapping
   // the Debug() class
 
   enabled: true,

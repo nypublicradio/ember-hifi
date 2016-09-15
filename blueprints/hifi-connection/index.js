@@ -1,8 +1,8 @@
 module.exports = {
-  description: 'Generates an audio-pledger sound factory.',
+  description: 'Generates an ember-hifi connection.',
 
   locals: function(options) {
-    var importStatement = "import BaseSound from 'audio-pledge/audio-pledge-factories/base';";
+    var importStatement = "import BaseSound from 'ember-hifi/hifi-connections/base';";
     var baseClass = 'BaseSound';
     var name      = options.entity.name;
     var toStringExtension = 'return ' + "'" + options.entity.name + "';";

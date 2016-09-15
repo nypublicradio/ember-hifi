@@ -2,7 +2,7 @@
 'use strict';
 
 module.exports = {
-  name: 'audio-pledge',
+  name: 'ember-hifi',
   included(app) {
     this._super.included(app);
 

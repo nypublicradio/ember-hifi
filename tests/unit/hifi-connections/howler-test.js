@@ -1,16 +1,16 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
-import HowlerFactory from 'audio-pledge/audio-pledge-factories/howler';
+import HowlerConnection from 'ember-hifi/hifi-connections/howler';
 // import { Howl } from 'howler';
 
 let sandbox;
 const goodUrl = "http://example.org/good.aac";
 const badUrl  = "/there-aint-nothing-here.aac";
 
-moduleFor('audio-pledge@audio-pledge-factory:howler', 'Unit | Factory | Howler', {
+moduleFor('ember-hifi@hifi-connection:howler', 'Unit | Connection | Howler', {
   needs:['service:debug-logger',
-         'audio-pledge@audio-pledge-factory:base'],
+         'ember-hifi@hifi-connection:base'],
   beforeEach() {
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock
@@ -45,11 +45,11 @@ test("Howler should say it cannot play hls streams", function(assert) {
   assert.expect(badUrls.length + goodUrls.length);
 
   badUrls.forEach(url => {
-    assert.equal(HowlerFactory.canPlay(url), false, `Should not play file with ${url}`);
+    assert.equal(HowlerConnection.canPlay(url), false, `Should not play file with ${url}`);
   });
 
   goodUrls.forEach(url => {
-    assert.equal(HowlerFactory.canPlay(url), true, `Should be able to play file with ${url}`);
+    assert.equal(HowlerConnection.canPlay(url), true, `Should be able to play file with ${url}`);
   });
 });
 

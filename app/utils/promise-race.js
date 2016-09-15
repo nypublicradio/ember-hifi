@@ -1,1 +1,1 @@
-export { default } from 'audio-pledge/utils/promise-race';
+export { default } from 'ember-hifi/utils/promise-race';

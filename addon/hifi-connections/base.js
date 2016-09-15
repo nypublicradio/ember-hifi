@@ -12,10 +12,10 @@ let ClassMethods = Ember.Mixin.create({
 
   canPlay(url) {
     let urlExtension = url.split('.').pop().split('?').shift().split('#').shift();
-    return this.canUseFactory(url) && this.canPlayExtension(urlExtension);
+    return this.canUseConnection(url) && this.canPlayExtension(urlExtension);
   },
 
-  canUseFactory() {
+  canUseConnection() {
     return true;
   },
 
@@ -129,35 +129,35 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   /* To be defined on the subclass */
 
   setup() {
-    assert("[audio-pledge] #setup interface not implemented", false);
+    assert("[ember-hifi] #setup interface not implemented", false);
   },
 
   _setVolume() {
-    assert("[audio-pledge] #_setVolume interface not implemented", false);
+    assert("[ember-hifi] #_setVolume interface not implemented", false);
   },
 
   _audioDuration() {
-    assert("[audio-pledge] #audioDuration interface not implemented", false);
+    assert("[ember-hifi] #audioDuration interface not implemented", false);
   },
 
   currentPosition() {
-    assert("[audio-pledge] #currentPosition interface not implemented", false);
+    assert("[ember-hifi] #currentPosition interface not implemented", false);
   },
 
   setPosition() {
-    assert("[audio-pledge] #setPosition interface not implemented", false);
+    assert("[ember-hifi] #setPosition interface not implemented", false);
   },
 
   play() {
-    assert("[audio-pledge] #play interface not implemented", false);
+    assert("[ember-hifi] #play interface not implemented", false);
   },
 
   pause() {
-    assert("[audio-pledge] #pause interface not implemented", false);
+    assert("[ember-hifi] #pause interface not implemented", false);
   },
 
   stop() {
-    assert("[audio-pledge] #stop interface not implemented", false);
+    assert("[ember-hifi] #stop interface not implemented", false);
   },
 
   teardown() {

@@ -1,9 +1,9 @@
 import Ember from 'ember';
-import BaseSound from 'audio-pledge/audio-pledge-factories/base';
+import BaseSound from 'ember-hifi/hifi-connections/base';
 
 export default BaseSound.extend({
   toString() {
-    return 'Local Dummy Factory';
+    return 'Local Dummy Connection';
   },
 
   init: Ember.K,

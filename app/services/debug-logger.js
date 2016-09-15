@@ -1,1 +1,1 @@
-export { default } from 'audio-pledge/services/debug-logger';
+export { default } from 'ember-hifi/services/debug-logger';
