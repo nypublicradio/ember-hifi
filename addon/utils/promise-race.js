@@ -32,7 +32,9 @@ function start(params, callback) {
           }
           let nextParam = paramsToTry.shift();
           if (!nextParam) {
-            reject({ failures });
+            let error = new Error('All given promises failed.');
+            error.failures = failures;
+            reject(error);
           }
           else {
             return tryNext(promisifyCallback(callback, nextParam));

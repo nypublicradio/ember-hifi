@@ -127,12 +127,12 @@ export default Service.extend(Ember.Evented, {
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
         if (Ember.isEmpty(urlsToTry)) {
-          reject({error: "Urls must be provided"});
+          return reject(new Error('URLs must be provided');
         }
 
         let sound = this.get('soundCache').find(urlsToTry);
         if (sound) {
-          resolve({sound});
+          return resolve({sound});
         }
         else {
           this.set('isLoading', true);
@@ -161,7 +161,6 @@ export default Service.extend(Ember.Evented, {
 
           let search      = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
-          search.catch(results => reject({failures: results.failures}));
 
           return search;
         }
