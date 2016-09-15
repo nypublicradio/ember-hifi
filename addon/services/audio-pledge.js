@@ -127,7 +127,7 @@ export default Service.extend(Ember.Evented, {
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
         if (Ember.isEmpty(urlsToTry)) {
-          return reject(new Error('URLs must be provided');
+          return reject(new Error('URLs must be provided'));
         }
 
         let sound = this.get('soundCache').find(urlsToTry);
