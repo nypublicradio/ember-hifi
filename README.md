@@ -4,15 +4,7 @@
 
 ![Download count all time](https://img.shields.io/npm/dt/ember-hifi.svg) [![npm version](https://badge.fury.io/js/ember-hifi.svg)](http://badge.fury.io/js/ember-hifi) [![CircleCI](https://circleci.com/gh/nypublicradio/ember-hifi.svg?style=shield)](https://circleci.com/gh/nypublicradio/ember-hifi) [![Ember Observer Score](http://emberobserver.com/badges/ember-hifi.svg)](http://emberobserver.com/addons/ember-hifi)
 
-This addon adds a simple `hifi` service to your app that makes it easy to play audio in the unfriendly landscape that is the current state of audio on the web. Forget worrying about formats and browsers and just give `hifi` a list of URLS to try and it'll play the first one that works.
-
-#### Currently included audio libraries
-
-1. `NativeAudio` - Uses the native `<audio>` element for playing and streaming audio
-1. `HLS` - Uses HLS.js for playing HLS streams on the desktop.
-1. `Howler` - Uses [howler](http://howlerjs.com) to play audio
-
-If you want to use a different library that isn't mentioned below, new audio connections are easy to write.
+This addon adds a simple `hifi` service to your app that makes it easy to play audio in the unfriendly landscape that is the current state of audio on the web. Forget worrying about formats and browsers and just give `hifi` a list of URLs to try and it'll play the first one that works.
 
 ## Installing The Addon
 
@@ -153,6 +145,19 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 - `duration` (integer, in ms)
 - `percentLoaded` (integer, not always available)
+
+
+## Details
+
+#### Currently included audio libraries
+
+1. `NativeAudio` - Uses the native `<audio>` element for playing and streaming audio
+1. `HLS` - Uses HLS.js for playing HLS streams on the desktop.
+1. `Howler` - Uses [howler](http://howlerjs.com) to play audio
+
+`hifi` will take a list of urls and find the first connection/url combo that works. For desktop browsers, we'll try each url on each connection in the order the urls were specified.
+
+For mobile browsers, we'll first try using the NativeAudio connection on all the URLs to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice. 
 
 ## Writing Your Own Hifi Connection
 
