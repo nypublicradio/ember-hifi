@@ -309,7 +309,7 @@ export default Service.extend(Ember.Evented, {
     let sound = this.get('currentSound');
     if (sound) {
       try {
-        set(sound, '_position', sound._currentPosition());
+        set(sound, '_position', sound.currentPosition());
       }
       catch(e) {
 
