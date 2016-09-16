@@ -205,8 +205,8 @@ Required events to be implemented:
 - `sound.trigger('audio-ended')` - we finished playing the sound
 
 Optional (but nice to have) events:
-`sound.trigger('audio-position-changed')` - when the playhead position changes
-`sound.trigger('audio-loading', {percentLoaded: percent})` - when sound is downloading, update the percentLoaded
+- `sound.trigger('audio-position-changed')` - when the playhead position changes
+- `sound.trigger('audio-loading', {percentLoaded: percent})` - when sound is downloading, update the percentLoaded
 
 ```javascript
 import flashLibrary from 'your-third-party-library'
@@ -226,7 +226,6 @@ let Sound = BaseSound.extend({
         // Couldn't load this sound. Tell hifi to move on and try another url/connection
         sound.trigger('audio-load-error', error);
       },
-
       onpause: function() {
         sound.trigger('audio-paused', sound);
       },
@@ -236,7 +235,6 @@ let Sound = BaseSound.extend({
       onend: function() {
         sound.trigger('audio-ended', sound);
       },
-
       onseek: function() {
         sound.trigger('audio-position-changed');
       },
