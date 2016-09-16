@@ -121,8 +121,9 @@ export default Service.extend(Ember.Evented, {
 
   load(urlsOrPromise, options) {
     let audioElement = this._createAndUnlockAudio();
+    let assign = Ember.assign || Ember.merge;
 
-    options = Ember.assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
+    options = assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
 
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
