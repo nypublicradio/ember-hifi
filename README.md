@@ -78,7 +78,7 @@ Moves the playhead of the current sound forwards by duration (in ms)
 Moves the playhead of the current sound backwards by duration (in ms)
 
 - `load(urlsOrPromise, options)`
-Tries each hifi connection with each url and returns the ready `sound` from the first combination that works. The sound is cached internally so on subsequent load requests with the same url, the already prepared sound will be returned. Calling `play` on the returned sound will start playback immediately.
+Tries each hifi connection with each url and returns the ready `sound` from the first combination that works. The sound is cached internally so on subsequent load requests with the same url the already prepared sound will be returned. Calling `play` on the returned sound will start playback immediately.
 
 ###### Gettable/Settable Properties
 - `volume`          (integer, 0-100)
@@ -157,7 +157,7 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 `hifi` will take a list of urls and find the first connection/url combo that works. For desktop browsers, we'll try each url on each connection in the order the urls were specified.
 
-For mobile browsers, we'll first try using the NativeAudio connection on all the URLs to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice. 
+For mobile browsers, we'll first try using the NativeAudio connection on all the URLs to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice.
 
 ## Writing Your Own Hifi Connection
 
@@ -192,21 +192,21 @@ The files created by the blueprint should walk you through what you need to impl
 
 `canPlayExtension` and `canUseConnection` are called when `hifi` is looking for connections to try with a url. Give your best guess here. For instance, our built-in HLS.js library won't work on mobile, so `canUseConnection` returns false on a mobile device and true on a desktop browser. Similary, HLS only plays `.m3u8` files, so we just check for that extension in `canPlayExtension`.
 
-##### Implement `setup` and `teardown` methods to allow your third party sound to communicate with `hifi` and then implement `_setVolume`, `_audioDuration`, `_currentPosition`, `_setPosition`, `play`, `pause`, and `stop` to allow hifi to control your sound.
+##### Implement methods to bridge communication between hifi and your third party sound.
 
 - `setup()`
 Wire up your library to trigger the following methods when things happen on your sound:
 
-Required:
-- `audio-ready` - sound is ready to play
-- `audio-load-error` - loading sound failed
-- `audio-played`
-- `audio-paused`
-- `audio-ended` - we finished playing the sound
+Required events to be implemented:
+- `sound.trigger('audio-ready')` - sound is ready to play
+- `sound.trigger('audio-load-error', error)` - loading sound failed
+- `sound.trigger('audio-played')`
+- `sound.trigger('audio-paused')`
+- `sound.trigger('audio-ended')` - we finished playing the sound
 
-Optional:
-`audio-position-changed` - when the playhead position changes
-`audio-loading` - when sound is downloading, update the percentLoaded
+Optional (but nice to have) events:
+`sound.trigger('audio-position-changed')` - when the playhead position changes
+`sound.trigger('audio-loading', {percentLoaded: percent})` - when sound is downloading, update the percentLoaded
 
 ```javascript
 import flashLibrary from 'your-third-party-library'
@@ -252,6 +252,7 @@ let Sound = BaseSound.extend({
 - `teardown`
 
 ```javascript
+  // clean up after yourself
   teardown() {
     this.get('flashSound').destroy();
   }
