@@ -1,17 +1,33 @@
 import Ember from 'ember';
 
-let DummySound = Ember.Object.extend(Ember.Evented, {
+let ClassMethods = Ember.Mixin.create({
+  setup() {},
+  canPlay: () => true,
+  canUseConnection: () => true,
+  canPlayExtension: () => true,
+});
+
+let DummyConnection = Ember.Object.extend(Ember.Evented, {
+  init() {
+    Ember.run.next(() => this.trigger('audio-ready'));
+  },
   play() {
     this.trigger('audio-played', this);
   },
   pause() {
-
+    this.trigger('audio-paused');
   },
-  currentPosition() {},
+  stop() {
+    this.trigger('audio-stopped');
+  },
+  setPosition() {},
+  _currentPosition() {},
   _setVolume(v) {
-    console.log(`setting volume to ${v}`);
     this.set('volume', v);
-  }
+  },
+  _audioDuration() {},
 });
 
-export default DummySound;
+DummyConnection.reopenClass(ClassMethods);
+
+export default DummyConnection;
