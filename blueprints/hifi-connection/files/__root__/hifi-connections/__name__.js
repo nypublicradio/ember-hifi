@@ -5,6 +5,10 @@ const {
 } = Ember;
 
 let ClassMethods = Ember.Mixin.create({
+  setup() {
+    // Do any global setup needed for your third party library.
+  },
+  
   canPlayExtension(/* extension */) {
     // check if connection can play file with this extension
     return true;
@@ -17,8 +21,7 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = BaseSound.extend({
-  init() {
-    this._super(...arguments);
+  setup() {
     let url   = this.get('url');
     let sound = this;
 
@@ -38,6 +41,10 @@ let Sound = BaseSound.extend({
     // sound.trigger('audio-position-changed')          -> when the audio position changes
   },
 
+  teardown() {
+
+  },
+
   // implement these methods to control your sound
 
   _setVolume() {
@@ -49,11 +56,11 @@ let Sound = BaseSound.extend({
     assert("[hifi-connection: <%= name %>] #_audioDuration interface not implemented", false);
   },
 
-  currentPosition() {
+  _currentPosition() {
     assert("[hifi-connection: <%= name %>] #currentPosition interface not implemented", false);
   },
 
-  setPosition() {
+  _setPosition() {
     assert("[hifi-connection: <%= name %>] #setPosition interface not implemented", false);
   },
 
