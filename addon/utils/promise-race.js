@@ -32,7 +32,7 @@ function start(params, callback) {
           }
           let nextParam = paramsToTry.shift();
           if (!nextParam) {
-            let error = new Error('All given promises failed.');
+            let error = new Error('[ember-hifi] All given promises failed.');
             error.failures = failures;
             reject(error);
           }
