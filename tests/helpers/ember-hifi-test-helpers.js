@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import sinon from 'sinon';
-import DummyConnection from 'dummy/tests/helpers/dummy-connection';
+import DummyConnection from 'dummy/hifi-connections/local-dummy-connection';
 
 const {
   get

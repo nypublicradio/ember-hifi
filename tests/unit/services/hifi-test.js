@@ -2,7 +2,7 @@ import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 const { get } = Ember;
-import DummyConnection from 'dummy/tests/helpers/dummy-connection';
+import DummyConnection from 'dummy/hifi-connections/local-dummy-connection';
 import { stubConnectionCreateWithSuccess, stubConnectionCreateWithFailure } from '../../helpers/ember-hifi-test-helpers';
 
 let sandbox, hifiConnections, options;
