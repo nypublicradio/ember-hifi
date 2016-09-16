@@ -12,6 +12,9 @@ function stubConnectionCreateWithSuccess(service, connectionName) {
 
   let connectionSpy = sinon.stub(Connection, 'create', function() {
     let sound =  DummyConnection.create(...arguments);
+    sinon.stub(sound, 'play', () => sound.trigger('audio-played'));
+    sinon.stub(sound, 'pause', () => sound.trigger('audio-paused'));
+    
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
   });
