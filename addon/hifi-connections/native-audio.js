@@ -161,11 +161,11 @@ let Sound = BaseSound.extend({
     return this.get('audio').duration * 1000;
   },
 
-  currentPosition() {
+  _currentPosition() {
     return this.get('audio').currentTime * 1000;
   },
 
-  setPosition(position) {
+  _setPosition(position) {
     this.get('audio').currentTime = (position / 1000);
   },
 

@@ -51,10 +51,10 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   // _position is updated by the service on the currently playing sound
   position:          computed('_position', {
     get() {
-      return this.currentPosition();
+      return this._currentPosition();
     },
     set(k, v) {
-      this.setPosition(v);
+      this._setPosition(v);
       return v;
     }
   }),
@@ -113,17 +113,17 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
   fastForward(duration) {
     let audioLength     = this._audioDuration();
-    let currentPosition = this.currentPosition();
+    let currentPosition = this._currentPosition();
     let newPosition     = (currentPosition + duration);
 
-    this.setPosition(newPosition > audioLength ? audioLength : newPosition);
+    this._setPosition(newPosition > audioLength ? audioLength : newPosition);
   },
 
   rewind(duration) {
-    let currentPosition = this.currentPosition();
+    let currentPosition = this._currentPosition();
     let newPosition     = (currentPosition - duration);
 
-    this.setPosition(newPosition < 0 ? 0 : newPosition);
+    this._setPosition(newPosition < 0 ? 0 : newPosition);
   },
 
   /* To be defined on the subclass */
@@ -137,15 +137,15 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   },
 
   _audioDuration() {
-    assert("[ember-hifi] #audioDuration interface not implemented", false);
+    assert("[ember-hifi] #_audioDuration interface not implemented", false);
   },
 
-  currentPosition() {
-    assert("[ember-hifi] #currentPosition interface not implemented", false);
+  _currentPosition() {
+    assert("[ember-hifi] #_currentPosition interface not implemented", false);
   },
 
-  setPosition() {
-    assert("[ember-hifi] #setPosition interface not implemented", false);
+  _setPosition() {
+    assert("[ember-hifi] #_setPosition interface not implemented", false);
   },
 
   play() {

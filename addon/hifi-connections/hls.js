@@ -166,11 +166,11 @@ let Sound = BaseSound.extend({
     return Infinity; // only streams
   },
 
-  currentPosition() {
+  _currentPosition() {
     return this.get('video').currentTime;
   },
 
-  setPosition(position) {
+  _setPosition(position) {
     this.get('video').currentTime = position;
   },
 

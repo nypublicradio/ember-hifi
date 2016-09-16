@@ -295,8 +295,8 @@ test('position gets polled regularly on the currentSound but not on the others',
   let sound1 = DummyConnection.create({});
   let sound2 = DummyConnection.create({});
 
-  let spy1 = sinon.spy(sound1, 'currentPosition');
-  let spy2 = sinon.spy(sound2, 'currentPosition');
+  let spy1 = sinon.spy(sound1, '_currentPosition');
+  let spy2 = sinon.spy(sound2, '_currentPosition');
 
   assert.equal(spy1.callCount, 0, "sound 1 should not have been polled yet");
   assert.equal(spy2.callCount, 0, "sound 1 should not have been polled yet");
