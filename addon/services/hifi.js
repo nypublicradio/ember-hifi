@@ -82,7 +82,7 @@ export default Service.extend(Ember.Evented, {
 
     set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
     set(this, '_connections', {});
-    set(this, 'oneAtATime', new OneAtATime());
+    set(this, 'oneAtATime', OneAtATime.create());
     set(this, 'volume', 50);
     this._activateConnections(connections);
 

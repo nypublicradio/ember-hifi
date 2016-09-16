@@ -124,7 +124,7 @@ test('#load tries the first connection that says it can handle the url', functio
   let nativeSpy         = sinon.stub(NativeAudio, 'canPlay').returns(true);
   let localSpy          = sinon.stub(LocalDummyConnection, 'canPlay').returns(false);
 
-  let sound             = new DummyConnection();
+  let sound             = DummyConnection.create();
 
   let nativeCreateSpy   = sinon.stub(NativeAudio, 'create', function() {
     let sound =  DummyConnection.create(...arguments);
@@ -292,8 +292,8 @@ test('position gets polled regularly on the currentSound but not on the others',
 
   const INTERVAL = 500;
 
-  let sound1 = new DummyConnection({});
-  let sound2 = new DummyConnection({});
+  let sound1 = DummyConnection.create({});
+  let sound2 = DummyConnection.create({});
 
   let spy1 = sinon.spy(sound1, 'currentPosition');
   let spy2 = sinon.spy(sound2, 'currentPosition');
@@ -320,8 +320,8 @@ test('position gets polled regularly on the currentSound but not on the others',
 test('volume changes are set on the current sound', function(assert) {
   const service = this.subject({ options });
 
-  let sound1 = new DummyConnection({});
-  let sound2 = new DummyConnection({});
+  let sound1 = DummyConnection.create({});
+  let sound2 = DummyConnection.create({});
 
   let spy1 = sinon.spy(sound1, '_setVolume');
   let spy2 = sinon.spy(sound2, '_setVolume');

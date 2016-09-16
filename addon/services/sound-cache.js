@@ -4,10 +4,10 @@ const {
 } = Ember;
 
 export default Ember.Service.extend({
-  _cache: new Ember.Map(),
+  _cache: Ember.Map.create(),
 
   reset() {
-    this.set('_cache', new Ember.Map());
+    this.set('_cache', Ember.Map.create());
   },
 
   find(urls) {

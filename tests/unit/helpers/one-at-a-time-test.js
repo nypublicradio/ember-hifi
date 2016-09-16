@@ -17,11 +17,11 @@ const Sound = Ember.Object.extend(Ember.Evented, {
 
 test("only one sound should play at a time", function(assert) {
   assert.expect(3);
-  let oneAtATime = new OneAtATime();
+  let oneAtATime = OneAtATime.create();
 
-  let sound1 = new Sound();
-  let sound2 = new Sound();
-  let sound3 = new Sound();
+  let sound1 = Sound.create();
+  let sound2 = Sound.create();
+  let sound3 = Sound.create();
   oneAtATime.register(sound1);
   oneAtATime.register(sound2);
   oneAtATime.register(sound3);
