@@ -1,9 +1,10 @@
 import Ember from 'ember';
-import DummySound from 'ember-hifi/hifi-connections/dummy-sound';
+import DummyConnection from 'ember-hifi/hifi-connections/dummy-connection';
 
-export default Ember.Test.registerHelper('injectDummySound', function(app) {
-  let service = app.__container__.lookup('service:audio-pledge');
-  app.register('hifi-connection:local-dummy-connection', DummySound, {instantiate: false});
+export default Ember.Test.registerHelper('injectDummyConnection', function(app) {
+  let service = app.__container__.lookup('service:hifi');
+  app.register('hifi-connection:local-dummy-connection', DummyConnection, {instantiate: false});
   
-  service._activateFactories([{name: 'LocalDummyConnection'}]);
+  let activeDummy = service._activateConnection({name: 'LocalDummyConnection'});
+  service.set('_connections', [activeDummy]);
 });
