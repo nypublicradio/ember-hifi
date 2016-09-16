@@ -1,1 +1,1 @@
-export { default } from 'ember-hifi/hifi-connections/dummy-sound';
+export { default } from 'ember-hifi/hifi-connections/dummy-connection';
