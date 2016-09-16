@@ -43,7 +43,16 @@
     "loader.js": "^4.0.1"
   },
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "ember-hifi",
+    "audio",
+    "hls",
+    "html5",
+    "howler",
+    "sound",
+    "mp3",
+    "api",
+    "web"
   ],
   "dependencies": {
     "ember-cli-babel": "^5.1.6",
