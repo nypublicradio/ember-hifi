@@ -7,5 +7,10 @@ export default BaseSound.extend({
   },
 
   init: Ember.K,
-  willDestroy: Ember.K
+  willDestroy: Ember.K,
+  
+  currentPosition: Ember.K,
+  play: Ember.K,
+  pause: Ember.K,
+  _setVolume: Ember.K
 });

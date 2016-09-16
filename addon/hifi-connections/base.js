@@ -51,10 +51,10 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   // _position is updated by the service on the currently playing sound
   position:          computed('_position', {
     get() {
-      return this._currentPosition();
+      return this.currentPosition();
     },
     set(k, v) {
-      this._setPosition(v);
+      this.setPosition(v);
       return v;
     }
   }),
@@ -113,17 +113,17 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
   fastForward(duration) {
     let audioLength     = this._audioDuration();
-    let currentPosition = this._currentPosition();
+    let currentPosition = this.currentPosition();
     let newPosition     = (currentPosition + duration);
 
-    this._setPosition(newPosition > audioLength ? audioLength : newPosition);
+    this.setPosition(newPosition > audioLength ? audioLength : newPosition);
   },
 
   rewind(duration) {
-    let currentPosition = this._currentPosition();
+    let currentPosition = this.currentPosition();
     let newPosition     = (currentPosition - duration);
 
-    this._setPosition(newPosition < 0 ? 0 : newPosition);
+    this.setPosition(newPosition < 0 ? 0 : newPosition);
   },
 
   /* To be defined on the subclass */

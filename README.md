@@ -1,6 +1,6 @@
 # ember-hifi
 
-## Play audio in your browser in your ember app with as little headache as possible
+## Play audio in your ember app with as little headache as possible
 
 ![Download count all time](https://img.shields.io/npm/dt/ember-hifi.svg) [![npm version](https://badge.fury.io/js/ember-hifi.svg)](http://badge.fury.io/js/ember-hifi) [![CircleCI](https://circleci.com/gh/nypublicradio/ember-hifi.svg?style=shield)](https://circleci.com/gh/nypublicradio/ember-hifi) [![Ember Observer Score](http://emberobserver.com/badges/ember-hifi.svg)](http://emberobserver.com/addons/ember-hifi)
 

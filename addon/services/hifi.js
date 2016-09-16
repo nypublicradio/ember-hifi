@@ -82,7 +82,7 @@ export default Service.extend(Ember.Evented, {
 
     set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
     set(this, '_connections', {});
-    set(this, 'oneAtATime', new OneAtATime());
+    set(this, 'oneAtATime', OneAtATime.create());
     set(this, 'volume', 50);
     this._activateConnections(connections);
 
@@ -121,13 +121,14 @@ export default Service.extend(Ember.Evented, {
 
   load(urlsOrPromise, options) {
     let audioElement = this._createAndUnlockAudio();
+    let assign = Ember.assign || Ember.merge;
 
-    options = Ember.assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
+    options = assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
 
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
         if (Ember.isEmpty(urlsToTry)) {
-          return reject(new Error('URLs must be provided'));
+          return reject(new Error('[ember-hifi] URLs must be provided'));
         }
 
         let sound = this.get('soundCache').find(urlsToTry);
@@ -164,6 +165,10 @@ export default Service.extend(Ember.Evented, {
 
           return search;
         }
+      })
+      .catch(e => {
+        let message = e.message;
+        reject(new Error(`[ember-hifi] URL Promise failed because ${message}`));
       });
     });
 
@@ -305,7 +310,7 @@ export default Service.extend(Ember.Evented, {
     let sound = this.get('currentSound');
     if (sound) {
       try {
-        set(sound, '_position', sound._currentPosition());
+        set(sound, '_position', sound.currentPosition());
       }
       catch(e) {
 
