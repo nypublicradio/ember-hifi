@@ -20,8 +20,8 @@ let DummyConnection = Ember.Object.extend(Ember.Evented, {
   stop() {
     this.trigger('audio-stopped');
   },
-  setPosition() {},
-  currentPosition() {},
+  _setPosition() {},
+  _currentPosition() {},
   _setVolume(v) {
     this.set('volume', v);
   },
