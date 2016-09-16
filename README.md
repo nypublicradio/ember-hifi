@@ -145,11 +145,11 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 - `duration` (integer, in ms)
 - `percentLoaded` (integer, not always available)
-
+- `url` the url of the sound
 
 ## Details
 
-#### Currently included audio libraries
+#### Included audio connections
 
 1. `NativeAudio` - Uses the native `<audio>` element for playing and streaming audio
 1. `HLS` - Uses HLS.js for playing HLS streams on the desktop.
@@ -157,7 +157,7 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 `hifi` will take a list of urls and find the first connection/url combo that works. For desktop browsers, we'll try each url on each connection in the order the urls were specified.
 
-For mobile browsers, we'll first try using the NativeAudio connection on all the URLs to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice.
+For mobile browsers, we'll first try all the URLs on the NativeAudio using a technique to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice.
 
 ## Writing Your Own Hifi Connection
 
@@ -263,7 +263,7 @@ _setVolume(volume) {
   this.get('flashSound').volume(volume);
 },
 
-_audioDuration() {
+_audioDuration() { // in ms
   // return Infinity if source is an audio stream
   if (this.get('flashSound').isStreaming()) {
     return Infinity
@@ -273,11 +273,11 @@ _audioDuration() {
   }
 },
 
-_currentPosition() {
+_currentPosition() { // in ms
   return this.get('flashSound').position
 },
 
-_setPosition(pos) {
+_setPosition(pos) { // in ms
   return this.get('flashSound').setPosition(pos)
 },
 
