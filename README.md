@@ -18,15 +18,17 @@ ember install ember-hifi
 ### API
 
 #### Service API
-`ember-hifi` plays one sound at a time. The currently playing sound is set to `currentSound` on the service. Most methods and properties on the service simply proxy to that sound.
+`hifi` plays one sound at a time. Multiple sounds can be loaded and ready to go, but only one sound plays at a time. The currently playing sound is set to `currentSound` on the service, and most methods and properties on the service simply proxy to that sound.
 
 ###### Methods
 
 - `play(urlsOrPromise, options)`
 
-`play` calls `load` with the same arguments, and then on success plays the sound and returns it to you.
+`play` calls `load` with the same arguments, and then on success plays the sound, returning it to you.
 
-`play` can take one or more URLs, or a promise returning one or more URLs. If the audio URLs are not known at the time of a play event, give `play` the promise to resolve, otherwise your mobile users are going to have to click the play button twice (due to some restrictions on autoplaying audio).
+`play` can take one or more URLs, or a promise returning one or more URLs. 
+
+If the audio URLs are not known at the time of a play event, give `play` the promise to resolve, otherwise your mobile users might have to click the play button twice (due to some restrictions on autoplaying audio).
 
 ```javascript
 export default Ember.Route.extend({
@@ -132,7 +134,6 @@ Moves the playhead of the sound forwards by duration (in ms)
 - `rewind(duration)`
 Moves the playhead of the sound backwards by duration (in ms)
 
-
 ###### Gettable/Settable Properties
 - `position` (integer, in ms)
 
@@ -157,7 +158,7 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 `hifi` will take a list of urls and find the first connection/url combo that works. For desktop browsers, we'll try each url on each connection in the order the urls were specified.
 
-For mobile browsers, we'll first try all the URLs on the NativeAudio using a technique to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice.
+For mobile browsers, we'll first try all the URLs on the NativeAudio using a technique to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice. 
 
 ## Writing Your Own Hifi Connection
 
