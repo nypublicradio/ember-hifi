@@ -54,6 +54,28 @@ test("HLS connection should say it can play files with m3u8 extension", function
   });
 });
 
+test("HLS connection should report playability of file objects", function(assert) {
+  let goodFiles = Ember.A([
+    {url: "http://example.org/test.m3u8", mimeType: "application/vnd.apple.mpegurl"},
+  ]);
+  
+  let badFiles = Ember.A([
+    {url: "http://example.org/test.mp3", mimeType: "audio/mpeg"},
+    {url: "http://example.org/test.aac", mimeType: "audio/aac"},
+    {url: "http://example.org/test.wav", mimeType: "audio/wav"}
+  ]);
+
+  assert.expect(badFiles.length + goodFiles.length);
+
+  badFiles.forEach(url => {
+    assert.equal(HLSConnection.canPlay(url), false, `Should not play file with mime type ${url.mimeType}`);
+  });
+
+  goodFiles.forEach(url => {
+    assert.equal(HLSConnection.canPlay(url), true, `Should be able to play file with ${url.mimeType}`);
+  });
+});
+
 test("On first media error stream will attempt a retry", function(assert) {
   let sound = this.subject({url: goodUrl});
 

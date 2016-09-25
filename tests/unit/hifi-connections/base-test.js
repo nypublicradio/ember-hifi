@@ -43,3 +43,8 @@ test("isPlaying gets set to false when an 'audio-stopped' event is fired", funct
 
   done();
 });
+
+test("base sound will eagerly accept unknown mime types", function(assert) {
+  let unknownMimeType = "http://www.example.come/audio";
+  assert.equal(baseSound.constructor.canPlay(unknownMimeType), true, "defaults to true if the mime type cannot be determined");
+});

@@ -53,6 +53,28 @@ test("Howler should say it cannot play hls streams", function(assert) {
   });
 });
 
+test("Howler should report playability of file objects", function(assert) {
+  let badFiles = Ember.A([
+    {url: "http://example.org/test.m3u8", mimeType: "application/vnd.apple.mpegurl"},
+  ]);
+  
+  let goodFiles = Ember.A([
+    {url: "http://example.org/test.mp3", mimeType: "audio/mpeg"},
+    {url: "http://example.org/test.aac", mimeType: "audio/aac"},
+    {url: "http://example.org/test.wav", mimeType: "audio/wav"}
+  ]);
+
+  assert.expect(badFiles.length + goodFiles.length);
+
+  badFiles.forEach(url => {
+    assert.equal(HowlerConnection.canPlay(url), false, `Should not play file with mime type ${url.mimeType}`);
+  });
+
+  goodFiles.forEach(url => {
+    assert.equal(HowlerConnection.canPlay(url), true, `Should be able to play file with ${url.mimeType}`);
+  });
+});
+
 test("If we 404, we give up", function(assert) {
   assert.expect(1);
   let done = assert.async();
