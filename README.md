@@ -179,8 +179,8 @@ The files created by the blueprint should walk you through what you need to impl
       // Do any global setup needed for your third party library.
     },
 
-    canPlayExtension(/* extension */) {
-      // check if connection can play file with this extension
+    canPlayMimeType(/* extension */) {
+      // check if connection can play file with this mime type
       return true;
     },
 
@@ -191,7 +191,7 @@ The files created by the blueprint should walk you through what you need to impl
   });
 ```
 
-`canPlayExtension` and `canUseConnection` are called when `hifi` is looking for connections to try with a url. Give your best guess here. For instance, our built-in HLS.js library won't work on mobile, so `canUseConnection` returns false on a mobile device and true on a desktop browser. Similary, HLS only plays `.m3u8` files, so we just check for that extension in `canPlayExtension`.
+`canPlayMimeType` and `canUseConnection` are called when `hifi` is looking for connections to try with a url. Give your best guess here. For instance, our built-in HLS.js library won't work on mobile, so `canUseConnection` returns false on a mobile device and true on a desktop browser. Similary, HLS only plays `application/vnd.apple.mpegurl` files, so we just check for that extension in `canPlayMimeType`.
 
 ##### Implement methods to bridge communication between hifi and your third party sound.
 

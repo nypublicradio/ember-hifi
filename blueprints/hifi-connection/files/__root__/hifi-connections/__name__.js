@@ -9,8 +9,8 @@ let ClassMethods = Ember.Mixin.create({
     // Do any global setup needed for your third party library.
   },
   
-  canPlayExtension(/* extension */) {
-    // check if connection can play file with this extension
+  canPlayMimeType(/* extension */) {
+    // check if connection can play file with this mime type
     return true;
   },
 

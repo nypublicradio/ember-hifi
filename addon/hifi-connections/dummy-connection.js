@@ -4,7 +4,7 @@ let ClassMethods = Ember.Mixin.create({
   setup() {},
   canPlay: () => true,
   canUseConnection: () => true,
-  canPlayExtension: () => true,
+  canPlayMimeType: () => true,
 });
 
 let DummyConnection = Ember.Object.extend(Ember.Evented, {
