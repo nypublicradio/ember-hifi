@@ -193,7 +193,9 @@ let Sound = BaseSound.extend({
   stop() {
     let audio = this.get('audio');
     audio.pause();
-    audio.removeAttribute('src');
+    // must explicitly set it to the empty string or else the browser will
+    // continue to download
+    audio.setAttribute('src', '');
   },
 
   willDestroy() {

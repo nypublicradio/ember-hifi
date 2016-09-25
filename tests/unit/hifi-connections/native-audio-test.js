@@ -60,6 +60,11 @@ test("If it's a stream, we stop on pause", function(assert) {
   assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
 
   sound.stop();
-  assert.equal(sound.get('audio').src, "", "audio src attribute is not set");
+  // audio elements need their src attribute explicitly set to the empty string
+  // to stop downloading a stream, i.e. setAttribute('src', '').
+  // an attribute cleared with removeAttribute will return null when accessed
+  // with getAttribute so we use the DOM api here to verify that it's the
+  // empty string.
+  assert.equal(sound.get('audio').getAttribute('src'), "", "audio src attribute is set to the empty string");
   assert.equal(stopSpy.callCount, 1, "stop was called");
 });
