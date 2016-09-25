@@ -385,6 +385,31 @@ test("consumer can specify the order of connections to be used with a some urls"
   });
 });
 
+test("consumer can specify a mime type for a url", function(assert) {
+  const service = this.subject({ options: chooseActiveConnections('LocalDummyConnection') });
+
+  let done = assert.async();
+  let fileObject = {url: "/test/sound-without-extension", mimeType: "audio/mpeg"};
+
+  let LocalDummyConnection = get(service, `_connections.LocalDummyConnection`);
+
+  let mimeTypeSpy = sinon.stub(LocalDummyConnection, 'canPlayMimeType').returns(true);
+  let createSpy   = sinon.stub(LocalDummyConnection, 'create', function() {
+    let sound =  DummyConnection.create(...arguments);
+    Ember.run.next(() => sound.trigger('audio-ready'));
+    return sound;
+  });
+
+  let promise = service.load(fileObject);
+
+  promise.then(() => {
+    assert.ok(mimeTypeSpy.calledOnce, "local canPlayMimeType should have been called");
+    assert.ok(createSpy.calledOnce, "Local connection should have been used");
+
+    done();
+  });
+});
+
 test("for desktop devices, try each url on each connection", function(assert) {
   let done = assert.async();
   let urls              = ["first-test-url.mp3", "second-test-url.mp3", "third-test-url.mp3"];

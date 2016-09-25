@@ -11,8 +11,16 @@ let ClassMethods = Ember.Mixin.create({
   },
 
   canPlay(url) {
-    let urlExtension = url.split('.').pop().split('?').shift().split('#').shift();
-    return this.canUseConnection(url) && this.canPlayExtension(urlExtension);
+    if (typeof url === 'string') {
+      let urlExtension = url.split('.').pop().split('?').shift().split('#').shift();
+      return this.canUseConnection(url) && this.canPlayExtension(urlExtension);
+    }
+    else if (url.mimeType) {
+      return this.canPlayMimeType(url.mimeType);
+    }
+    else {
+      throw new Error('URL must be a string or object with a mimeType property');
+    }
   },
 
   canUseConnection() {
@@ -28,6 +36,21 @@ let ClassMethods = Ember.Mixin.create({
     }
     else if (blackList){
       return !Ember.A(blackList).contains(extension);
+    }
+    else {
+      return true; // assume true
+    }
+  },
+  
+  canPlayMimeType(mimeType) {
+    let mimeTypeWhiteList = this.mimeTypeWhiteList;
+    let mimeTypeBlackList = this.mimeTypeBlackList;
+
+    if (mimeTypeWhiteList) {
+      return Ember.A(mimeTypeWhiteList).contains(mimeType);
+    }
+    else if (mimeTypeBlackList){
+      return !Ember.A(mimeTypeBlackList).contains(mimeType);
     }
     else {
       return true; // assume true

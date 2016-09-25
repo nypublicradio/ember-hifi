@@ -4,6 +4,7 @@ import { Howl } from 'howler';
 
 let ClassMethods = Ember.Mixin.create({
   extensionBlackList: ['m3u8'],
+  mimeTypeBlackList:  ['application/vnd.apple.mpegurl'],
 
   toString() {
     return 'Howler';

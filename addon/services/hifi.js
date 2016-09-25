@@ -584,7 +584,7 @@ export default Service.extend(Ember.Evented, {
           strategies.push({
             connectionName:  name,
             connection:      connection,
-            url:             url
+            url:             url.url || url
           });
         }
       });

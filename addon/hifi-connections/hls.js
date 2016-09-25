@@ -4,6 +4,7 @@ import HLS from 'hls';
 
 let ClassMethods = Ember.Mixin.create({
   extensionWhiteList: ['m3u8'],
+  mimeTypeWhiteList:  ['application/vnd.apple.mpegurl'],
 
   canUseConnection(/* audioUrl */) {
     // We basically never want to use this on a mobile device
