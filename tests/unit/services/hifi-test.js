@@ -410,6 +410,29 @@ test("consumer can specify a mime type for a url", function(assert) {
   });
 });
 
+test("if a mime type cannot be determined, try to play it anyway", function(assert) {
+  const service = this.subject({ options: chooseActiveConnections('LocalDummyConnection') });
+
+  let done = assert.async();
+  let mysteryFile = "/test/sound-without-extension";
+
+  let LocalDummyConnection = get(service, `_connections.LocalDummyConnection`);
+
+  let createSpy   = sinon.stub(LocalDummyConnection, 'create', function() {
+    let sound =  DummyConnection.create(...arguments);
+    Ember.run.next(() => sound.trigger('audio-ready'));
+    return sound;
+  });
+
+  let promise = service.load(mysteryFile);
+
+  promise.then(() => {
+    assert.ok(createSpy.calledOnce, "A sound should have been created");
+    done();
+  });
+  
+});
+
 test("for desktop devices, try each url on each connection", function(assert) {
   let done = assert.async();
   let urls              = ["first-test-url.mp3", "second-test-url.mp3", "third-test-url.mp3"];

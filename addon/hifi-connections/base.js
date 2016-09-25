@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { getMimeType } from 'ember-hifi/utils/mime-types';
 
 const {
   assert,
@@ -11,9 +12,20 @@ let ClassMethods = Ember.Mixin.create({
   },
 
   canPlay(url) {
+    let usablePlatform = this.canUseConnection(url);
+    if (!usablePlatform) {
+      return false;
+    }
     if (typeof url === 'string') {
-      let urlExtension = url.split('.').pop().split('?').shift().split('#').shift();
-      return this.canUseConnection(url) && this.canPlayExtension(urlExtension);
+      let mimeType = getMimeType(url);
+      if (!mimeType) {
+        console.warn(`Could not determine mime type for ${url}`);
+        console.warn('Attempting to play urls with an unknown mime type can be bad for performance. See http://www.blahbalaha.com for more.');
+        return true;
+      }
+      else {
+        return this.canPlayMimeType(mimeType);
+      }
     }
     else if (url.mimeType) {
       return this.canPlayMimeType(url.mimeType);
@@ -27,24 +39,9 @@ let ClassMethods = Ember.Mixin.create({
     return true;
   },
 
-  canPlayExtension(extension) {
-    let whiteList = this.extensionWhiteList;
-    let blackList = this.extensionBlackList;
-
-    if (whiteList) {
-      return Ember.A(whiteList).contains(extension);
-    }
-    else if (blackList){
-      return !Ember.A(blackList).contains(extension);
-    }
-    else {
-      return true; // assume true
-    }
-  },
-  
   canPlayMimeType(mimeType) {
-    let mimeTypeWhiteList = this.mimeTypeWhiteList;
-    let mimeTypeBlackList = this.mimeTypeBlackList;
+    let mimeTypeWhiteList = this.acceptMimeTypes;
+    let mimeTypeBlackList = this.rejectMimeTypes;
 
     if (mimeTypeWhiteList) {
       return Ember.A(mimeTypeWhiteList).contains(mimeType);
