@@ -404,7 +404,7 @@ test("consumer can specify a mime type for a url", function(assert) {
 
   promise.then(() => {
     assert.ok(mimeTypeSpy.calledOnce, "local canPlayMimeType should have been called");
-    assert.ok(createSpy.calledOnce, "Local connection should have been used");
+    assert.ok(createSpy.calledOnce, "A sound should have been created using the local dummy connection");
 
     done();
   });
