@@ -2,3 +2,8 @@ dependencies:
   override:
     - bower install
     - npm install --progress=off
+
+test:
+  override:
+    - npm test:
+      timeout: 1200s
