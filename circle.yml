@@ -6,4 +6,4 @@ dependencies:
 test:
   override:
     - npm test:
-      timeout: 1200s
+        timeout: 1200
