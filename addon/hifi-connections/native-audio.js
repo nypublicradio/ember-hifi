@@ -189,7 +189,10 @@ let Sound = BaseSound.extend({
     audio.pause();
     // must explicitly set it to the empty string or else the browser will
     // continue to download
-    audio.setAttribute('src', '');
+
+    Ember.run.next(() => {
+      audio.setAttribute('src', '');
+    });
   },
 
   willDestroy() {

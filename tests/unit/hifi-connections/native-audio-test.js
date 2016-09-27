@@ -1,5 +1,6 @@
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
+import Ember from 'ember';
 // import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
 let sandbox;
@@ -67,4 +68,21 @@ test("If it's a stream, we stop on pause", function(assert) {
   // empty string.
   assert.equal(sound.get('audio').getAttribute('src'), "", "audio src attribute is set to the empty string");
   assert.equal(stopSpy.callCount, 1, "stop was called");
+});
+
+test("stopping an audio stream still sends the pause event", function(assert) {
+  let sound   = this.subject({url: goodUrl, timeout: false});
+
+  sound.play();
+  assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
+
+  let eventFired = false;
+  sound.on('audio-paused', function() {
+    eventFired = true;
+  });
+
+  sound.stop();
+  Ember.run.next(() => {
+    assert.equal(eventFired, true, "pause event was fired");
+  });
 });
