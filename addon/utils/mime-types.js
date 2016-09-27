@@ -9,6 +9,10 @@ const MIME_TYPES = {
     "source": "apache",
     "extensions": ["adp"]
   },
+  "audio/aac": {
+    "compressible": false,
+    "extensions": ["aac"]
+  },
   "audio/basic": {
     "source": "iana",
     "compressible": false,
@@ -101,11 +105,6 @@ const MIME_TYPES = {
     "source": "apache",
     "compressible": false,
     "extensions": ["weba"]
-  },
-  "audio/x-aac": {
-    "source": "apache",
-    "compressible": false,
-    "extensions": ["aac"]
   },
   "audio/x-aiff": {
     "source": "apache",
