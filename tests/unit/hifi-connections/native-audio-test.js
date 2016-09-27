@@ -66,8 +66,10 @@ test("If it's a stream, we stop on pause", function(assert) {
   // an attribute cleared with removeAttribute will return null when accessed
   // with getAttribute so we use the DOM api here to verify that it's the
   // empty string.
-  assert.equal(sound.get('audio').getAttribute('src'), "", "audio src attribute is set to the empty string");
-  assert.equal(stopSpy.callCount, 1, "stop was called");
+  Ember.run.next(() => {
+    assert.equal(sound.get('audio').getAttribute('src'), "", "audio src attribute is set to the empty string");
+    assert.equal(stopSpy.callCount, 1, "stop was called");
+  });
 });
 
 test("stopping an audio stream still sends the pause event", function(assert) {
