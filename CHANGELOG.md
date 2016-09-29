@@ -1,4 +1,10 @@
 # ember-hifi Changelog
+### 1.1.1 (September 29, 2016)
+
+- [#11](https://github.com/nypublicradio/ember-hifi/issues/11) [BUGFIX] Use the ember run loop so the pause event gets fired correctly when stopping NativeAudio.
+- [#12](https://github.com/nypublicradio/ember-hifi/issues/12) [BUGFIX] Fix issue with .aac files returning a mime-type of audio/x-aac, then causing the (Native Audio) audio element to think it can't play aac files
+- Removes `ember-poll` as a duplicate dependency
+
 
 ### 1.1.0 (September 26, 2016)
 
