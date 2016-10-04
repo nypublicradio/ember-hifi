@@ -1,4 +1,8 @@
 # ember-hifi Changelog
+
+### 1.1.2 (October 4, 2016)
+- Added toggleMute method on the service for easy mute toggling
+
 ### 1.1.1 (September 29, 2016)
 
 - [#11](https://github.com/nypublicradio/ember-hifi/issues/11) [BUGFIX] Use the ember run loop so the pause event gets fired correctly when stopping NativeAudio.

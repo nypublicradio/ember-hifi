@@ -352,6 +352,18 @@ test('volume changes are set on the current sound', function(assert) {
   assert.equal(service.get('volume'), 55, "setting sound volume individually should have no effect on system volume. Relationship is one way.");
 });
 
+test('toggleMute returns sound to previous level', function(assert) {
+  const service = this.subject({ options });
+  assert.equal(service.get('volume'), service.get('defaultVolume'), "service should have default volume");
+  service.set('volume', 55);
+  service.toggleMute();
+
+  assert.equal(service.get('volume'), 0, "volume should be zero");
+  assert.equal(service.get('isMuted'), true, "volume should be muted");
+  service.toggleMute();
+  assert.equal(service.get('volume'), 55, "volume should be reset to previous level");
+});
+
 test("consumer can specify the connection to use with a particular url", function(assert) {
   let done = assert.async();
   let service = this.subject({ options: chooseActiveConnections('LocalDummyConnection', 'Howler', 'NativeAudio') });
@@ -430,7 +442,7 @@ test("if a mime type cannot be determined, try to play it anyway", function(asse
     assert.ok(createSpy.calledOnce, "A sound should have been created");
     done();
   });
-  
+
 });
 
 test("for desktop devices, try each url on each connection", function(assert) {

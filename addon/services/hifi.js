@@ -58,6 +58,10 @@ export default Service.extend(Ember.Evented, {
         this.get('currentSound')._setVolume(v);
       }
 
+      if (v > 0) {
+        this.set('unmuteVolume', v);
+      }
+
       return v;
     }
   }),
@@ -246,6 +250,24 @@ export default Service.extend(Ember.Evented, {
     }
     else {
       this.get('currentSound').play();
+    }
+  },
+
+  /**
+   * Toggles mute state. Sets volume to zero on mute, resets volume to the last level it was before mute, unless
+   * unless the last level was zero, in which case it sets it to the default volume
+   *
+   * @method pause
+   * @param {Void}
+   * @returns {Void}
+   */
+
+  toggleMute() {
+    if (this.get('isMuted')) {
+      this.set('volume', this.get('unmuteVolume'));
+    }
+    else {
+      this.set('volume', 0);
     }
   },
 
