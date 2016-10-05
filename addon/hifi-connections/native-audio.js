@@ -204,10 +204,11 @@ let Sound = BaseSound.extend({
     let audio = this.get('audio');
     if (audio.src === this.get('url')) {
       this.debug('setting src to empty blob to stop loading');
-      // Removing src attribute doesn't stop loading
-      // Setting src to empty string stops loading, but throws audio error
 
-      // Setting it to an empty blob does what we want
+      /* Removing src attribute doesn't stop loading.
+         Setting src to empty string stops loading, but throws audio error.
+         Setting it to an empty blob does what we want, as found here:
+         http://stackoverflow.com/questions/13242877/stop-audio-buffering-in-the-audio-tag */
 
       audio.src = URL.createObjectURL(new Blob([], {type:"audio/mp3"}));
     }
