@@ -169,9 +169,7 @@ let Sound = BaseSound.extend({
 
   play() {
     let audio = this.get('audio');
-    if (!audio.hasAttribute('src')) {
-      audio.setAttribute('src', this.get('url'));
-    }
+    this.loadAudio();
     audio.play();
   },
 
@@ -187,12 +185,30 @@ let Sound = BaseSound.extend({
   stop() {
     let audio = this.get('audio');
     audio.pause();
-    // must explicitly set it to the empty string or else the browser will
-    // continue to download
 
     Ember.run.next(() => {
-      audio.setAttribute('src', '');
+      this.preventAudioFromLoading();
     });
+  },
+
+  loadAudio() {
+    let audio = this.get('audio');
+    if (audio.src !== this.get('url')) {
+      audio.setAttribute('src', this.get('url'));
+    }
+  },
+
+  preventAudioFromLoading() {
+    let audio = this.get('audio');
+    if (audio.src === this.get('url')) {
+      this.debug('setting src to empty blob to stop loading');
+      // Removing src attribute doesn't stop loading
+      // Setting src to empty string stops loading, but throws audio error
+
+      // Setting it to an empty blob does what we want
+
+      audio.src = URL.createObjectURL(new Blob([], {type:"audio/mp3"}));
+    }
   },
 
   willDestroy() {

@@ -67,7 +67,7 @@ test("If it's a stream, we stop on pause", function(assert) {
   // with getAttribute so we use the DOM api here to verify that it's the
   // empty string.
   Ember.run.next(() => {
-    assert.equal(sound.get('audio').getAttribute('src'), "", "audio src attribute is set to the empty string");
+    assert.equal(sound.get('audio').getAttribute('src').match('blob:').length, 1, "audio src attribute is set to an empty blob to stop loading");
     assert.equal(stopSpy.callCount, 1, "stop was called");
   });
 });
