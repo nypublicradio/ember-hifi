@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.1.4 (October 5, 2016)
+- Explicitly stop the audio after playback has ended for IE11, who never learned to communicate properly.
+
 ### 1.1.3 (October 4, 2016)
 - Improved logic to prevent browser from loading a paused stream on the native audio connection. Instead of setting <audio> src to empty, we now set it to an empty blob so the audio element won't throw an error on pause.
 - Increased timeout for mobile click blocker to 2s due to some false positives
