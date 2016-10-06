@@ -56,7 +56,7 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let Sound = Ember.Object.extend(Ember.Evented, {
-  logger:            Ember.inject.service('debug-logger'),
+  logger:            Ember.inject.service('hifi-logger'),
   pollInterval:      1000,
   timeout:           30000,
   isLoading:         false,

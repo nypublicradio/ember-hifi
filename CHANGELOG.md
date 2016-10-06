@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.2.0 (October 6, 2016)
+- Renamed some internal services and added a unit test helper for adding `needs` (so consumers don't have to know about the internal services) since Ember doesn't have a great solution for that yet.
+
 ### 1.1.4 (October 5, 2016)
 
 - Explicitly stop the audio after playback has ended for IE11, who never learned to communicate properly.

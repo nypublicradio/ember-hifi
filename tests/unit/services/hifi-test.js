@@ -12,8 +12,8 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
 
   needs: [
     'service:poll',
-    'service:debug-logger',
-    'service:sound-cache',
+    'service:hifi-logger',
+    'service:hifi-cache',
     'ember-hifi@hifi-connection:howler',
     'ember-hifi@hifi-connection:native-audio',
     'hifi-connection:local-dummy-connection'
@@ -62,8 +62,8 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
       }
     });
 
-    this.register('service:sound-cache', soundCacheStub);
-    this.inject.service('sound-cache', { as: 'soundCache' });
+    this.register('service:hifi-cache', soundCacheStub);
+    this.inject.service('hifi-cache', { as: 'soundCache' });
   },
 
   afterEach() {

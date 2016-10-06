@@ -8,7 +8,7 @@ const goodUrl = "http://example.org/good.aac";
 const badUrl  = "http://example.org/there-aint-nothing-here.aac";
 
 moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native Audio', {
-  needs:['service:debug-logger',
+  needs:['service:hifi-logger',
          'ember-hifi@hifi-connection:base'],
   beforeEach() {
     sandbox = sinon.sandbox.create({

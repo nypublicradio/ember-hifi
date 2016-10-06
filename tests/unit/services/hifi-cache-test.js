@@ -1,7 +1,7 @@
 import { moduleFor, test } from 'ember-qunit';
 import Ember from 'ember';
 
-moduleFor('service:sound-cache', 'Unit | Service | sound cache', {
+moduleFor('service:hifi-cache', 'Unit | Service | sound cache', {
   // Specify the other units that are required for this test.
   // needs: ['service:foo']
 });

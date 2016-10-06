@@ -1,6 +1,6 @@
 import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('service:debug-logger', 'Unit | Service | debug logger', {
+moduleFor('service:hifi-logger', 'Unit | Service | hifi logger', {
   // Specify the other units that are required for this test.
   // needs: ['service:foo']
 });

@@ -26,7 +26,7 @@ ember install ember-hifi
 
 `play` calls `load` with the same arguments, and then on success plays the sound, returning it to you.
 
-`play` can take one or more URLs, or a promise returning one or more URLs. 
+`play` can take one or more URLs, or a promise returning one or more URLs.
 
 If the audio URLs are not known at the time of a play event, give `play` the promise to resolve, otherwise your mobile users might have to click the play button twice (due to some restrictions on autoplaying audio).
 
@@ -158,7 +158,35 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 `hifi` will take a list of urls and find the first connection/url combo that works. For desktop browsers, we'll try each url on each connection in the order the urls were specified.
 
-For mobile browsers, we'll first try all the URLs on the NativeAudio using a technique to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice. 
+For mobile browsers, we'll first try all the URLs on the NativeAudio using a technique to (hopefully) get around any autoplaying restrictions that sometimes require mobile users to click a play button twice.
+
+## Test Helpers
+#### Acceptance Tests
+
+Import this helper into acceptance tests to stub out hifi.
+
+```javascript
+import '[your-app-name]/tests/helpers/hifi-acceptance-helper';
+```
+
+#### Unit Tests
+
+If you have a unit test that interacts with ember-hifi, you might get some errors if hifi's needs aren't met. Hifi uses some internal services that we'd hate for you to have to know about or type out, so just use our helper instead.
+
+```javascript
+import hifiNeeds from 'overhaul/tests/helpers/hifi-needs';
+
+moduleFor('[your module]', 'Unit | [type] | [your module]', {
+  // Specify the other units that are required for this test.
+  needs: [...hifiNeeds]
+
+...
+
+```
+
+
+
+
 
 ## Writing Your Own Hifi Connection
 

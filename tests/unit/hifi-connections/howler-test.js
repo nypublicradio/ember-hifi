@@ -9,7 +9,7 @@ const goodUrl = "http://example.org/good.aac";
 const badUrl  = "/there-aint-nothing-here.aac";
 
 moduleFor('ember-hifi@hifi-connection:howler', 'Unit | Connection | Howler', {
-  needs:['service:debug-logger',
+  needs:['service:hifi-logger',
          'ember-hifi@hifi-connection:base'],
   beforeEach() {
     sandbox = sinon.sandbox.create({

@@ -19,8 +19,8 @@ const {
 
 export default Service.extend(Ember.Evented, {
   poll:              Ember.inject.service(),
-  soundCache:        Ember.inject.service('sound-cache'),
-  logger:            Ember.inject.service('debug-logger'),
+  soundCache:        Ember.inject.service('hifi-cache'),
+  logger:            Ember.inject.service('hifi-logger'),
   isMobileDevice:    computed({
     get() {
       return ('ontouchstart' in window);
