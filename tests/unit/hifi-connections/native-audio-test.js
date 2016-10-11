@@ -88,3 +88,21 @@ test("stopping an audio stream still sends the pause event", function(assert) {
     assert.equal(eventFired, true, "pause event was fired");
   });
 });
+
+test("stopping an audio stream swallows errors temporarily", function(assert) {
+  let sound   = this.subject({url: goodUrl, timeout: false});
+  assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
+
+  let eventFireCount = 0;
+  sound.on('audio-load-error', function() {
+    eventFireCount = eventFireCount + 1;
+  });
+
+  sound.stop();
+
+  Ember.run.next(() => {
+    sound._onAudioError({target: {error: {code: 1}}});
+    assert.equal(sound.get('swallowAudioErrorsDuringLoadPrevention'), true);
+    assert.equal(eventFireCount, 0, "Error event should not have been triggered");
+  });
+});

@@ -1,6 +1,16 @@
 import Ember from 'ember';
 import BaseSound from './base';
 
+// These are the events we're watching for
+const AUDIO_EVENTS = ['loadstart', 'durationchange', 'loadedmetadata', 'loadeddata', 'progress', 'canplay', 'canplaythrough', 'error', 'playing', 'pause', 'ended'];
+
+// Ready state values 
+// const HAVE_NOTHING = 0;
+// const HAVE_METADATA = 1;
+const HAVE_CURRENT_DATA = 2;
+// const HAVE_FUTURE_DATA = 3;
+// const HAVE_ENOUGH_DATA = 4;
+
 let ClassMethods = Ember.Mixin.create({
   canPlayMimeType(mimeType) {
     let audio = new Audio();
@@ -18,43 +28,41 @@ let Sound = BaseSound.extend({
     let audio = this.get('audioElement');
     if (!audio) {
       audio = document.createElement('audio');
+      audio.preload = 'metadata';
     }
 
     this.set('audio', audio);
-    this._registerEvents();
     audio.src = this.get('url');
+    this._registerEvents();
     audio.load();
   },
 
   _registerEvents() {
     let audio = this.get('audio');
-
-    Ember.$(audio).on('canplay',         ()  => this._handleAudioEvent('canplay'));
-    Ember.$(audio).on('canplaythrough',  ()  => this._handleAudioEvent('canplaythrough'));
-    Ember.$(audio).on('error',           (e) => this._handleAudioEvent('error', e));
-    Ember.$(audio).on('playing',         ()  => this._handleAudioEvent('playing'));
-    Ember.$(audio).on('pause',           ()  => this._handleAudioEvent('pause'));
-    Ember.$(audio).on('durationchange',  ()  => this._handleAudioEvent('durationchange'));
-    Ember.$(audio).on('ended',           ()  => this._handleAudioEvent('ended'));
-    Ember.$(audio).on('progress',        (e) => this._handleAudioEvent('progress', e));
+    AUDIO_EVENTS.forEach(eventName => {
+      Ember.$(audio).on(eventName, (e)  => this._handleAudioEvent(eventName, e));
+    });
   },
 
   _unregisterEvents() {
     let audio = this.get('audio');
-
-    Ember.$(audio).off('canplay',         ()  => this._handleAudioEvent('canplay'));
-    Ember.$(audio).off('canplaythrough',  ()  => this._handleAudioEvent('canplaythrough'));
-    Ember.$(audio).off('error',           (e) => this._handleAudioEvent('error', e));
-    Ember.$(audio).off('playing',         ()  => this._handleAudioEvent('playing'));
-    Ember.$(audio).off('pause',           ()  => this._handleAudioEvent('pause'));
-    Ember.$(audio).off('durationchange',  ()  => this._handleAudioEvent('durationchange'));
-    Ember.$(audio).off('ended',           ()  => this._handleAudioEvent('ended'));
-    Ember.$(audio).off('progress',        (e) => this._handleAudioEvent('progress', e));
+    AUDIO_EVENTS.forEach(eventName => {
+      Ember.$(audio).off(eventName, (e)  => this._handleAudioEvent(eventName, e));
+    });
   },
 
   _handleAudioEvent(eventName, e) {
+    this.debug(`Handling '${eventName}' event from audio element`);
+    let audio = this.get('audio');
     switch(eventName) {
-      case 'canplay':
+      case 'loadeddata':
+        // Firefox doesn't fire a 'canplay' event until after you call *play* on
+        // the audio, but it does fire 'loadeddata' when it's ready
+        if (audio.readyState >= HAVE_CURRENT_DATA) {
+          this._onAudioReady();
+        }
+        break;
+      case 'canplay', 'canplaythrough':
         this._onAudioReady();
         break;
       case 'error':
@@ -116,7 +124,13 @@ let Sound = BaseSound.extend({
         break;
     }
 
-    this.trigger('audio-load-error', error);
+    if (this.get('swallowAudioErrorsDuringLoadPrevention')) {
+      this.debug(`ignoring audio error '${error}' while loading has been stopped`);
+    }
+    else {
+      this.debug(`audio element threw error ${error}`);
+      this.trigger('audio-load-error', error);
+    }
   },
 
   _onAudioPaused() {
@@ -196,6 +210,7 @@ let Sound = BaseSound.extend({
   loadAudio() {
     let audio = this.get('audio');
     if (audio.src !== this.get('url')) {
+      this.set('swallowAudioErrorsDuringLoadPrevention', false);
       audio.setAttribute('src', this.get('url'));
     }
   },
@@ -205,12 +220,17 @@ let Sound = BaseSound.extend({
     if (audio.src === this.get('url')) {
       this.debug('setting src to empty blob to stop loading');
 
+      this.set('swallowAudioErrorsDuringLoadPrevention', true);
       /* Removing src attribute doesn't stop loading.
          Setting src to empty string stops loading, but throws audio error.
          Setting it to an empty blob does what we want, as found here:
-         http://stackoverflow.com/questions/13242877/stop-audio-buffering-in-the-audio-tag */
+         http://stackoverflow.com/questions/13242877/stop-audio-buffering-in-the-audio-tag
 
-      audio.src = URL.createObjectURL(new Blob([], {type:"audio/mp3"}));
+         But sometimes in certain envrionments a decoder error is still thrown.
+         So while we're stopped, we won't pass along those errors
+      */
+
+      audio.src = URL.createObjectURL(new Blob([], {type: "audio/mp3"}));
     }
   },
 

@@ -1,4 +1,8 @@
 # ember-hifi Changelog
+### 1.2.1 (October 11, 2016)
+- Added a 'loadeddata' event listener to Native Audio, since Firefox doesn't trigger a 'canplay' until after you've asked the audio to play.
+
+- Suppressed occasional invalid audio errors while Native Audio was stopped and the src attribute was changed to prevent loading.
 
 ### 1.2.0 (October 6, 2016)
 - Renamed some internal services and added a unit test helper for adding `needs` (so consumers don't have to know about the internal services) since Ember doesn't have a great solution for that yet.
