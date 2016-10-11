@@ -210,6 +210,7 @@ let Sound = BaseSound.extend({
   loadAudio() {
     let audio = this.get('audio');
     if (audio.src !== this.get('url')) {
+      this.set('isLoading', true);
       this.set('swallowAudioErrorsDuringLoadPrevention', false);
       audio.setAttribute('src', this.get('url'));
     }

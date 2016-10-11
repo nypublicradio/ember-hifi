@@ -1,4 +1,8 @@
 # ember-hifi Changelog
+
+### 1.2.2 (October 11, 2016)
+- Set isLoading flag when reloading audio after being stopped
+
 ### 1.2.1 (October 11, 2016)
 - Added a 'loadeddata' event listener to Native Audio, since Firefox doesn't trigger a 'canplay' until after you've asked the audio to play.
 
