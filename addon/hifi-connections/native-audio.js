@@ -4,7 +4,7 @@ import BaseSound from './base';
 // These are the events we're watching for
 const AUDIO_EVENTS = ['loadstart', 'durationchange', 'loadedmetadata', 'loadeddata', 'progress', 'canplay', 'canplaythrough', 'error', 'playing', 'pause', 'ended'];
 
-// Ready state values 
+// Ready state values
 // const HAVE_NOTHING = 0;
 // const HAVE_METADATA = 1;
 const HAVE_CURRENT_DATA = 2;
@@ -28,7 +28,6 @@ let Sound = BaseSound.extend({
     let audio = this.get('audioElement');
     if (!audio) {
       audio = document.createElement('audio');
-      audio.preload = 'metadata';
     }
 
     this.set('audio', audio);
@@ -62,7 +61,8 @@ let Sound = BaseSound.extend({
           this._onAudioReady();
         }
         break;
-      case 'canplay', 'canplaythrough':
+      case 'canplay':
+      case 'canplaythrough':
         this._onAudioReady();
         break;
       case 'error':
