@@ -351,14 +351,15 @@ export default Service.extend(Ember.Evented, {
    */
 
   _registerEvents(sound) {
-    sound.on('audio-played',           () => this._relayEvent('audio-played', sound));
-    sound.on('audio-paused',           () => this._relayEvent('audio-paused', sound));
-    sound.on('audio-stopped',          () => this._relayEvent('audio-stopped', sound));
-    sound.on('audio-ended',            () => this._relayEvent('audio-ended', sound));
-    sound.on('audio-duration-changed', () => this._relayEvent('audio-duration-changed', sound));
-    sound.on('audio-position-changed', () => this._relayEvent('audio-position-changed', sound));
-    sound.on('audio-loaded',           () => this._relayEvent('audio-loaded', sound));
-    sound.on('audio-loading',          () => this._relayEvent('audio-loading', sound));
+    let service = this;
+    sound.on('audio-played',           service,   service._relayPlayedEvent);
+    sound.on('audio-paused',           service,   service._relayPausedEvent);
+    sound.on('audio-stopped',          service,   service._relayStoppedEvent);
+    sound.on('audio-ended',            service,   service._relayEndedEvent);
+    sound.on('audio-duration-changed', service,   service._relayDurationChangedEvent);
+    sound.on('audio-position-changed', service,   service._relayPositionChangedEvent);
+    sound.on('audio-loaded',           service,   service._relayLoadedEvent);
+    sound.on('audio-loading',          service,   service._relayLoadingEvent);
   },
 
   /**
@@ -375,14 +376,15 @@ export default Service.extend(Ember.Evented, {
     if (!sound) {
       return;
     }
-    sound.off('audio-played',           () => this._relayEvent('audio-played', sound));
-    sound.off('audio-paused',           () => this._relayEvent('audio-paused', sound));
-    sound.off('audio-stopped',          () => this._relayEvent('audio-stopped', sound));
-    sound.off('audio-ended',            () => this._relayEvent('audio-ended', sound));
-    sound.off('audio-duration-changed', () => this._relayEvent('audio-duration-changed', sound));
-    sound.off('audio-position-changed', () => this._relayEvent('audio-position-changed', sound));
-    sound.off('audio-loaded',           () => this._relayEvent('audio-loaded', sound));
-    sound.off('audio-loading',          () => this._relayEvent('audio-loading', sound));
+    let service = this;
+    sound.off('audio-played',           service,   service._relayPlayedEvent);
+    sound.off('audio-paused',           service,   service._relayPausedEvent);
+    sound.off('audio-stopped',          service,   service._relayStoppedEvent);
+    sound.off('audio-ended',            service,   service._relayEndedEvent);
+    sound.off('audio-duration-changed', service,   service._relayDurationChangedEvent);
+    sound.off('audio-position-changed', service,   service._relayPositionChangedEvent);
+    sound.off('audio-loaded',           service,   service._relayLoadedEvent);
+    sound.off('audio-loading',          service,   service._relayLoadingEvent);
   },
 
   /**
@@ -396,6 +398,35 @@ export default Service.extend(Ember.Evented, {
 
   _relayEvent(eventName, sound) {
     this.trigger(eventName, sound);
+  },
+
+  /**
+    Named functions so Ember Evented can successfully register/unregister them
+  */
+
+  _relayPlayedEvent(sound) {
+    this._relayEvent('audio-played', sound);
+  },
+  _relayPausedEvent(sound) {
+    this._relayEvent('audio-paused', sound);
+  },
+  _relayStoppedEvent(sound) {
+    this._relayEvent('audio-stopped', sound);
+  },
+  _relayEndedEvent(sound) {
+    this._relayEvent('audio-ended', sound);
+  },
+  _relayDurationChangedEvent(sound) {
+    this._relayEvent('audio-duration-changed', sound);
+  },
+  _relayPositionChangedEvent(sound) {
+    this._relayEvent('audio-position-changed', sound);
+  },
+  _relayLoadedEvent(sound) {
+    this._relayEvent('audio-loaded', sound);
+  },
+  _relayLoadingEvent(sound) {
+    this._relayEvent('audio-loading', sound);
   },
 
   /**

@@ -256,6 +256,33 @@ test('When a sound plays it gets set as the currentSound', function(assert) {
   });
 });
 
+test('Calling setCurrentSound multiple times will not register duplicate events on the sound', function(assert) {
+  assert.expect(2);
+  const service = this.subject({ options: chooseActiveConnections('NativeAudio') });
+  stubConnectionCreateWithSuccess(service, "NativeAudio");
+
+  return service.load("/test/yes.mp3").then(({sound}) => {
+    let callCount = 0;
+    sound.play();
+    service.on('audio-ended', () => {
+      callCount = callCount + 1;
+    });
+
+    sound.trigger('audio-ended');
+
+    assert.equal(callCount, 1, "ended event should have been fired once");
+
+    service.setCurrentSound(sound);
+    service.setCurrentSound(sound);
+    service.setCurrentSound(sound);
+    service.setCurrentSound(sound);
+
+    sound.trigger('audio-ended');
+
+    assert.equal(callCount, 2, "ended event should have been fired once");
+  });
+});
+
 test('The second time a url is requested it will be pulled from the cache', function(assert) {
   let done = assert.async();
   assert.expect(5);

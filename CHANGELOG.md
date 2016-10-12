@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.2.3 (October 12, 2016)
+- Fixing event relaying logic so that handlers won't be registered more than once, causing multiple relay calls to be sent for for a single sound event. This was problematic with the `audio-ended` event, causing tracks to get skipped in a playlist.
+
 ### 1.2.2 (October 11, 2016)
 - Set isLoading flag when reloading audio after being stopped
 
