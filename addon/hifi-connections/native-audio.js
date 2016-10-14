@@ -124,7 +124,7 @@ let Sound = BaseSound.extend({
         break;
     }
 
-    if (this.get('swallowAudioErrorsDuringLoadPrevention')) {
+    if (this.get('muteAudioErrorsDuringLoadPrevention')) {
       this.debug(`ignoring audio error '${error}' while loading has been stopped`);
     }
     else {
@@ -211,7 +211,7 @@ let Sound = BaseSound.extend({
     let audio = this.get('audio');
     if (audio.src !== this.get('url')) {
       this.set('isLoading', true);
-      this.set('swallowAudioErrorsDuringLoadPrevention', false);
+      this.set('muteAudioErrorsDuringLoadPrevention', false);
       audio.setAttribute('src', this.get('url'));
     }
   },
@@ -219,19 +219,15 @@ let Sound = BaseSound.extend({
   preventAudioFromLoading() {
     let audio = this.get('audio');
     if (audio.src === this.get('url')) {
-      this.debug('setting src to empty blob to stop loading');
+      this.debug('setting src to empty string to stop loading');
 
-      this.set('swallowAudioErrorsDuringLoadPrevention', true);
+      this.set('muteAudioErrorsDuringLoadPrevention', true);
       /* Removing src attribute doesn't stop loading.
          Setting src to empty string stops loading, but throws audio error.
-         Setting it to an empty blob does what we want, as found here:
-         http://stackoverflow.com/questions/13242877/stop-audio-buffering-in-the-audio-tag
-
-         But sometimes in certain envrionments a decoder error is still thrown.
          So while we're stopped, we won't pass along those errors
       */
 
-      audio.src = URL.createObjectURL(new Blob([], {type: "audio/mp3"}));
+      audio.src = '';
     }
   },
 

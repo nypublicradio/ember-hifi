@@ -67,7 +67,7 @@ test("If it's a stream, we stop on pause", function(assert) {
   // with getAttribute so we use the DOM api here to verify that it's the
   // empty string.
   Ember.run.next(() => {
-    assert.equal(sound.get('audio').getAttribute('src').match('blob:').length, 1, "audio src attribute is set to an empty blob to stop loading");
+    assert.equal(sound.get('audio').getAttribute('src'), '', "audio src attribute is set to an empty string to stop loading");
     assert.equal(stopSpy.callCount, 1, "stop was called");
   });
 });
@@ -94,6 +94,7 @@ test("stopping an audio stream swallows errors temporarily", function(assert) {
   assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
 
   let eventFireCount = 0;
+
   sound.on('audio-load-error', function() {
     eventFireCount = eventFireCount + 1;
   });
@@ -101,8 +102,9 @@ test("stopping an audio stream swallows errors temporarily", function(assert) {
   sound.stop();
 
   Ember.run.next(() => {
+    assert.equal(sound.get('muteAudioErrorsDuringLoadPrevention'), true);
     sound._onAudioError({target: {error: {code: 1}}});
-    assert.equal(sound.get('swallowAudioErrorsDuringLoadPrevention'), true);
     assert.equal(eventFireCount, 0, "Error event should not have been triggered");
   });
+
 });
