@@ -59,8 +59,15 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   logger:            Ember.inject.service('hifi-logger'),
   pollInterval:      1000,
   timeout:           30000,
+
+  hasPlayed:         false,
   isLoading:         false,
   isPlaying:         false,
+  isErrored:         computed('error', function() {
+    return !!this.get('error');
+  }),
+  error:             null,
+
   isStream:          computed.equal('duration', Infinity),
   isFastForwardable: computed.not('isStream'),
   isRewindable:      computed.not('isStream'),
@@ -83,8 +90,10 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     this.set('isLoading', true);
 
     this.on('audio-played',    () => {
+      this.set('hasPlayed', true);
       this.set('isLoading', false);
       this.set('isPlaying', true);
+      this.set('error', null);
     });
 
     this.on('audio-paused',    () => this.set('isPlaying', false));
@@ -92,6 +101,14 @@ let Sound = Ember.Object.extend(Ember.Evented, {
 
     this.on('audio-ready',    () => {
       this.set('duration', this._audioDuration());
+    });
+
+    this.on('audio-load-error', (e) => {
+      if (this.get('hasPlayed')) {
+        this.set('isLoading', false);
+        this.set('isPlaying', false);
+      }
+      this.set('error', e);
     });
 
     this.on('audio-loaded', () => {
