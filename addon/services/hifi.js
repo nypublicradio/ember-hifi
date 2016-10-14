@@ -137,6 +137,7 @@ export default Service.extend(Ember.Evented, {
 
         let sound = this.get('soundCache').find(urlsToTry);
         if (sound) {
+          this.debug('ember-hifi', 'retreived sound from cache');
           return resolve({sound});
         }
         else {

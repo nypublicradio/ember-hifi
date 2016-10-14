@@ -20,7 +20,7 @@ let ClassMethods = Ember.Mixin.create({
       let mimeType = getMimeType(url);
       if (!mimeType) {
         console.warn(`Could not determine mime type for ${url}`);
-        console.warn('Attempting to play urls with an unknown mime type can be bad for performance. See http://www.blahbalaha.com for more.');
+        console.warn('Attempting to play urls with an unknown mime type can be bad for performance. See documentation for more info.');
         return true;
       }
       else {

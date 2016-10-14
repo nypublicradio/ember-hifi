@@ -1,9 +1,9 @@
 import { moduleFor, test } from 'ember-qunit';
 import Ember from 'ember';
 
-moduleFor('service:hifi-cache', 'Unit | Service | sound cache', {
+moduleFor('service:hifi-cache', 'Unit | Service | hifi cache', {
   // Specify the other units that are required for this test.
-  // needs: ['service:foo']
+  needs: ['service:hifi-logger']
 });
 
 const Sound = Ember.Object.extend(Ember.Evented, {

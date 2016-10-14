@@ -312,6 +312,36 @@ test('The second time a url is requested it will be pulled from the cache', func
   });
 });
 
+test('The second time a url (with a mime type specified) is requested it will be pulled from the cache', function(assert) {
+  let done = assert.async();
+  assert.expect(5);
+  const service = this.subject({ options: chooseActiveConnections('LocalDummyConnection') });
+  let localconnectionSpy = stubConnectionCreateWithSuccess(service, "LocalDummyConnection");
+
+  let url = {url: "/test/test.mp3", mimeType: "audio/mp3"};
+
+  let soundCache = service.get('soundCache');
+  let findSpy = sinon.stub(soundCache, 'find');
+  let cacheSpy = sinon.stub(soundCache, 'cache');
+
+  findSpy.onFirstCall().returns(false);
+
+  service.load(url).then(({sound}) => {
+    assert.equal(findSpy.callCount, 1, "cache should have been checked");
+    assert.equal(cacheSpy.callCount, 1, "sound should be registered with sound cache");
+    sound.set('identification', 'yo');
+    findSpy.onSecondCall().returns(sound);
+
+    service.load(url).then(({sound}) => {
+      assert.equal(sound.get('identification'), 'yo', "should be the same sound in sound cache");
+      assert.equal(localconnectionSpy.callCount, 1, "connection should not have been called again");
+      assert.equal(findSpy.callCount, 2, "cache should have been checked");
+      done();
+    });
+  });
+});
+
+
 test('position gets polled regularly on the currentSound but not on the others', function(assert) {
   this.clock = sinon.useFakeTimers();
 
