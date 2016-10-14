@@ -1,5 +1,12 @@
 # ember-hifi Changelog
 
+### 1.3.0 (October 14, 2016)
+- Add 'isErrored' boolean property and 'error' string property to sounds as a first step of being able to recover from play errors
+
+- Go back to setting the `src` property on native audio to an empty string instead of a blob, and just mute the audio errors when we've explicitly stopped loading
+
+- [#15](https://github.com/nypublicradio/ember-hifi/issues/15) [BUGFIX] - Cache sounds correctly when the url is specified as a hash with the mimeType.
+
 ### 1.2.3 (October 12, 2016)
 - Fixing event relaying logic so that handlers won't be registered more than once, causing multiple relay calls to be sent for for a single sound event. This was problematic with the `audio-ended` event, causing tracks to get skipped in a playlist.
 
