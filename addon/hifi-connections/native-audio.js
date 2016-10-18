@@ -126,13 +126,8 @@ let Sound = BaseSound.extend({
         break;
     }
 
-    if (this.get('muteAudioErrorsDuringLoadPrevention')) {
-      this.debug(`ignoring audio error '${error}' while loading has been stopped`);
-    }
-    else {
-      this.debug(`audio element threw error ${error}`);
-      this.trigger('audio-load-error', error);
-    }
+    this.debug(`audio element threw error ${error}`);
+    this.trigger('audio-load-error', error);
   },
 
   _onAudioPaused() {
@@ -215,7 +210,6 @@ let Sound = BaseSound.extend({
     let audio = this.get('audio');
     if (audio.src !== this.get('url')) {
       this.set('isLoading', true);
-      this.set('muteAudioErrorsDuringLoadPrevention', false);
       audio.setAttribute('src', this.get('url'));
     }
   },
