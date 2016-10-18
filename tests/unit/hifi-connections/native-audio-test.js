@@ -44,6 +44,7 @@ test("If we 404, we give up", function(assert) {
 });
 
 test("If passed an audio element on initialize, use it instead of creating one", function(assert) {
+  let done = assert.async();
   let testFlag = "hey, it's me";
   let audioElement = document.createElement('audio');
   audioElement.testFlag = testFlag;
@@ -51,6 +52,8 @@ test("If passed an audio element on initialize, use it instead of creating one",
   let sound = this.subject({url: goodUrl, audioElement: audioElement, timeout: false});
 
   assert.equal(sound.get('audio').testFlag, testFlag, "should have used passed audio element");
+  
+  sound.on('audio-load-error', done);
 });
 
 test("If it's a stream, we stop on pause", function(assert) {
