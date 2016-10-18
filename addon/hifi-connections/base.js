@@ -44,10 +44,10 @@ let ClassMethods = Ember.Mixin.create({
     let mimeTypeBlackList = this.rejectMimeTypes;
 
     if (mimeTypeWhiteList) {
-      return Ember.A(mimeTypeWhiteList).contains(mimeType);
+      return Ember.A(mimeTypeWhiteList).includes(mimeType);
     }
     else if (mimeTypeBlackList){
-      return !Ember.A(mimeTypeBlackList).contains(mimeType);
+      return !Ember.A(mimeTypeBlackList).includes(mimeType);
     }
     else {
       return true; // assume true
