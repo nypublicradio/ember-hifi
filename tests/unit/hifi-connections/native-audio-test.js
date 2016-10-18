@@ -1,7 +1,6 @@
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 import Ember from 'ember';
-// import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
 let sandbox;
 const goodUrl = "http://example.org/good.aac";
@@ -14,7 +13,6 @@ moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock
     });
-    // sandbox.server.respondImmediately = true;
     sandbox.server.respondWith(goodUrl, function (xhr) {
       console.log("responded good");
       xhr.respond(200, {}, []);
@@ -39,8 +37,6 @@ test("If we 404, we give up", function(assert) {
     assert.ok(true, "should have triggered audio load error");
     done();
   });
-
-  sound.on('audio-ready', () => done());
 });
 
 test("If passed an audio element on initialize, use it instead of creating one", function(assert) {
