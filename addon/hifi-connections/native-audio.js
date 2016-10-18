@@ -39,14 +39,14 @@ let Sound = BaseSound.extend({
   _registerEvents() {
     let audio = this.get('audio');
     AUDIO_EVENTS.forEach(eventName => {
-      Ember.$(audio).on(eventName, (e)  => this._handleAudioEvent(eventName, e));
+      Ember.$(audio).on(eventName, e => this._handleAudioEvent(eventName, e));
     });
   },
 
   _unregisterEvents() {
     let audio = this.get('audio');
     AUDIO_EVENTS.forEach(eventName => {
-      Ember.$(audio).off(eventName, (e)  => this._handleAudioEvent(eventName, e));
+      Ember.$(audio).off(eventName, e => this._handleAudioEvent(eventName, e));
     });
   },
 
