@@ -55,18 +55,18 @@ test("If passed an audio element on initialize, use it instead of creating one",
 test("If it's a stream, we stop on pause", function(assert) {
   let sound   = this.subject({url: goodUrl, timeout: false});
   let stopSpy = sinon.spy(sound, 'stop');
+  let loadSpy = sinon.spy(sound.get('audio'), 'load');
 
   sound.play();
   assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
 
   sound.stop();
-  // audio elements need their src attribute explicitly set to the empty string
-  // to stop downloading a stream, i.e. setAttribute('src', '').
-  // an attribute cleared with removeAttribute will return null when accessed
-  // with getAttribute so we use the DOM api here to verify that it's the
-  // empty string.
+  // audio elements need their src attribute removed and then .load needs to be called
+  // to stop downloading a stream
+
   Ember.run.next(() => {
-    assert.equal(sound.get('audio').getAttribute('src'), '', "audio src attribute is set to an empty string to stop loading");
+    assert.equal(sound.get('audio').hasAttribute('src'), false, "audio src attribute is not set to stop loading");
+    assert.equal(loadSpy.callCount, 1, "load was called");
     assert.equal(stopSpy.callCount, 1, "stop was called");
   });
 });
@@ -86,24 +86,4 @@ test("stopping an audio stream still sends the pause event", function(assert) {
   Ember.run.next(() => {
     assert.equal(eventFired, true, "pause event was fired");
   });
-});
-
-test("stopping an audio stream swallows errors temporarily", function(assert) {
-  let sound   = this.subject({url: goodUrl, timeout: false});
-  assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
-
-  let eventFireCount = 0;
-
-  sound.on('audio-load-error', function() {
-    eventFireCount = eventFireCount + 1;
-  });
-
-  sound.stop();
-
-  Ember.run.next(() => {
-    assert.equal(sound.get('muteAudioErrorsDuringLoadPrevention'), true);
-    sound._onAudioError({target: {error: {code: 1}}});
-    assert.equal(eventFireCount, 0, "Error event should not have been triggered");
-  });
-
 });
