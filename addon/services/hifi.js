@@ -172,6 +172,8 @@ export default Service.extend(Ember.Evented, {
         }
       })
       .catch(e => {
+        // reset the UI since trying to play that sound failed
+        this.set('isLoading', false);
         let message = e.message;
         reject(new Error(`[ember-hifi] URL Promise failed because ${message}`));
       });
@@ -198,6 +200,8 @@ export default Service.extend(Ember.Evented, {
     if (this.get('isPlaying')) {
       this.pause();
     }
+    // update the UI immediately while `.load` figures out which sound is playable
+    this.set('isLoading', true);
 
     let load = this.load(urlsOrPromise, options);
     load.then(({sound}) => {
