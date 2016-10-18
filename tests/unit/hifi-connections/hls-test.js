@@ -77,7 +77,7 @@ test("HLS connection should report playability of file objects", function(assert
 });
 
 test("On first media error stream will attempt a retry", function(assert) {
-  let sound = this.subject({url: goodUrl});
+  let sound = this.subject({url: goodUrl, timeout: false});
 
   let {
     destroySpy, switchSpy, recoverSpy
@@ -91,7 +91,7 @@ test("On first media error stream will attempt a retry", function(assert) {
 });
 
 test("On second media error stream will try switching codecs", function(assert) {
-  let sound           = this.subject({url: goodUrl});
+  let sound = this.subject({url: goodUrl, timeout: false});
 
   let {
     destroySpy, switchSpy, recoverSpy
@@ -106,8 +106,8 @@ test("On second media error stream will try switching codecs", function(assert) 
 });
 
 test("On third media error we will give up", function(assert) {
-  let sound           = this.subject({url: goodUrl});
-  let loadErrorFired = false;
+  let sound           = this.subject({url: goodUrl, timeout: false});
+  let loadErrorFired  = false;
 
   sound.on('audio-load-error', function() {
     loadErrorFired = true;

@@ -6,12 +6,8 @@ moduleFor('ember-hifi@hifi-connection:base', 'Unit | Connection | base', {
   needs:['util:promise-race'],
   beforeEach() {
     baseSound = this.subject({
-      setup() {
-
-      },
-      currentPosition: function() {
-
-      }
+      setup() {},
+      timeout: false,
     });
   }
 });
