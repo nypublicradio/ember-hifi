@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.3.3 (October 19, 2016)
+- Attaches failures to load `catch` case
+
 ### 1.3.2 (October 19, 2016)
 - Fixes `percentLoaded` attr on native audio connection
 
