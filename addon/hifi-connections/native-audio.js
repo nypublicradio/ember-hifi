@@ -2,7 +2,7 @@ import Ember from 'ember';
 import BaseSound from './base';
 
 // These are the events we're watching for
-const AUDIO_EVENTS = ['loadstart', 'durationchange', 'loadedmetadata', 'loadeddata', 'progress', 'canplay', 'canplaythrough', 'error', 'playing', 'pause', 'ended'];
+const AUDIO_EVENTS = ['loadstart', 'durationchange', 'loadedmetadata', 'loadeddata', 'progress', 'canplay', 'canplaythrough', 'error', 'playing', 'pause', 'ended', 'emptied'];
 
 // Ready state values
 // const HAVE_NOTHING = 0;
@@ -71,6 +71,8 @@ let Sound = BaseSound.extend({
       case 'playing':
         this._onAudioPlayed();
         break;
+      // the emptied event is triggered by our more reliable stream pause method
+      case 'emptied':
       case 'pause':
         this._onAudioPaused();
         break;
@@ -124,13 +126,8 @@ let Sound = BaseSound.extend({
         break;
     }
 
-    if (this.get('muteAudioErrorsDuringLoadPrevention')) {
-      this.debug(`ignoring audio error '${error}' while loading has been stopped`);
-    }
-    else {
-      this.debug(`audio element threw error ${error}`);
-      this.trigger('audio-load-error', error);
-    }
+    this.debug(`audio element threw error ${error}`);
+    this.trigger('audio-load-error', error);
   },
 
   _onAudioPaused() {
@@ -185,7 +182,11 @@ let Sound = BaseSound.extend({
 
   play() {
     let audio = this.get('audio');
-    this.loadAudio();
+    
+    if (this.get('isStream')) {
+      // since we clear the `src` attr on pause, restore it here
+      this.loadAudio();
+    }
     audio.play();
   },
 
@@ -201,36 +202,22 @@ let Sound = BaseSound.extend({
   stop() {
     let audio = this.get('audio');
     audio.pause();
-
-    Ember.run.next(() => {
-      this.preventAudioFromLoading();
-    });
+    
+    // calling pause halts playback but does not stop downloading streaming
+    // media. this is the method recommended by MDN: https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video#Stopping_the_download_of_media
+    // NOTE: this fires an `'emptied'` event, which we treat the same way as `'pause'`
+    audio.removeAttribute('src');
+    audio.load();
   },
 
   loadAudio() {
     let audio = this.get('audio');
     if (audio.src !== this.get('url')) {
       this.set('isLoading', true);
-      this.set('muteAudioErrorsDuringLoadPrevention', false);
       audio.setAttribute('src', this.get('url'));
     }
   },
-
-  preventAudioFromLoading() {
-    let audio = this.get('audio');
-    if (audio.src === this.get('url')) {
-      this.debug('setting src to empty string to stop loading');
-
-      this.set('muteAudioErrorsDuringLoadPrevention', true);
-      /* Removing src attribute doesn't stop loading.
-         Setting src to empty string stops loading, but throws audio error.
-         So while we're stopped, we won't pass along those errors
-      */
-
-      audio.src = '';
-    }
-  },
-
+  
   willDestroy() {
     this._unregisterEvents();
     this.set('audio', undefined);
