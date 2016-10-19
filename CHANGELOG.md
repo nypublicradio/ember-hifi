@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.3.2 (October 19, 2016)
+- Fixes `percentLoaded` attr on native audio connection
+
 ### 1.3.1 (October 19, 2016)
 - [#17](https://github.com/nypublicradio/ember-hifi/pull/17) [BUGFIX] - Improves stream pausing
 - Test & deprecation warning cleanup
