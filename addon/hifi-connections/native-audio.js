@@ -141,7 +141,7 @@ let Sound = BaseSound.extend({
   _calculatePercentLoaded() {
     let audio = this.get('audio');
 
-    if (audio && audio.ranges && audio.ranges.length) {
+    if (audio && audio.buffered && audio.buffered.length) {
       let ranges = audio.buffered;
       let totals = [];
       for( var index = 0; index < ranges.length; index++ ) {
@@ -154,7 +154,7 @@ let Sound = BaseSound.extend({
       this.debug(`duration: ${this._audioDuration()}`);
       this.debug(`percent loaded = ${(total / audio.duration) * 100}`);
 
-      return (total / audio.duration);
+      return {percentLoaded: (total / audio.duration)};
     }
     else {
       return 0;
