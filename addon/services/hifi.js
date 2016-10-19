@@ -174,8 +174,9 @@ export default Service.extend(Ember.Evented, {
       .catch(e => {
         // reset the UI since trying to play that sound failed
         this.set('isLoading', false);
-        let message = e.message;
-        reject(new Error(`[ember-hifi] URL Promise failed because ${message}`));
+        let err = new Error(`[ember-hifi] URL Promise failed because ${e.message}`);
+        err.failures = e.failures;
+        reject(err);
       });
     });
 
