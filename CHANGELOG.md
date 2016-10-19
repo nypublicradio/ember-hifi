@@ -1,5 +1,10 @@
 # ember-hifi Changelog
 
+### 1.3.1 (October 19, 2016)
+- [#17](https://github.com/nypublicradio/ember-hifi/pull/17) [BUGFIX] - Improves stream pausing
+- Test & deprecation warning cleanup
+- 9fd95bb Manually manage `isLoading` state in a couple spots
+
 ### 1.3.0 (October 14, 2016)
 - Add 'isErrored' boolean property and 'error' string property to sounds as a first step of being able to recover from play errors
 
