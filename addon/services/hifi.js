@@ -165,7 +165,7 @@ export default Service.extend(Ember.Evented, {
             });
           }
 
-          let search      = this._findFirstPlayableSound(strategies, options);
+          let search = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
 
           return search;
@@ -174,7 +174,7 @@ export default Service.extend(Ember.Evented, {
       .catch(e => {
         // reset the UI since trying to play that sound failed
         this.set('isLoading', false);
-        let err = new Error(`[ember-hifi] URL Promise failed because ${e.message}`);
+        let err = new Error(`[ember-hifi] URL Promise failed because: ${e.message}`);
         err.failures = e.failures;
         reject(err);
       });
@@ -528,7 +528,7 @@ export default Service.extend(Ember.Evented, {
    * @method _findFirstPlayableSound
    * @param {Array} urlsToTry
    * @private
-   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
+   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error with a failures property
    */
 
   _findFirstPlayableSound(strategies, options) {

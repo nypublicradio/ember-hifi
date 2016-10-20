@@ -1,10 +1,12 @@
 # ember-hifi
 
-## Play audio in your ember app with as little headache as possible
+## The easy way to play audio in your ember app
 
 ![Download count all time](https://img.shields.io/npm/dt/ember-hifi.svg) [![npm version](https://badge.fury.io/js/ember-hifi.svg)](http://badge.fury.io/js/ember-hifi) [![CircleCI](https://circleci.com/gh/nypublicradio/ember-hifi.svg?style=shield)](https://circleci.com/gh/nypublicradio/ember-hifi) [![Ember Observer Score](http://emberobserver.com/badges/ember-hifi.svg)](http://emberobserver.com/addons/ember-hifi)
 
-This addon adds a simple `hifi` service to your app that makes it easy to play audio in the unfriendly landscape that is the current state of audio on the web. Forget worrying about formats and browsers and just give `hifi` a list of URLs to try and it'll play the first one that works.
+This addon exposes a `hifi` service which produces `Sound` objects which represent a playable piece of audio.
+
+The `hifi` service makes it easy to play audio in the unfriendly landscape that is the current state of audio on the web. Forget worrying about formats and browsers and just give `hifi` a list of URLs to try and it'll play the first one that works.
 
 ## Installing The Addon
 
@@ -150,7 +152,7 @@ Moves the playhead of the sound backwards by duration (in ms)
 
 ## Details
 
-#### Included audio connections
+### Included audio connections
 
 1. `NativeAudio` - Uses the native `<audio>` element for playing and streaming audio
 1. `HLS` - Uses HLS.js for playing HLS streams on the desktop.
@@ -181,7 +183,7 @@ moduleFor('[your module]', 'Unit | [type] | [your module]', {
   needs: [...hifiNeeds]
 
 ...
-
+});
 ```
 
 
