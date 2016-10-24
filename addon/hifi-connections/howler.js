@@ -69,7 +69,10 @@ let Sound = BaseSound.extend({
     this.get('howl').volume(volume/100);
   },
 
-  play() {
+  play({position} = {}) {
+    if (typeof position !== 'undefined') {
+      this._setPosition(position);
+    }
     this.get('howl').play();
   },
 

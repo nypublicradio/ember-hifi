@@ -207,7 +207,7 @@ export default Service.extend(Ember.Evented, {
     let load = this.load(urlsOrPromise, options);
     load.then(({sound}) => {
       this.debug("ember-hifi", "Finished load, trying to play sound");
-      this._attemptToPlaySound(sound);
+      this._attemptToPlaySound(sound, options);
     });
 
     // We want to keep this chainable elsewhere
@@ -677,14 +677,14 @@ export default Service.extend(Ember.Evented, {
    * @returns {void}
    */
 
-  _attemptToPlaySound(sound) {
+  _attemptToPlaySound(sound, options) {
     if (this.get('isMobileDevice')) {
       let blockCheck = Ember.run.later(() => {
         this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
       }, 2000);
       sound.one('audio-played', () => Ember.run.cancel(blockCheck));
     }
-    sound.play();
+    sound.play(options);
   },
 
   /**

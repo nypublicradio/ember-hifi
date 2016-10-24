@@ -11,7 +11,10 @@ let DummyConnection = Ember.Object.extend(Ember.Evented, {
   init() {
     Ember.run.next(() => this.trigger('audio-ready'));
   },
-  play() {
+  play({position} = {}) {
+    if (typeof position !== 'undefined') {
+      this.set('position', position);
+    }
     this.trigger('audio-played', this);
   },
   pause() {

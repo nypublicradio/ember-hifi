@@ -181,12 +181,15 @@ let Sound = BaseSound.extend({
     this.get('audio').volume = (volume/100);
   },
 
-  play() {
+  play({position} = {}) {
     let audio = this.get('audio');
     
     if (this.get('isStream')) {
       // since we clear the `src` attr on pause, restore it here
       this.loadAudio();
+    }
+    if (typeof position !== 'undefined') {
+      this._setPosition(position);
     }
     audio.play();
   },
