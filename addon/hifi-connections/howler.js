@@ -62,6 +62,7 @@ let Sound = BaseSound.extend({
 
   _setPosition(position) {
     this.get('howl').seek(position / 1000);
+    return this._currentPosition();
   },
 
   _setVolume(volume) {

@@ -174,6 +174,7 @@ let Sound = BaseSound.extend({
 
   _setPosition(position) {
     this.get('audio').currentTime = (position / 1000);
+    return this._currentPosition();
   },
 
   _setVolume(volume) {

@@ -81,8 +81,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       return this._currentPosition();
     },
     set(k, v) {
-      this._setPosition(v);
-      return v;
+      return this._setPosition(v);
     }
   }),
 
