@@ -138,10 +138,10 @@ export default Service.extend(Ember.Evented, {
         let sound = this.get('soundCache').find(urlsToTry);
         if (sound) {
           this.debug('ember-hifi', 'retreived sound from cache');
+          this.set('isLoading', false);
           return resolve({sound});
         }
         else {
-          this.set('isLoading', true);
           let strategies = [];
           if (options.useConnections) {
             // If the consumer has specified a connection to prefer, use it
