@@ -4,6 +4,7 @@ import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
 import { bind } from 'ember-runloop';
+import { getMimeType } from 'ember-hifi/utils/mime-types';
 
 const {
   Service,
@@ -536,7 +537,7 @@ export default Service.extend(Ember.Evented, {
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
       let Connection         = strategy.connection;
-      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'audioElement');
+      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'audioElement', 'mimeType');
       let sound              = Connection.create(connectionOptions);
 
       this.debug(options.debugName, `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
@@ -643,7 +644,8 @@ export default Service.extend(Ember.Evented, {
           strategies.push({
             connectionName:  name,
             connection:      connection,
-            url:             url.url || url
+            url:             url.url || url,
+            mimeType:        url.mimeType || getMimeType(url)
           });
         }
       });
