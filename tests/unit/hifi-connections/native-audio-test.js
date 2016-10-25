@@ -89,6 +89,7 @@ test("stopping an audio stream still sends the pause event", function(assert) {
 });
 
 test("can play an mp3 twice in a row", function(assert) {
+  let done  = assert.async();
   assert.expect(3);
   let sound = this.subject({url: goodUrl, timeout: false});
   sound.on('audio-ended', () => assert.ok('ended was called'));
@@ -97,4 +98,6 @@ test("can play an mp3 twice in a row", function(assert) {
   Ember.$(sound.get('audio')).trigger('ended');
   sound.play();
   assert.equal(sound.get('audio').src, goodUrl, "audio src attribute is set");
+
+  sound.on('audio-load-error', done);
 });
