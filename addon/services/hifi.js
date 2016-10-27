@@ -27,6 +27,7 @@ export default Service.extend(Ember.Evented, {
     },
     set(k, v) { return v; }
   }),
+  mobileAudio: null,
 
   currentSound:      null,
   isPlaying:         computed.readOnly('currentSound.isPlaying'),
@@ -663,9 +664,14 @@ export default Service.extend(Ember.Evented, {
    */
 
    _createAndUnlockAudio() {
-    let audioElement = document.createElement('audio');
-    audioElement.play();
-
+    let audioElement = this.get('mobileAudio');
+    if (!audioElement) {
+      audioElement = document.createElement('audio');
+      audioElement.play()
+        .then(function() { console.log('play.then:', arguments); })
+        .catch(function() { console.log('play.catch:', arguments); });
+      this.set('mobileAudio', audioElement);
+    }
     return audioElement;
   },
 

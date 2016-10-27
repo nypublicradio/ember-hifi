@@ -11,6 +11,18 @@ const HAVE_CURRENT_DATA = 2;
 // const HAVE_FUTURE_DATA = 3;
 // const HAVE_ENOUGH_DATA = 4;
 
+let AccessControl = Ember.Object.create({
+  requestAccess(who) {
+    // return shared audio element
+    // save who has access 
+    this.set('owner', who);
+  },
+  hasAccess(who) {
+    return (this.get('owner') === who);
+  }
+});
+
+
 let ClassMethods = Ember.Mixin.create({
   canPlayMimeType(mimeType) {
     let audio = new Audio();
@@ -25,6 +37,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
+    AccessControl.requestAccess(this);
     let audio = this.get('audioElement');
     if (!audio) {
       audio = document.createElement('audio');
@@ -43,15 +56,16 @@ let Sound = BaseSound.extend({
     });
   },
 
-  _unregisterEvents() {
-    let audio = this.get('audio');
-    AUDIO_EVENTS.forEach(eventName => {
-      Ember.$(audio).off(eventName, e => this._handleAudioEvent(eventName, e));
-    });
+  _unregisterEvents(audio = this.get('audio')) {
+    AUDIO_EVENTS.forEach(eventName => Ember.$(audio).off(eventName));
   },
 
   _handleAudioEvent(eventName, e) {
     this.debug(`Handling '${eventName}' event from audio element`);
+    if (!AccessControl.hasAccess(this)) {
+      this.debug(`${this.get('url')} does not have access to the audio element`);
+      return;
+    }
     let audio = this.get('audio');
     switch(eventName) {
       case 'loadeddata':
@@ -73,6 +87,8 @@ let Sound = BaseSound.extend({
         break;
       // the emptied event is triggered by our more reliable stream pause method
       case 'emptied':
+        this._onAudioEmptied();
+        break;
       case 'pause':
         this._onAudioPaused();
         break;
@@ -130,6 +146,12 @@ let Sound = BaseSound.extend({
     this.trigger('audio-load-error', error);
   },
 
+  _onAudioEmptied() {
+    if (this.get('isStream')) {
+      this.trigger('audio-paused', this);
+    }
+  },
+
   _onAudioPaused() {
     this.trigger('audio-paused', this);
   },
@@ -182,6 +204,8 @@ let Sound = BaseSound.extend({
   },
 
   play({position} = {}) {
+    AccessControl.requestAccess(this);
+
     let audio = this.get('audio');
     
     if (this.get('isStream')) {
@@ -195,6 +219,10 @@ let Sound = BaseSound.extend({
   },
 
   pause() {
+    if (!AccessControl.hasAccess(this)) {
+      this.debug(`${this.get('url')} does not have access to the audio element`);
+      return;
+    }
     if (this.get('isStream')) {
       this.stop(); // we don't want to the stream to continue loading while paused
     }
