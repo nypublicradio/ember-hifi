@@ -137,6 +137,7 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioPaused() {
+    this.get('audioAccess').releaseAccess(this);
     this.trigger('audio-paused', this);
   },
 
@@ -171,7 +172,18 @@ let Sound = BaseSound.extend({
       return 0;
     }
   },
+  
+  _saveState(audio) {
+    this.setProperties({
+      _savedPosition: this._currentPosition(),
+      _savedVolume: (audio.volume * 100)
+    });
+  }, 
 
+  _restoreState(audio) {
+    this._setPosition(this.get('_savedPosition') || 0);
+    this._setVolume(this.get('_savedVolume') || 50);
+  },
 
   /* Public interface */
 
@@ -225,13 +237,13 @@ let Sound = BaseSound.extend({
       return;
     }
     let audio = audioAccess.requestAccess(this);
+    this._saveState(audio);
     if (this.get('isStream')) {
       this.stop(audio); // we don't want to the stream to continue loading while paused
     }
     else {
       audio.pause();
     }
-    Ember.run.next(() => audioAccess.releaseAccess(this));
   },
 
   stop(audio) {
@@ -249,6 +261,7 @@ let Sound = BaseSound.extend({
       this.set('isLoading', true);
       audio.setAttribute('src', this.get('url'));
     }
+    this._restoreState(audio);
   },
   
   willDestroy() {

@@ -2,6 +2,7 @@ import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 import Ember from 'ember';
 import AccessControl from 'dummy/utils/access-control';
+import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
 let sandbox;
 const goodUrl = "http://example.org/good.aac";
@@ -105,4 +106,40 @@ test("can play an mp3 twice in a row", function(assert) {
   assert.equal(sound.get('audioAccess').requestAccess(sound).src, goodUrl, "audio src attribute is set");
 
   sound.on('audio-load-error', done);
+});
+
+test('switching sounds saves the current state', function(assert) {
+  let done = assert.async();
+  let url1 = '/audio1.mp3';
+  let url2 = '/audio2.mp3';
+  let audioAccess = AccessControl.unlock();
+  let audio = audioAccess.audioElement;
+  audio.play = function() {};
+  audio.pause = function() {};
+  
+  let sound1 = NativeAudio.create({url: url1, timeout: false, audioAccess});
+  let sound2 = NativeAudio.create({url: url2, timeout: false, audioAccess});
+  sinon.stub(sound1, 'debug');
+  sinon.stub(sound2, 'debug');
+  
+  sound1.on('audio-played', () => {
+    sound1._setPosition(5000);
+    sound1.pause();
+    sound1._onAudioPaused();
+  });
+  sound1.on('audio-paused', () => {
+    sound2.play();
+    sound2._onAudioPlayed();
+  });
+  sound2.on('audio-played', () => {
+    sound2._setPosition(10000);
+    sound2.pause();
+    sound2._onAudioPaused();
+  })
+  sound2.on('audio-paused', () => {
+    assert.equal(sound1._currentPosition(), 5000, "sound1 should save it's own position");
+    done();
+  });
+  sound1.play();
+  sound1._onAudioPlayed();
 });
