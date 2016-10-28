@@ -18,6 +18,7 @@ const {
   String: { dasherize }
 } = Ember;
 
+
 export default Service.extend(Ember.Evented, {
   poll:              Ember.inject.service(),
   soundCache:        Ember.inject.service('hifi-cache'),
@@ -157,14 +158,11 @@ export default Service.extend(Ember.Evented, {
             strategies  = this._prepareStandardStrategies(urlsToTry);
           }
 
-          if (this.get('isMobileDevice')) {
-            // If we're on a mobile device, attach the audioElement to be passed
-            // into each connection to combat autoplay blocking issues on touch devices
-            strategies  = strategies.map(s => {
-              s.audioElement = audioElement;
-              return s;
-            });
-          }
+          // pass in audioAccess for whomever might need it
+          strategies  = strategies.map(s => {
+            s.audioAccess = audioAccess;
+            return s;
+          });
 
           let search = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
