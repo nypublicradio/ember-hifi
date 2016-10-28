@@ -581,8 +581,8 @@ test("for mobile devices, try all the urls on the native audio connection first,
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
-    let audioElements = Ember.A(Ember.A(strategies).map(s => s.audioElement)).compact();
-    assert.equal(audioElements.length, strategies.length, "audio element should have been included with the strategies");
+    let audioAccess = Ember.A(Ember.A(strategies).map(s => s.audioAccess)).compact();
+    assert.equal(audioAccess.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
@@ -622,8 +622,8 @@ test("for mobile devices, audio element should still be passed if a custom strat
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
-    let audioElements = Ember.A(Ember.A(strategies).map(s => s.audioElement)).compact();
-    assert.equal(audioElements.length, strategies.length, "audio element should have been included with the strategies");
+    let audioAccess = Ember.A(Ember.A(strategies).map(s => s.audioAccess)).compact();
+    assert.equal(audioAccess.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
