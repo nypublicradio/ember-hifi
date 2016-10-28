@@ -627,3 +627,51 @@ test("for mobile devices, audio element should still be passed if a custom strat
     done();
   });
 });
+
+test("individual native audio sounds keep track of their own state", function(assert) {
+  let done = assert.async();
+
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url = "/assets/silence.mp3";
+  let s2url = "/assets/silence2.mp3";
+
+  let sound1, sound2;
+  service.load(s1url).then(({sound}) => {
+    sound1 = sound;
+    service.load(s2url).then(({sound}) => {
+      sound2 = sound;
+      sound1.set('position', 2000);
+      assert.equal(sound2.get('position'), 0, "second sound should have its own position");
+
+      sound2.play();
+      assert.equal(sound1.get('position'), 2000, "first sound should still have its own position");
+
+      done();
+    });
+  });
+});
+
+test("Sounds across connections should keep track of their own states", function(assert) {
+  let done = assert.async();
+
+  let connections = ['NativeAudio', 'Howler'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url = "/assets/silence.mp3";
+  let s2url = "/assets/silence2.mp3";
+
+  let sound1, sound2;
+  service.load(s1url, {useConnections:['NativeAudio']}).then(({sound}) => {
+    sound1 = sound;
+    service.load(s2url, {useConnections:['Howler']}).then(({sound}) => {
+      sound2 = sound;
+      sound1.set('position', 2000);
+      assert.equal(sound2.get('position'), 0, "second sound should have its own position");
+
+      sound2.play();
+      assert.equal(sound1.get('position'), 2000, "first sound should still have its own position");
+
+      done();
+    });
+  });
+});
