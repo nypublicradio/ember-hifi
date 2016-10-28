@@ -11,18 +11,6 @@ const HAVE_CURRENT_DATA = 2;
 // const HAVE_FUTURE_DATA = 3;
 // const HAVE_ENOUGH_DATA = 4;
 
-let AccessControl = Ember.Object.create({
-  requestAccess(who) {
-    // return shared audio element
-    // save who has access 
-    this.set('owner', who);
-  },
-  hasAccess(who) {
-    return (this.get('owner') === who);
-  }
-});
-
-
 let ClassMethods = Ember.Mixin.create({
   canPlayMimeType(mimeType) {
     let audio = new Audio();
@@ -37,36 +25,32 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
-    AccessControl.requestAccess(this);
-    let audio = this.get('audioElement');
-    if (!audio) {
-      audio = document.createElement('audio');
-    }
+    let audioAccess = this.get('audioAccess');
+    let audio = audioAccess.requestAccess(this);
 
-    this.set('audio', audio);
     audio.src = this.get('url');
-    this._registerEvents();
+    this._registerEvents(audio);
     audio.load();
   },
 
-  _registerEvents() {
-    let audio = this.get('audio');
+  _registerEvents(audio) {
     AUDIO_EVENTS.forEach(eventName => {
       Ember.$(audio).on(eventName, e => this._handleAudioEvent(eventName, e));
     });
   },
 
-  _unregisterEvents(audio = this.get('audio')) {
+  _unregisterEvents(audio) {
     AUDIO_EVENTS.forEach(eventName => Ember.$(audio).off(eventName));
   },
 
   _handleAudioEvent(eventName, e) {
     this.debug(`Handling '${eventName}' event from audio element`);
-    if (!AccessControl.hasAccess(this)) {
+    let audioAccess = this.get('audioAccess');
+    if (!this.get('audioAccess').hasAccess(this)) {
       this.debug(`${this.get('url')} does not have access to the audio element`);
       return;
     }
-    let audio = this.get('audio');
+    let audio = audioAccess.requestAccess(this);
     switch(eventName) {
       case 'loadeddata':
         // Firefox doesn't fire a 'canplay' event until after you call *play* on
@@ -161,7 +145,12 @@ let Sound = BaseSound.extend({
   },
 
   _calculatePercentLoaded() {
-    let audio = this.get('audio');
+    let audioAccess = this.get('audioAccess');
+    if (!audioAccess.hasAccess(this)) {
+      return;
+    }
+    
+    let audio = audioAccess.requestAccess(this);
 
     if (audio && audio.buffered && audio.buffered.length) {
       let ranges = audio.buffered;
@@ -187,31 +176,42 @@ let Sound = BaseSound.extend({
   /* Public interface */
 
   _audioDuration() {
-    return this.get('audio').duration * 1000;
+    let audio = this.get('audioAccess').requestAccess(this);
+    return audio.duration * 1000;
   },
 
   _currentPosition() {
-    return this.get('audio').currentTime * 1000;
+    let audioAccess = this.get('audioAccess');
+    if (!audioAccess.hasAccess(this)) {
+      return;
+    }
+    
+    let audio = audioAccess.requestAccess(this);
+    return audio.currentTime * 1000;
   },
 
   _setPosition(position) {
-    this.get('audio').currentTime = (position / 1000);
+    let audioAccess = this.get('audioAccess');
+    if (!audioAccess.hasAccess(this)) {
+      return;
+    }
+    
+    let audio = audioAccess.requestAccess(this);
+    audio.currentTime = (position / 1000);
     return this._currentPosition();
   },
 
   _setVolume(volume) {
-    this.get('audio').volume = (volume/100);
+    let audio = this.get('audioAccess').requestAccess(this);
+    audio.volume = (volume/100);
   },
 
   play({position} = {}) {
-    AccessControl.requestAccess(this);
-
-    let audio = this.get('audio');
+    let audio = this.get('audioAccess').requestAccess(this);
     
-    if (this.get('isStream')) {
-      // since we clear the `src` attr on pause, restore it here
-      this.loadAudio();
-    }
+    // since we clear the `src` attr on pause, restore it here
+    this.loadAudio(audio);
+    
     if (typeof position !== 'undefined') {
       this._setPosition(position);
     }
@@ -219,20 +219,22 @@ let Sound = BaseSound.extend({
   },
 
   pause() {
-    if (!AccessControl.hasAccess(this)) {
+    let audioAccess = this.get('audioAccess');
+    if (!audioAccess.hasAccess(this)) {
       this.debug(`${this.get('url')} does not have access to the audio element`);
       return;
     }
+    let audio = audioAccess.requestAccess(this);
     if (this.get('isStream')) {
-      this.stop(); // we don't want to the stream to continue loading while paused
+      this.stop(audio); // we don't want to the stream to continue loading while paused
     }
     else {
-      this.get('audio').pause();
+      audio.pause();
     }
+    Ember.run.next(() => audioAccess.releaseAccess(this));
   },
 
-  stop() {
-    let audio = this.get('audio');
+  stop(audio) {
     audio.pause();
     
     // calling pause halts playback but does not stop downloading streaming
@@ -242,8 +244,7 @@ let Sound = BaseSound.extend({
     audio.load();
   },
 
-  loadAudio() {
-    let audio = this.get('audio');
+  loadAudio(audio) {
     if (audio.src !== this.get('url')) {
       this.set('isLoading', true);
       audio.setAttribute('src', this.get('url'));
@@ -251,8 +252,8 @@ let Sound = BaseSound.extend({
   },
   
   willDestroy() {
-    this._unregisterEvents();
-    this.set('audio', undefined);
+    let audio = this.get('audioAccess').requestAccess(this);
+    this._unregisterEvents(audio);
   }
 });
 
