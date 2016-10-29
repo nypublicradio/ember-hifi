@@ -654,8 +654,7 @@ test("individual native audio sounds keep track of their own state", function(as
       sound2.set('position', 9000);
       sound2.play();
       assert.equal(sound2.get('position'), 9000, "second sound should still have its own position");
-
-      done();
+      sound2.on('audio-played', done);
     });
   }).catch((e) => {
     console.log(e.failures);
