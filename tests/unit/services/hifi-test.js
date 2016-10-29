@@ -629,23 +629,31 @@ test("for mobile devices, audio element should still be passed if a custom strat
 });
 
 test("individual native audio sounds keep track of their own state", function(assert) {
-  let done = assert.async();
-  assert.expect(2);
+  let done        = assert.async();
   let connections = ['NativeAudio'];
   let service     = this.subject({ options: chooseActiveConnections(...connections) });
-  let s1url = "/assets/silence.mp3";
-  let s2url = "/assets/silence2.mp3";
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
 
   let sound1, sound2;
   service.load(s1url).then(({sound}) => {
     sound1 = sound;
     service.load(s2url).then(({sound}) => {
       sound2 = sound;
+
       sound1.set('position', 2000);
       assert.equal(sound2.get('position'), 0, "second sound should have its own position");
 
       sound2.play();
+      sound2.set('position', 1000);
+
       assert.equal(sound1.get('position'), 2000, "first sound should still have its own position");
+      assert.equal(sound2.get('position'), 1000, "second sound should still have its own position");
+
+      sound1.play();
+      sound2.set('position', 9000);
+      sound2.play();
+      assert.equal(sound2.get('position'), 9000, "second sound should still have its own position");
 
       done();
     });

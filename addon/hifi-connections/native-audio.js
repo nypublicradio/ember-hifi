@@ -269,11 +269,15 @@ let Sound = BaseSound.extend({
   },
 
   loadAudio(audio) {
-    if (audio.src !== this.get('url')) {
+    // GOTCHA: audio.src is a fully qualified URL, and this.get('url') may be a relative url
+    // Keep this in mind if comparing
+    
+    if (audio.src === '') {
       this.set('isLoading', true);
       audio.setAttribute('src', this.get('url'));
     }
   },
+
 
   willDestroy() {
     this.requestControl();
