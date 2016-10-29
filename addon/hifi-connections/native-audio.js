@@ -45,8 +45,11 @@ let Sound = BaseSound.extend({
   },
 
   _handleAudioEvent(eventName, e) {
-    if (!this.urlsAreEqual(e.target.src, this.get('url'))) {
-      // This event is not for us, ignore
+    if (!this.urlsAreEqual(e.target.src, this.get('url')) && e.target.src !== '') {
+      // This event is not for us if our srcs aren't equal
+      
+      // but if the target src is empty it means we've been stopped and in
+      // that case should allow the event through.
       return;
     }
 
