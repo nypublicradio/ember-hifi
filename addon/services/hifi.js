@@ -3,7 +3,7 @@ import OneAtATime from '../helpers/one-at-a-time';
 import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
-import AccessControl from '../utils/access-control';
+import SharedAudioElement from '../utils/shared-audio-element';
 import { bind } from 'ember-runloop';
 
 const {
@@ -126,7 +126,7 @@ export default Service.extend(Ember.Evented, {
    */
 
   load(urlsOrPromise, options) {
-    let audioAccess = this._createAndUnlockAudio();
+    let sharedAudioElement = this._createAndUnlockAudio();
     let assign = Ember.assign || Ember.merge;
 
     options = assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
@@ -158,9 +158,9 @@ export default Service.extend(Ember.Evented, {
             strategies  = this._prepareStandardStrategies(urlsToTry);
           }
 
-          // pass in audioAccess for whomever might need it
+          // pass in sharedAudioElement for whomever might need it
           strategies  = strategies.map(s => {
-            s.audioAccess = audioAccess;
+            s.sharedAudioElement = sharedAudioElement;
             return s;
           });
 
@@ -535,7 +535,7 @@ export default Service.extend(Ember.Evented, {
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
       let Connection         = strategy.connection;
-      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'audioAccess');
+      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioElement');
       let sound              = Connection.create(connectionOptions);
 
       this.debug(options.debugName, `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
@@ -621,7 +621,7 @@ export default Service.extend(Ember.Evented, {
    * Given a list of urls and a list of connections, assemble array of
    * strategy objects to be tried in order. Each strategy object
    * should contain a connection, a connectionName, a url, and in some cases
-   * an audioAccess
+   * a sharedAudioElement
 
    * @method _prepareStrategies
    * @param {Array} urlsToTry
@@ -662,7 +662,7 @@ export default Service.extend(Ember.Evented, {
    */
 
    _createAndUnlockAudio() {
-    return AccessControl.unlock();
+    return SharedAudioElement.unlock();
   },
 
   /**

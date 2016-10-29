@@ -25,8 +25,10 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
-    let audioAccess = this.get('audioAccess');
-    let audio = audioAccess.requestAccess(this);
+    let sharedAudioElement = this.get('sharedAudioElement');
+    sharedAudioElement.requestControl(this);
+
+    let audio = this.audioElement();
 
     audio.src = this.get('url');
     this._registerEvents(audio);
@@ -45,12 +47,14 @@ let Sound = BaseSound.extend({
 
   _handleAudioEvent(eventName, e) {
     this.debug(`Handling '${eventName}' event from audio element`);
-    let audioAccess = this.get('audioAccess');
-    if (!this.get('audioAccess').hasAccess(this)) {
+
+    if (!this.get('sharedAudioElement').hasControl(this)) {
       this.debug(`${this.get('url')} does not have access to the audio element`);
       return;
     }
-    let audio = audioAccess.requestAccess(this);
+
+    let audio = this.get('sharedAudioElement.audioElement');
+
     switch(eventName) {
       case 'loadeddata':
         // Firefox doesn't fire a 'canplay' event until after you call *play* on
@@ -85,6 +89,42 @@ let Sound = BaseSound.extend({
       case 'progress':
         this._onAudioProgress(e);
         break;
+    }
+  },
+
+  audioElement() {
+    // If we have control, return the shared element
+    // if we don't have control, return the dummy cloned element
+    let sharedAudioElement  = this.get('sharedAudioElement');
+
+    if (sharedAudioElement.hasControl(this)) {
+      return sharedAudioElement.get('audioElement');
+    }
+    else {
+      let dummyElement = (this.get('dummyElement') || document.createElement('audio'));
+      this.set('dummyElement', dummyElement);
+
+      return dummyElement;
+    }
+  },
+
+  releaseControl() {
+    this.get('sharedAudioElement').releaseControl(this);
+
+    // save current state of audio element in this dummy element that won't be played
+    this.set('dummyElement', this.get('sharedAudioElement.audioElement').cloneNode());
+  },
+
+  requestControl() {
+    this.get('sharedAudioElement').requestControl(this);
+
+    let element      = this.get('audioElement');
+    let dummyElement = this.get('dummyElement');
+
+    if (dummyElement) {
+      // restore the state of the shared element to the dummy element
+      element.currentTime = dummyElement.currentTime;
+      element.volume      = dummyElement.volume;
     }
   },
 
@@ -137,8 +177,8 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioPaused() {
-    this.get('audioAccess').releaseAccess(this);
     this.trigger('audio-paused', this);
+    this.releaseControl();
   },
 
   _onAudioReady() {
@@ -146,12 +186,7 @@ let Sound = BaseSound.extend({
   },
 
   _calculatePercentLoaded() {
-    let audioAccess = this.get('audioAccess');
-    if (!audioAccess.hasAccess(this)) {
-      return;
-    }
-    
-    let audio = audioAccess.requestAccess(this);
+    let audio = this.audioElement();
 
     if (audio && audio.buffered && audio.buffered.length) {
       let ranges = audio.buffered;
@@ -172,58 +207,37 @@ let Sound = BaseSound.extend({
       return 0;
     }
   },
-  
-  _saveState(audio) {
-    this.setProperties({
-      _savedPosition: this._currentPosition(),
-      _savedVolume: (audio.volume * 100)
-    });
-  }, 
-
-  _restoreState(audio) {
-    this._setPosition(this.get('_savedPosition') || 0);
-    this._setVolume(this.get('_savedVolume') || 50);
-  },
 
   /* Public interface */
 
   _audioDuration() {
-    let audio = this.get('audioAccess').requestAccess(this);
+    let audio = this.audioElement();
     return audio.duration * 1000;
   },
 
   _currentPosition() {
-    let audioAccess = this.get('audioAccess');
-    if (!audioAccess.hasAccess(this)) {
-      return;
-    }
-    
-    let audio = audioAccess.requestAccess(this);
+    let audio = this.audioElement();
     return audio.currentTime * 1000;
   },
 
   _setPosition(position) {
-    let audioAccess = this.get('audioAccess');
-    if (!audioAccess.hasAccess(this)) {
-      return;
-    }
-    
-    let audio = audioAccess.requestAccess(this);
+    let audio = this.audioElement();
     audio.currentTime = (position / 1000);
     return this._currentPosition();
   },
 
   _setVolume(volume) {
-    let audio = this.get('audioAccess').requestAccess(this);
+    let audio = this.audioElement();
     audio.volume = (volume/100);
   },
 
   play({position} = {}) {
-    let audio = this.get('audioAccess').requestAccess(this);
-    
+    this.requestControl();
+    let audio = this.audioElement();
+
     // since we clear the `src` attr on pause, restore it here
     this.loadAudio(audio);
-    
+
     if (typeof position !== 'undefined') {
       this._setPosition(position);
     }
@@ -231,24 +245,22 @@ let Sound = BaseSound.extend({
   },
 
   pause() {
-    let audioAccess = this.get('audioAccess');
-    if (!audioAccess.hasAccess(this)) {
-      this.debug(`${this.get('url')} does not have access to the audio element`);
-      return;
-    }
-    let audio = audioAccess.requestAccess(this);
-    this._saveState(audio);
+    let audio = this.audioElement();
+
     if (this.get('isStream')) {
-      this.stop(audio); // we don't want to the stream to continue loading while paused
+      this.stop(); // we don't want to the stream to continue loading while paused
     }
     else {
       audio.pause();
     }
+
+    this.releaseControl();
   },
 
-  stop(audio) {
+  stop() {
+    let audio = this.audioElement();
     audio.pause();
-    
+
     // calling pause halts playback but does not stop downloading streaming
     // media. this is the method recommended by MDN: https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video#Stopping_the_download_of_media
     // NOTE: this fires an `'emptied'` event, which we treat the same way as `'pause'`
@@ -261,11 +273,11 @@ let Sound = BaseSound.extend({
       this.set('isLoading', true);
       audio.setAttribute('src', this.get('url'));
     }
-    this._restoreState(audio);
   },
-  
+
   willDestroy() {
-    let audio = this.get('audioAccess').requestAccess(this);
+    this.requestControl();
+    let audio = this.audioElement();
     this._unregisterEvents(audio);
   }
 });

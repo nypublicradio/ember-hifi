@@ -1,7 +1,7 @@
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 import Ember from 'ember';
-import AccessControl from 'dummy/utils/access-control';
+import SharedAudioElement from 'dummy/utils/shared-audio-element';
 import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
 let sandbox;
@@ -32,8 +32,8 @@ moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native
 
 test("If we 404, we give up", function(assert) {
   let done  = assert.async();
-  let audioAccess = AccessControl.unlock();
-  let sound = this.subject({url: badUrl, timeout: false, audioAccess});
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let sound = this.subject({url: badUrl, timeout: false, sharedAudioElement});
 
   assert.expect(1);
   sound.on('audio-load-error', function() {
@@ -42,104 +42,157 @@ test("If we 404, we give up", function(assert) {
   });
 });
 
-test("If passed an audio element on initialize, use it instead of creating one", function(assert) {
+test("If passed a shared audio element on initialize, use it instead of creating one", function(assert) {
   let done = assert.async();
   let testFlag = "hey, it's me";
-  let audioAccess = AccessControl.unlock();
-  audioAccess.get('audioElement').testFlag = testFlag;
+  let sharedAudioElement = SharedAudioElement.unlock();
+  sharedAudioElement.get('audioElement').testFlag = testFlag;
 
-  let sound = this.subject({url: goodUrl, audioAccess, timeout: false});
-
-  assert.equal(sound.get('audioAccess').requestAccess(sound).testFlag, testFlag, "should have used passed audio element");
-  
+  let sound = this.subject({url: goodUrl, sharedAudioElement, timeout: false});
+  sound.play();
+  assert.equal(sound.audioElement().testFlag, testFlag, "should have used passed audio element");
   sound.on('audio-load-error', done);
 });
 
 test("If it's a stream, we stop on pause", function(assert) {
-  let audioAccess = AccessControl.unlock();
-  let sound   = this.subject({url: goodUrl, timeout: false, audioAccess});
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let sound   = this.subject({url: goodUrl, timeout: false, duration: Infinity, sharedAudioElement});
   let stopSpy = sinon.spy(sound, 'stop');
-  let loadSpy = sinon.spy(sound.get('audioAccess').requestAccess(sound), 'load');
+  let loadSpy = sinon.spy(sound.get('sharedAudioElement').requestControl(sound), 'load');
 
   sound.play();
-  assert.equal(sound.get('audioAccess').requestAccess(sound).src, goodUrl, "audio src attribute is set");
+  assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
-  sound.stop(sound.get('audioAccess').requestAccess(sound));
-  // audio elements need their src attribute removed and then .load needs to be called
-  // to stop downloading a stream
+  sound.pause();
 
   Ember.run.next(() => {
-    assert.equal(sound.get('audioAccess').requestAccess(sound).hasAttribute('src'), false, "audio src attribute is not set to stop loading");
+    assert.equal(sound.audioElement().hasAttribute('src'), false, "audio src attribute is not set");
     assert.equal(loadSpy.callCount, 1, "load was called");
     assert.equal(stopSpy.callCount, 1, "stop was called");
   });
 });
 
 test("stopping an audio stream still sends the pause event", function(assert) {
-  let audioAccess = AccessControl.unlock();
-  let sound   = this.subject({url: goodUrl, timeout: false, duration: Infinity, audioAccess});
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let sound   = this.subject({url: goodUrl, timeout: false, duration: Infinity, sharedAudioElement});
 
   sound.play();
-  assert.equal(sound.get('audioAccess').requestAccess(sound).src, goodUrl, "audio src attribute is set");
+  assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
   let eventFired = false;
   sound.on('audio-paused', function() {
     eventFired = true;
   });
 
-  sound.stop(sound.get('audioAccess').requestAccess(sound));
+  sound.stop();
   Ember.run.next(() => {
     assert.equal(eventFired, true, "pause event was fired");
   });
 });
 
 test("can play an mp3 twice in a row", function(assert) {
-  let audioAccess = AccessControl.unlock();
-  let done  = assert.async();
-  assert.expect(3);
-  let sound = this.subject({url: goodUrl, timeout: false, audioAccess});
+  let sharedAudioElement = SharedAudioElement.unlock();
+
+  let sound = this.subject({url: goodUrl, timeout: false, sharedAudioElement});
   sound.on('audio-ended', () => assert.ok('ended was called'));
   sound.play();
-  assert.equal(sound.get('audioAccess').requestAccess(sound).src, goodUrl, "audio src attribute is set");
-  Ember.$(sound.get('audioAccess').requestAccess(sound)).trigger('ended');
-  sound.play();
-  assert.equal(sound.get('audioAccess').requestAccess(sound).src, goodUrl, "audio src attribute is set");
 
-  sound.on('audio-load-error', done);
+  assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
+  assert.equal(sound.audioElement(), SharedAudioElement.get('audioElement'), "internal audio tag is shared audio tag");
+
+  Ember.$(sound.audioElement()).trigger('ended');
+  sound.play();
+
+  assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
+  assert.equal(sound.audioElement(), SharedAudioElement.get('audioElement'), "internal audio tag is shared audio tag");
 });
 
 test('switching sounds saves the current state', function(assert) {
-  let done = assert.async();
   let url1 = '/audio1.mp3';
   let url2 = '/audio2.mp3';
-  let audioAccess = AccessControl.unlock();
-  let audio = audioAccess.audioElement;
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let audio = sharedAudioElement.audioElement;
   audio.play = function() {};
   audio.pause = function() {};
-  
-  let sound1 = NativeAudio.create({url: url1, timeout: false, audioAccess});
-  let sound2 = NativeAudio.create({url: url2, timeout: false, audioAccess});
+
+  let sound1 = NativeAudio.create({url: url1, timeout: false, sharedAudioElement});
+  let sound2 = NativeAudio.create({url: url2, timeout: false, sharedAudioElement});
+
   sinon.stub(sound1, 'debug');
   sinon.stub(sound2, 'debug');
-  
-  sound1.on('audio-played', () => {
-    sound1._setPosition(5000);
-    sound1.pause();
-    sound1._onAudioPaused();
-  });
-  sound1.on('audio-paused', () => {
-    sound2.play();
-    sound2._onAudioPlayed();
-  });
-  sound2.on('audio-played', () => {
-    sound2._setPosition(10000);
-    sound2.pause();
-    sound2._onAudioPaused();
-  })
-  sound2.on('audio-paused', () => {
-    assert.equal(sound1._currentPosition(), 5000, "sound1 should save it's own position");
-    done();
-  });
+
+  sound1.set('position', 2000);
+  sound1.play(); // sound 1 has control
+
+  sound2.set('position', 10000); // sound 2 should not affect sound 1
+
+  assert.equal(sound1.get('position'), 2000, "sound 1 should have kept its position");
+
+  sound2.play(); // sound 2 has control
+
+  assert.equal(sound2.get('position'), 10000, "sound 2 should have kept its position");
+});
+
+test('on setup the sound has control of the shared audio element', function(assert) {
+  let url1 = '/audio1.mp3';
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let audio = sharedAudioElement.audioElement;
+  audio.play = function() {};
+  audio.pause = function() {};
+
+  let sound = NativeAudio.create({url: url1, timeout: false, sharedAudioElement});
+  sinon.stub(sound, 'debug');
+
+  assert.equal(sound.audioElement(), sharedAudioElement.get('audioElement'), "sound should have control on setup");
+});
+
+test('on play the sound gains control of the shared audio element', function(assert) {
+  let url1 = '/audio1.mp3';
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let audio = sharedAudioElement.audioElement;
+  audio.play = function() {};
+  audio.pause = function() {};
+
+  let sound = NativeAudio.create({url: url1, timeout: false, sharedAudioElement});
+  sinon.stub(sound, 'debug');
+
+  sound.play();
+  assert.equal(sound.audioElement(), sharedAudioElement.get('audioElement'), "sound should have control on setup");
+});
+
+test('sound does not have control of the shared audio element when another is playing', function(assert) {
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let audio = sharedAudioElement.audioElement;
+  audio.play = function() {};
+  audio.pause = function() {};
+
+  let sound1 = NativeAudio.create({url: "/audio1.mp3", timeout: false, sharedAudioElement});
+  let sound2 = NativeAudio.create({url: "/audio2.mp3", timeout: false, sharedAudioElement});
+
+  sinon.stub(sound1, 'debug');
+  sinon.stub(sound2, 'debug');
+
   sound1.play();
-  sound1._onAudioPlayed();
+  sound2.play();
+
+  assert.notEqual(sound1.audioElement(), sharedAudioElement.get('audioElement'), "sound should have control while another sound is playing");
+});
+
+test('sound does not have control of the shared audio element when paused', function(assert) {
+  let sharedAudioElement = SharedAudioElement.unlock();
+  let audio = sharedAudioElement.audioElement;
+  audio.play = function() {};
+  audio.pause = function() {};
+
+  let sound1 = NativeAudio.create({url: "/audio1.mp3", timeout: false, sharedAudioElement});
+  let sound2 = NativeAudio.create({url: "/audio2.mp3", timeout: false, sharedAudioElement});
+
+  sinon.stub(sound1, 'debug');
+  sinon.stub(sound2, 'debug');
+
+  sound1.play();
+  sound1.pause();
+
+  assert.ok(sound1.audioElement() !== sharedAudioElement.get('audioElement'), "sound1 should not have control while paused");
+  assert.ok(sound2.audioElement() !== sharedAudioElement.get('audioElement'), "sound2 should not have control while paused");
 });

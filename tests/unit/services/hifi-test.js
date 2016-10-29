@@ -581,8 +581,8 @@ test("for mobile devices, try all the urls on the native audio connection first,
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
-    let audioAccess = Ember.A(Ember.A(strategies).map(s => s.audioAccess)).compact();
-    assert.equal(audioAccess.length, strategies.length, "audio element should have been included with the strategies");
+    let sharedAudioElements = Ember.A(Ember.A(strategies).map(s => s.sharedAudioElement)).compact();
+    assert.equal(sharedAudioElements.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
@@ -622,15 +622,15 @@ test("for mobile devices, audio element should still be passed if a custom strat
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
-    let audioAccess = Ember.A(Ember.A(strategies).map(s => s.audioAccess)).compact();
-    assert.equal(audioAccess.length, strategies.length, "audio element should have been included with the strategies");
+    let sharedAudioElements = Ember.A(Ember.A(strategies).map(s => s.sharedAudioElement)).compact();
+    assert.equal(sharedAudioElements.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
 
 test("individual native audio sounds keep track of their own state", function(assert) {
   let done = assert.async();
-
+  assert.expect(2);
   let connections = ['NativeAudio'];
   let service     = this.subject({ options: chooseActiveConnections(...connections) });
   let s1url = "/assets/silence.mp3";
@@ -649,29 +649,8 @@ test("individual native audio sounds keep track of their own state", function(as
 
       done();
     });
-  });
-});
-
-test("Sounds across connections should keep track of their own states", function(assert) {
-  let done = assert.async();
-
-  let connections = ['NativeAudio', 'Howler'];
-  let service     = this.subject({ options: chooseActiveConnections(...connections) });
-  let s1url = "/assets/silence.mp3";
-  let s2url = "/assets/silence2.mp3";
-
-  let sound1, sound2;
-  service.load(s1url, {useConnections:['NativeAudio']}).then(({sound}) => {
-    sound1 = sound;
-    service.load(s2url, {useConnections:['Howler']}).then(({sound}) => {
-      sound2 = sound;
-      sound1.set('position', 2000);
-      assert.equal(sound2.get('position'), 0, "second sound should have its own position");
-
-      sound2.play();
-      assert.equal(sound1.get('position'), 2000, "first sound should still have its own position");
-
-      done();
-    });
+  }).catch((e) => {
+    console.log(e.failures);
+    done();
   });
 });

@@ -8,19 +8,22 @@ export default Ember.Object.create({
       this.set('audioElement', audioElement);
       audioElement.play();
     }
+
     return this;
   },
-  requestAccess(who) {
-    // return shared audio element
-    // save who has access 
+
+  requestControl(who) {
     this.set('owner', who);
+
     return this.get('audioElement');
   },
-  hasAccess(who) {
-    return (!this.get('owner') || this.get('owner') === who);
+
+  hasControl(who) {
+    return (this.get('owner') === who);
   },
-  releaseAccess(who) {
-    if (this.hasAccess(who)) {
+
+  releaseControl(who) {
+    if (this.hasControl(who)) {
       this.set('owner', null);
     }
   }
