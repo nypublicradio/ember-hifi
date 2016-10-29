@@ -25,8 +25,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
-    let sharedAudioElement = this.get('sharedAudioElement');
-    sharedAudioElement.requestControl(this);
+    this.requestControl();
 
     let audio = this.audioElement();
 
@@ -46,14 +45,13 @@ let Sound = BaseSound.extend({
   },
 
   _handleAudioEvent(eventName, e) {
-    this.debug(`Handling '${eventName}' event from audio element`);
-
-    if (!this.get('sharedAudioElement').hasControl(this)) {
-      this.debug(`${this.get('url')} does not have access to the audio element`);
+    if (!this.urlsAreEqual(e.srcElement.src, this.get('url'))) {
+      // This event is not for us, ignore
       return;
     }
 
-    let audio = this.get('sharedAudioElement.audioElement');
+    this.debug(`Handling '${eventName}' event from audio element`);
+    let audio = this.audioElement();
 
     switch(eventName) {
       case 'loadeddata':
@@ -178,7 +176,6 @@ let Sound = BaseSound.extend({
 
   _onAudioPaused() {
     this.trigger('audio-paused', this);
-    this.releaseControl();
   },
 
   _onAudioReady() {
@@ -233,6 +230,7 @@ let Sound = BaseSound.extend({
 
   play({position} = {}) {
     this.requestControl();
+
     let audio = this.audioElement();
 
     // since we clear the `src` attr on pause, restore it here
@@ -269,15 +267,23 @@ let Sound = BaseSound.extend({
   },
 
   loadAudio(audio) {
-    // GOTCHA: audio.src is a fully qualified URL, and this.get('url') may be a relative url
-    // Keep this in mind if comparing
-    
-    if (audio.src === '') {
+    if (!this.urlsAreEqual(audio.src, this.get('url'))) {
       this.set('isLoading', true);
       audio.setAttribute('src', this.get('url'));
     }
   },
 
+  urlsAreEqual(url1, url2) {
+    // GOTCHA: audio.src is a fully qualified URL, and this.get('url') may be a relative url
+    // So when comparing, make sure we're dealing in absolutes
+
+    let parser1 = document.createElement('a');
+    let parser2 = document.createElement('a');
+    parser1.href = url1;
+    parser2.href = url2;
+
+    return (parser1.href === parser2.href);
+  },
 
   willDestroy() {
     this.requestControl();
