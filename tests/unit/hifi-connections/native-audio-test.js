@@ -108,12 +108,9 @@ test("can play an mp3 twice in a row", function(assert) {
 });
 
 test('switching sounds saves the current state', function(assert) {
-  let url1 = '/audio1.mp3';
-  let url2 = '/audio2.mp3';
+  let url1 = '/assets/silence.mp3';
+  let url2 = '/assets/silence2.mp3';
   let sharedAudioElement = SharedAudioElement.unlock();
-  let audio = sharedAudioElement.audioElement;
-  audio.play = function() {};
-  audio.pause = function() {};
 
   let sound1 = NativeAudio.create({url: url1, timeout: false, sharedAudioElement});
   let sound2 = NativeAudio.create({url: url2, timeout: false, sharedAudioElement});
@@ -134,11 +131,8 @@ test('switching sounds saves the current state', function(assert) {
 });
 
 test('on setup the sound has control of the shared audio element', function(assert) {
-  let url1 = '/audio1.mp3';
+  let url1 = '/assets/silence.mp3';
   let sharedAudioElement = SharedAudioElement.unlock();
-  let audio = sharedAudioElement.audioElement;
-  audio.play = function() {};
-  audio.pause = function() {};
 
   let sound = NativeAudio.create({url: url1, timeout: false, sharedAudioElement});
   sinon.stub(sound, 'debug');
@@ -147,11 +141,8 @@ test('on setup the sound has control of the shared audio element', function(asse
 });
 
 test('on play the sound gains control of the shared audio element', function(assert) {
-  let url1 = '/audio1.mp3';
+  let url1 = '/assets/silence.mp3';
   let sharedAudioElement = SharedAudioElement.unlock();
-  let audio = sharedAudioElement.audioElement;
-  audio.play = function() {};
-  audio.pause = function() {};
 
   let sound = NativeAudio.create({url: url1, timeout: false, sharedAudioElement});
   sinon.stub(sound, 'debug');
@@ -162,12 +153,9 @@ test('on play the sound gains control of the shared audio element', function(ass
 
 test('sound does not have control of the shared audio element when another is playing', function(assert) {
   let sharedAudioElement = SharedAudioElement.unlock();
-  let audio = sharedAudioElement.audioElement;
-  audio.play = function() {};
-  audio.pause = function() {};
 
-  let sound1 = NativeAudio.create({url: "/audio1.mp3", timeout: false, sharedAudioElement});
-  let sound2 = NativeAudio.create({url: "/audio2.mp3", timeout: false, sharedAudioElement});
+  let sound1 = NativeAudio.create({url: "/assets/silence.mp3", timeout: false, sharedAudioElement});
+  let sound2 = NativeAudio.create({url: "/assets/silence2.mp3", timeout: false, sharedAudioElement});
 
   sinon.stub(sound1, 'debug');
   sinon.stub(sound2, 'debug');
@@ -180,12 +168,9 @@ test('sound does not have control of the shared audio element when another is pl
 
 test('sound does not have control of the shared audio element when paused', function(assert) {
   let sharedAudioElement = SharedAudioElement.unlock();
-  let audio = sharedAudioElement.audioElement;
-  audio.play = function() {};
-  audio.pause = function() {};
 
-  let sound1 = NativeAudio.create({url: "/audio1.mp3", timeout: false, sharedAudioElement});
-  let sound2 = NativeAudio.create({url: "/audio2.mp3", timeout: false, sharedAudioElement});
+  let sound1 = NativeAudio.create({url: "/assets/silence.mp3", timeout: false, sharedAudioElement});
+  let sound2 = NativeAudio.create({url: "/assets/silence2.mp3", timeout: false, sharedAudioElement});
 
   sinon.stub(sound1, 'debug');
   sinon.stub(sound2, 'debug');
