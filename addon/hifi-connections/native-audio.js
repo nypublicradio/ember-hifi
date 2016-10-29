@@ -120,7 +120,7 @@ let Sound = BaseSound.extend({
     let dummyElement = this.get('dummyElement');
 
     if (dummyElement) {
-      // restore the state of the shared element to the dummy element
+      // restore the state of the shared element from the dummy element
       element.currentTime = dummyElement.currentTime;
       element.volume      = dummyElement.volume;
     }
