@@ -45,7 +45,7 @@ let Sound = BaseSound.extend({
   },
 
   _handleAudioEvent(eventName, e) {
-    if (!this.urlsAreEqual(e.srcElement.src, this.get('url'))) {
+    if (!this.urlsAreEqual(e.target.src, this.get('url'))) {
       // This event is not for us, ignore
       return;
     }
