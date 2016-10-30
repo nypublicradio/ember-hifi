@@ -130,7 +130,7 @@ let Sound = BaseSound.extend({
     this.get('sharedAudioAccess').requestControl(this);
 
     let sharedElement     = this.audioElement();
-    let internalElement   = this.get('audioElement');
+    let internalElement   = this.get('_audioElement');
 
     if (internalElement) {
       // restore the state of the shared element from the dummy element
