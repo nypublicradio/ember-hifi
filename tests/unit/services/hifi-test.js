@@ -642,18 +642,19 @@ test("individual native audio sounds keep track of their own state", function(as
       sound2 = sound;
 
       sound1.set('position', 2000);
-      assert.equal(sound2.get('position'), 0, "second sound should have its own position");
+      assert.equal(sound2._currentPosition(), 0, "second sound should have its own position");
 
       sound2.play();
       sound2.set('position', 1000);
 
-      assert.equal(sound1.get('position'), 2000, "first sound should still have its own position");
-      assert.equal(sound2.get('position'), 1000, "second sound should still have its own position");
+      assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
+      assert.equal(sound2._currentPosition(), 1000, "second sound should still have its own position");
 
       sound1.play();
+      assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
       sound2.set('position', 9000);
       sound2.play();
-      assert.equal(sound2.get('position'), 9000, "second sound should still have its own position");
+      assert.equal(sound2._currentPosition(), 9000, "second sound should still have its own position");
       sound2.on('audio-played', done);
     });
   }).catch((e) => {
