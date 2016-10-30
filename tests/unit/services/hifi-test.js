@@ -661,3 +661,41 @@ test("individual native audio sounds keep track of their own state", function(as
     done();
   });
 });
+
+test("sound can play on native audio using shared element one after the other", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  service.set('isMobileDevice', true);
+
+  let sound1, sound2;
+  service.load(s1url).then(({sound}) => {
+    sound1 = sound;
+    service.load(s2url).then(({sound}) => {
+      sound2 = sound;
+
+      let sharedElement = sound1.get('sharedAudioElement');
+      assert.ok(sharedElement, "sound should be using shared element");
+
+      let eventFired = false;
+      sound1.on('audio-ended', function() {
+        sound2.play();
+        eventFired = true;
+      });
+      sound2.on('audio-played', function() {
+        assert.equal(sharedElement.get('audioElement'), sound2.audioElement(), "sound 2 should be using shared element");
+
+        done();
+      });
+
+      sound1.play();
+      sound1.set('position', 100000);
+    });
+  }).catch((e) => {
+    console.log(e.failures);
+    done();
+  });
+});

@@ -47,7 +47,7 @@ let Sound = BaseSound.extend({
   _handleAudioEvent(eventName, e) {
     if (!this.urlsAreEqual(e.target.src, this.get('url')) && e.target.src !== '') {
       // This event is not for us if our srcs aren't equal
-      
+
       // but if the target src is empty it means we've been stopped and in
       // that case should allow the event through.
       return;
@@ -95,37 +95,49 @@ let Sound = BaseSound.extend({
 
   audioElement() {
     // If we have control, return the shared element
-    // if we don't have control, return the dummy cloned element
+    // if we don't have control, return the internal cloned element
     let sharedAudioElement  = this.get('sharedAudioElement');
 
-    if (sharedAudioElement.hasControl(this)) {
+    if (sharedAudioElement && sharedAudioElement.hasControl(this)) {
       return sharedAudioElement.get('audioElement');
     }
     else {
-      let dummyElement = (this.get('dummyElement') || document.createElement('audio'));
-      this.set('dummyElement', dummyElement);
+      let audioElement = (this.get('audioElement') || document.createElement('audio'));
+      this.set('audioElement', audioElement);
 
-      return dummyElement;
+      return audioElement;
     }
   },
 
   releaseControl() {
+    if (!this.get('sharedAudioElement')) {
+      return;
+    }
+
     this.get('sharedAudioElement').releaseControl(this);
 
-    // save current state of audio element in this dummy element that won't be played
-    this.set('dummyElement', this.get('sharedAudioElement.audioElement').cloneNode());
+    // save current state of audio element to the internal element that won't be played
+    this.set('audioElement', this.get('sharedAudioElement.audioElement').cloneNode());
   },
 
   requestControl() {
+    if (!this.get('sharedAudioElement')) {
+      return;
+    }
+
     this.get('sharedAudioElement').requestControl(this);
 
-    let element      = this.get('audioElement');
-    let dummyElement = this.get('dummyElement');
+    let sharedElement     = this.audioElement();
+    let internalElement   = this.get('audioElement');
 
-    if (dummyElement) {
+    if (internalElement) {
       // restore the state of the shared element from the dummy element
-      element.currentTime = dummyElement.currentTime;
-      element.volume      = dummyElement.volume;
+      if (internalElement.currentTime) {
+        sharedElement.currentTime = internalElement.currentTime;
+      }
+      if (internalElement.volume) {
+        sharedElement.volume      = internalElement.volume;
+      }
     }
   },
 
