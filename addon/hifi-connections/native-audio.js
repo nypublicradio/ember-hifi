@@ -50,14 +50,16 @@ let Sound = BaseSound.extend({
 
       // but if the target src is empty it means we've been stopped and in
       // that case should allow the event through.
+
       return;
     }
 
     this.debug(`Handling '${eventName}' event from audio element`);
-    let audio = this.audioElement();
 
     switch(eventName) {
       case 'loadeddata':
+        let audio = this.audioElement();
+
         // Firefox doesn't fire a 'canplay' event until after you call *play* on
         // the audio, but it does fire 'loadeddata' when it's ready
         if (audio.readyState >= HAVE_CURRENT_DATA) {
@@ -96,36 +98,36 @@ let Sound = BaseSound.extend({
   audioElement() {
     // If we have control, return the shared element
     // if we don't have control, return the internal cloned element
-    let sharedAudioElement  = this.get('sharedAudioElement');
 
-    if (sharedAudioElement && sharedAudioElement.hasControl(this)) {
-      return sharedAudioElement.get('audioElement');
+    let sharedAudioAccess  = this.get('sharedAudioAccess');
+
+    if (sharedAudioAccess && sharedAudioAccess.hasControl(this)) {
+      return sharedAudioAccess.get('audioElement');
     }
     else {
-      let audioElement = (this.get('audioElement') || document.createElement('audio'));
-      this.set('audioElement', audioElement);
+      let audioElement = (this.get('_audioElement') || document.createElement('audio'));
+      this.set('_audioElement', audioElement);
 
       return audioElement;
     }
   },
 
   releaseControl() {
-    if (!this.get('sharedAudioElement')) {
+    if (!this.get('sharedAudioAccess')) {
       return;
     }
-
-    this.get('sharedAudioElement').releaseControl(this);
+    this.get('sharedAudioAccess').releaseControl(this);
 
     // save current state of audio element to the internal element that won't be played
-    this.set('audioElement', this.get('sharedAudioElement.audioElement').cloneNode());
+    this.set('_audioElement', this.get('sharedAudioAccess.audioElement').cloneNode());
   },
 
   requestControl() {
-    if (!this.get('sharedAudioElement')) {
+    if (!this.get('sharedAudioAccess')) {
       return;
     }
 
-    this.get('sharedAudioElement').requestControl(this);
+    this.get('sharedAudioAccess').requestControl(this);
 
     let sharedElement     = this.audioElement();
     let internalElement   = this.get('audioElement');
@@ -266,8 +268,6 @@ let Sound = BaseSound.extend({
     else {
       audio.pause();
     }
-
-    this.releaseControl();
   },
 
   stop() {

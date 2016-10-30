@@ -13,6 +13,13 @@ export default Ember.Object.create({
   },
 
   requestControl(who) {
+    let owner = this.get('owner');
+    if (owner) {
+      if ( !(owner.get('isDestroyed') || owner.get('isDestroying')) ) {
+        owner.releaseControl();
+      }
+    }
+
     this.set('owner', who);
 
     return this.get('audioElement');

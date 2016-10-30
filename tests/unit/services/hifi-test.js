@@ -581,8 +581,8 @@ test("for mobile devices, try all the urls on the native audio connection first,
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
-    let sharedAudioElements = Ember.A(Ember.A(strategies).map(s => s.sharedAudioElement)).compact();
-    assert.equal(sharedAudioElements.length, strategies.length, "audio element should have been included with the strategies");
+    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
@@ -622,8 +622,8 @@ test("for mobile devices, audio element should still be passed if a custom strat
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
-    let sharedAudioElements = Ember.A(Ember.A(strategies).map(s => s.sharedAudioElement)).compact();
-    assert.equal(sharedAudioElements.length, strategies.length, "audio element should have been included with the strategies");
+    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
@@ -669,33 +669,28 @@ test("sound can play on native audio using shared element one after the other", 
   let s1url       = "/assets/silence.mp3";
   let s2url       = "/assets/silence2.mp3";
 
+  // assert.expect(3);
+
   service.set('isMobileDevice', true);
+  
 
-  let sound1, sound2;
-  service.load(s1url).then(({sound}) => {
-    sound1 = sound;
-    service.load(s2url).then(({sound}) => {
-      sound2 = sound;
+  return service.load(s1url).then(response => {
+    let silence1 = response.sound;
+    let sharedAccess = silence1.get('sharedAudioAccess');
+    assert.ok(sharedAccess, "sound should be using shared element");
 
-      let sharedElement = sound1.get('sharedAudioElement');
-      assert.ok(sharedElement, "sound should be using shared element");
+    silence1.on('audio-ended', function() {
+      assert.ok("audio ended event was fired");
 
-      let eventFired = false;
-      sound1.on('audio-ended', function() {
-        sound2.play();
-        eventFired = true;
-      });
-      sound2.on('audio-played', function() {
-        assert.equal(sharedElement.get('audioElement'), sound2.audioElement(), "sound 2 should be using shared element");
-
+      service.play(s2url).then(r => {
+        let silence2 = r.sound;
+        assert.equal(sharedAccess.get('audioElement'), silence2.audioElement(), "second sound should be using shared element");
         done();
       });
-
-      sound1.play();
-      sound1.set('position', 100000);
     });
-  }).catch((e) => {
-    console.log(e.failures);
-    done();
+
+    silence1.play();
+    silence1.set('position', 10 * 60 * 1000);
   });
+
 });
