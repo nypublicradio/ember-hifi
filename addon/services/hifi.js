@@ -159,7 +159,8 @@ export default Service.extend(Ember.Evented, {
           }
 
           if (this.get('isMobileDevice')) {
-            // pass in sharedAudioAccess for whomever might need it
+            // If we're on a mobile device, pass in sharedAudioAccess into each
+            // connection to combat autoplay blocking issues on touch devices
             strategies  = strategies.map(s => {
               s.sharedAudioAccess = sharedAudioAccess;
               return s;

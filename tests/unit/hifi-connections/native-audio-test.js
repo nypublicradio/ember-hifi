@@ -3,7 +3,6 @@ import sinon from 'sinon';
 import Ember from 'ember';
 import SharedAudioAccess from 'dummy/utils/shared-audio-access';
 import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
-// import wait from 'ember-test-helpers/wait';
 
 let sandbox;
 const goodUrl = "http://example.org/good.aac";
