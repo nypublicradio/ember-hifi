@@ -160,7 +160,7 @@ export default Service.extend(Ember.Evented, {
 
           // pass in sharedAudioAccess for whomever might need it
           strategies  = strategies.map(s => {
-                s.sharedAudioAccess = sharedAudioAccess;
+            s.sharedAudioAccess = sharedAudioAccess;
             return s;
           });
 
