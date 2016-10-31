@@ -135,7 +135,9 @@ let Sound = BaseSound.extend({
     }
 
     this.get('sharedAudioAccess').requestControl(this);
-
+  },
+  
+  restoreState() {
     let sharedElement     = this.audioElement();
     let internalElement   = this.get('_audioElement');
 
@@ -259,6 +261,7 @@ let Sound = BaseSound.extend({
 
     // since we clear the `src` attr on pause, restore it here
     this.loadAudio(audio);
+    this.restoreState();
 
     if (typeof position !== 'undefined') {
       this._setPosition(position);
