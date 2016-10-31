@@ -581,8 +581,8 @@ test("for mobile devices, try all the urls on the native audio connection first,
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
-    let audioElements = Ember.A(Ember.A(strategies).map(s => s.audioElement)).compact();
-    assert.equal(audioElements.length, strategies.length, "audio element should have been included with the strategies");
+    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
 });
@@ -622,8 +622,76 @@ test("for mobile devices, audio element should still be passed if a custom strat
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
-    let audioElements = Ember.A(Ember.A(strategies).map(s => s.audioElement)).compact();
-    assert.equal(audioElements.length, strategies.length, "audio element should have been included with the strategies");
+    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
+});
+
+test("individual native audio sounds keep track of their own state", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({
+    options: chooseActiveConnections(...connections),
+    setCurrentSound() {}
+  });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  let sound1, sound2;
+  service.load(s1url).then(({sound}) => {
+    sound1 = sound;
+    service.load(s2url).then(({sound}) => {
+      sound2 = sound;
+
+      sound1.set('position', 2000);
+      assert.equal(sound2._currentPosition(), 0, "second sound should have its own position");
+
+      sound2.play();
+      sound2.set('position', 1000);
+
+      assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
+      assert.equal(sound2._currentPosition(), 1000, "second sound should still have its own position");
+
+      sound1.play();
+      assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
+      sound2.set('position', 9000);
+      sound2.play();
+      assert.equal(sound2._currentPosition(), 9000, "second sound should still have its own position");
+      sound2.one('audio-played', done);
+    });
+  }).catch((e) => {
+    console.log(e.failures);
+    done();
+  });
+});
+
+test("sound can play on native audio using shared element one after the other", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  service.set('isMobileDevice', true);
+
+  return service.load(s1url).then(response => {
+    let silence1 = response.sound;
+    let sharedAccess = silence1.get('sharedAudioAccess');
+    assert.equal(sharedAccess.get('audioElement'), silence1.audioElement(), "sound should be using shared element");
+
+    silence1.on('audio-ended', function() {
+      assert.ok("audio ended event was fired");
+
+      service.play(s2url).then(r => {
+        let silence2 = r.sound;
+        assert.equal(sharedAccess.get('audioElement'), silence2.audioElement(), "second sound should be using shared element");
+        done();
+      });
+    });
+
+    silence1.play();
+    silence1.set('position', 10 * 60 * 1000);
+  });
+
 });
