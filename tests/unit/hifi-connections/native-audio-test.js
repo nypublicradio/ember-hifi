@@ -54,6 +54,23 @@ test("If passed a shared audio element on initialize, use it instead of creating
   sound.on('audio-load-error', done);
 });
 
+test("If not passed a shared audio element on initialize, use our internal one", function(assert) {
+  assert.expect(1);
+  let done = assert.async();
+  let sound = this.subject({url: "/assets/silence.mp3", timeout: false});
+
+  sound.on('audio-played', function() {
+    assert.ok("audio played with internal element");
+    done();
+  });
+
+  sound.on('audio-load-error', done);
+
+  sound.on('audio-ready', function() {
+    sound.play();
+  });
+});
+
 test("If it's a stream, we stop on pause", function(assert) {
   let sharedAudioAccess = SharedAudioAccess.unlock();
   let sound   = this.subject({url: goodUrl, timeout: false, duration: Infinity, sharedAudioAccess});
@@ -90,7 +107,7 @@ test("stopping an audio stream still sends the pause event", function(assert) {
   });
 });
 
-test("can play an mp3 twice in a row", function(assert) {
+test("can play an mp3 twice in a row using a shared audio element", function(assert) {
   let sharedAudioAccess = SharedAudioAccess.unlock();
 
   let sound = this.subject({url: goodUrl, timeout: false, sharedAudioAccess});
@@ -107,7 +124,19 @@ test("can play an mp3 twice in a row", function(assert) {
   assert.equal(sound.audioElement(), sharedAudioAccess.get('audioElement'), "internal audio tag is shared audio tag");
 });
 
-test('switching sounds saves the current state', function(assert) {
+test("can play an mp3 twice in a row using internal element", function(assert) {
+  let sound = this.subject({url: goodUrl, timeout: false});
+  sound.on('audio-ended', () => assert.ok('ended was called'));
+  sound.play();
+
+  assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
+  Ember.$(sound.audioElement()).trigger('ended');
+  sound.play();
+
+  assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
+});
+
+test('switching sounds with a shared audio element saves the current state', function(assert) {
   let url1 = '/assets/silence.mp3';
   let url2 = '/assets/silence2.mp3';
   let sharedAudioAccess = SharedAudioAccess.unlock();
@@ -129,6 +158,29 @@ test('switching sounds saves the current state', function(assert) {
 
   assert.equal(sound2._currentPosition(), 10000, "sound 2 should have kept its position");
 });
+
+test('switching sounds with internal elements keep current state', function(assert) {
+  let url1 = '/assets/silence.mp3';
+  let url2 = '/assets/silence2.mp3';
+
+  let sound1 = NativeAudio.create({url: url1, timeout: false});
+  let sound2 = NativeAudio.create({url: url2, timeout: false});
+
+  sinon.stub(sound1, 'debug');
+  sinon.stub(sound2, 'debug');
+
+  sound1.set('position', 2000);
+  sound1.play(); // sound 1 has control
+
+  sound2.set('position', 10000); // sound 2 should not affect sound 1
+
+  assert.equal(sound1._currentPosition(), 2000, "sound 1 should have kept its position");
+
+  sound2.play(); // sound 2 has control
+
+  assert.equal(sound2._currentPosition(), 10000, "sound 2 should have kept its position");
+});
+
 
 test('on setup the sound has control of the shared audio element', function(assert) {
   let url1 = '/assets/silence.mp3';
