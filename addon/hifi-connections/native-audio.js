@@ -25,9 +25,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
-    this.requestControl();
-
-    let audio = this.audioElement();
+    let audio = this.requestControl();
 
     audio.src = this.get('url');
     this._registerEvents(audio);
@@ -130,11 +128,11 @@ let Sound = BaseSound.extend({
   },
 
   requestControl() {
-    if (!this.get('sharedAudioAccess')) {
-      return;
+    if (this.get('sharedAudioAccess')) {
+      return this.get('sharedAudioAccess').requestControl(this);
+    } else {
+      return this.audioElement();
     }
-
-    this.get('sharedAudioAccess').requestControl(this);
   },
   
   restoreState() {
@@ -255,9 +253,7 @@ let Sound = BaseSound.extend({
   },
 
   play({position} = {}) {
-    this.requestControl();
-
-    let audio = this.audioElement();
+    let audio = this.requestControl();
 
     // since we clear the `src` attr on pause, restore it here
     this.loadAudio(audio);
@@ -311,8 +307,7 @@ let Sound = BaseSound.extend({
   },
 
   willDestroy() {
-    this.requestControl();
-    let audio = this.audioElement();
+    let audio = this.requestControl();
     this._unregisterEvents(audio);
   }
 });
