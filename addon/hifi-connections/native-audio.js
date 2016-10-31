@@ -119,7 +119,14 @@ let Sound = BaseSound.extend({
     this.get('sharedAudioAccess').releaseControl(this);
 
     // save current state of audio element to the internal element that won't be played
-    this.set('_audioElement', this.get('sharedAudioAccess.audioElement').cloneNode());
+    this._saveState(this.get('sharedAudioAccess.audioElement'));
+  },
+  
+  _saveState(audio) {
+    let shadowAudio = document.createElement('audio');
+    shadowAudio.currentTime = audio.currentTime;
+    shadowAudio.volume      = audio.volume;
+    this.set('_audioElement', shadowAudio);
   },
 
   requestControl() {
