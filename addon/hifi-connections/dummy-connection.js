@@ -8,6 +8,7 @@ let ClassMethods = Ember.Mixin.create({
 });
 
 let DummyConnection = Ember.Object.extend(Ember.Evented, {
+  position: 0,
   init() {
     Ember.run.next(() => this.trigger('audio-ready'));
   },
