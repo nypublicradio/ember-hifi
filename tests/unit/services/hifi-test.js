@@ -681,7 +681,7 @@ test("sound can play on native audio using shared element one after the other", 
   return service.load(s1url).then(response => {
     let silence1 = response.sound;
     let sharedAccess = silence1.get('sharedAudioAccess');
-    assert.ok(sharedAccess, "sound should be using shared element");
+    assert.equal(sharedAccess.get('audioElement'), silence1.audioElement(), "sound should be using shared element");
 
     silence1.on('audio-ended', function() {
       assert.ok("audio ended event was fired");
