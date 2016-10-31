@@ -124,11 +124,11 @@ test('switching sounds saves the current state', function(assert) {
 
   sound2.set('position', 10000); // sound 2 should not affect sound 1
 
-  assert.equal(sound1.get('position'), 2000, "sound 1 should have kept its position");
+  assert.equal(sound1._currentPosition(), 2000, "sound 1 should have kept its position");
 
   sound2.play(); // sound 2 has control
 
-  assert.equal(sound2.get('position'), 10000, "sound 2 should have kept its position");
+  assert.equal(sound2._currentPosition(), 10000, "sound 2 should have kept its position");
 });
 
 test('on setup the sound has control of the shared audio element', function(assert) {
