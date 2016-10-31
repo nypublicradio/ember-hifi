@@ -79,7 +79,7 @@ test("stopping an audio stream still sends the pause event", function(assert) {
   let sound   = this.subject({url: '/assets/silence.mp3', timeout: false, duration: Infinity, sharedAudioAccess});
   assert.expect(2);
 
-  sound.on('audio-paused', function() {
+  sound.one('audio-paused', function() {
     assert.ok("pause event was fired");
   });
 
