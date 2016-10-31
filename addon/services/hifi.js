@@ -158,11 +158,13 @@ export default Service.extend(Ember.Evented, {
             strategies  = this._prepareStandardStrategies(urlsToTry);
           }
 
-          // pass in sharedAudioAccess for whomever might need it
-          strategies  = strategies.map(s => {
-            s.sharedAudioAccess = sharedAudioAccess;
-            return s;
-          });
+          if (this.get('isMobileDevice')) {
+            // pass in sharedAudioAccess for whomever might need it
+            strategies  = strategies.map(s => {
+              s.sharedAudioAccess = sharedAudioAccess;
+              return s;
+            });
+          }
 
           let search = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
