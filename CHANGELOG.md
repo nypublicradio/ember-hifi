@@ -1,5 +1,12 @@
 # ember-hifi Changelog
 
+### 1.4.0 (October 31, 2016) :pumpkin:
+- 3a9438 [BUGFIX] - Handle audio position overruns 
+- 460149 [IMPROVEMENT] - `.play` on the Service and Connections accepts an options hash. The only option currently supported is `position`, so you can `sound.play({position: 0})` to restart a sound.
+- Change when some properties are updated for snappier feedback
+- [#18](https://github.com/nypublicradio/ember-hifi/pull/18) [IMPROVEMENT] - Adds a `SharedAudioAccess` library to manage access to a singleton HTML5 Audio element on mobile devices. This is due to the long-standing iOS issue with calling `play` on an audio element that is not in direct response to a user action like a `click` or `tap`. This allows us to do things like playlist playback on mobile.
+- Other improvements: include silent MP3 files for testing, fix soundcache issue caching identical sounds more than once.
+
 ### 1.3.3 (October 19, 2016)
 - Attaches failures to load `catch` case
 
