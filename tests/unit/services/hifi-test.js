@@ -673,10 +673,7 @@ test("sound can play on native audio using shared element one after the other", 
   let s1url       = "/assets/silence.mp3";
   let s2url       = "/assets/silence2.mp3";
 
-  // assert.expect(3);
-
   service.set('isMobileDevice', true);
-  
 
   return service.load(s1url).then(response => {
     let silence1 = response.sound;
