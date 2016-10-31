@@ -631,7 +631,10 @@ test("for mobile devices, audio element should still be passed if a custom strat
 test("individual native audio sounds keep track of their own state", function(assert) {
   let done        = assert.async();
   let connections = ['NativeAudio'];
-  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let service     = this.subject({
+    options: chooseActiveConnections(...connections),
+    setCurrentSound() {}
+  });
   let s1url       = "/assets/silence.mp3";
   let s2url       = "/assets/silence2.mp3";
 
