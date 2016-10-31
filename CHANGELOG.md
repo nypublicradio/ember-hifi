@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.4.1 (October 31, 2016) :pumpkin:
+- start dummy connections with a 0 position
+
 ### 1.4.0 (October 31, 2016) :pumpkin:
 - 3a9438 [BUGFIX] - Handle audio position overruns 
 - 460149 [IMPROVEMENT] - `.play` on the Service and Connections accepts an options hash. The only option currently supported is `position`, so you can `sound.play({position: 0})` to restart a sound.
