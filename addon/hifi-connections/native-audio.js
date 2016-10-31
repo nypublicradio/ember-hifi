@@ -139,7 +139,7 @@ let Sound = BaseSound.extend({
     let sharedElement     = this.audioElement();
     let internalElement   = this.get('_audioElement');
 
-    if (internalElement) {
+    if (this.get('sharedAudioAccess') && internalElement) {
       // restore the state of the shared element from the dummy element
       if (internalElement.currentTime) {
         sharedElement.currentTime = internalElement.currentTime;
