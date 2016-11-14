@@ -693,5 +693,4 @@ test("sound can play on native audio using shared element one after the other", 
     silence1.play();
     silence1.set('position', 10 * 60 * 1000);
   });
-
 });
