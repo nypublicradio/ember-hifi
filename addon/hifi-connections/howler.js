@@ -36,6 +36,9 @@ let Sound = BaseSound.extend({
       onend: function() {
         sound.trigger('audio-ended', sound);
       },
+      onstop: function() {
+        sound.trigger('audio-paused', sound);
+      },
       onloaderror: function(id, error) {
         sound.trigger('audio-load-error', error);
       },
