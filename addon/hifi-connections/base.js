@@ -86,6 +86,15 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   }),
 
   init: function() {
+    let {
+      audioLoading,
+      audioLoaded,
+      audioReady,
+      audioPlayed,
+      audioPaused,
+      audioEnded,
+      audioLoadError
+    } = this.getProperties('audioLoading', 'audioLoaded', 'audioReady', 'audioPlayed', 'audioPaused', 'audioEnded', 'audioLoadError');
     this.set('isLoading', true);
 
     this.on('audio-played',    () => {
@@ -93,13 +102,22 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('isLoading', false);
       this.set('isPlaying', true);
       this.set('error', null);
+      
+      if (audioPlayed) { audioLoading(this); }
     });
 
-    this.on('audio-paused',    () => this.set('isPlaying', false));
-    this.on('audio-stopped',   () => this.set('isPlaying', false));
+    this.on('audio-paused',   () => {
+      this.set('isPlaying', false);
+      if (audioPaused) { audioPaused(this); }
+    });
+    this.on('audio-ended',    () => { 
+      this.set('isPlaying', false);
+      if (audioEnded) { audioEnded(this); }
+    });
 
     this.on('audio-ready',    () => {
       this.set('duration', this._audioDuration());
+      if (audioReady) { audioReady(this); }
     });
 
     this.on('audio-load-error', (e) => {
@@ -108,16 +126,19 @@ let Sound = Ember.Object.extend(Ember.Evented, {
         this.set('isPlaying', false);
       }
       this.set('error', e);
+      if (audioLoadError) { audioLoadError(this); }
     });
 
     this.on('audio-loaded', () => {
       this.set('isLoading', false);
+      if (audioLoaded) { audioLoaded(this); }
     });
 
     this.on('audio-loading', (info) => {
       if (info && info.percentLoaded) {
         this.set('percentLoaded', info.percentLoaded);
       }
+      if (audioLoading) { audioLoading(this, info && info.percentLoaded); }
     });
 
     this._detectTimeouts();
@@ -128,6 +149,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
     catch(e) {
       Ember.run.next(() => {
         this.trigger('audio-load-error', `Error in setup ${e.message}`);
+        if (audioLoadError) { audioLoadError(this); }
       });
     }
   },

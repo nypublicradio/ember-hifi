@@ -85,3 +85,24 @@ test("If we 404, we give up", function(assert) {
     done();
   });
 });
+
+test("Howler should fire audio-ended event when a file finishes", function(assert) {
+  assert.expect(2);
+  let done = assert.async();
+  let url   = "/assets/silence.mp3";
+  let sound = this.subject({
+    url: url,
+    audioReady: function() {
+      sound.play();
+      sound.set('position', 10 * 60 * 1000);
+    },
+    audioEnded: function() {
+      assert.ok('service fires audio-ended');
+      assert.notOk(sound.get('isPlaying'), 'isPlaying should be false');
+      sound.off('audio-ended');
+      done();
+    }
+  });
+  
+  sound.setup();
+});
