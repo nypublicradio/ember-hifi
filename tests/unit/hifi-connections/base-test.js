@@ -26,11 +26,11 @@ test("isPlaying gets set to false when an 'audio-paused' event is fired", functi
   assert.equal(baseSound.get('isPlaying'), false, "is playing should be false after firing event");
 });
 
-test("isPlaying gets set to false when an 'audio-stopped' event is fired", function(assert) {
+test("isPlaying gets set to false when an 'audio-ended' event is fired", function(assert) {
   baseSound.set('isPlaying', true);
 
   assert.equal(baseSound.get('isPlaying'), true, "is playing should be true to start");
-  baseSound.trigger("audio-stopped");
+  baseSound.trigger("audio-ended");
   assert.equal(baseSound.get('isPlaying'), false, "is playing should be false after firing event");
 });
 

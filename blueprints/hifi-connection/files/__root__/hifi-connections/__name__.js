@@ -35,7 +35,6 @@ let Sound = BaseSound.extend({
 
     // sound.trigger('audio-played')                    -> when sound is played
     // sound.trigger('audio-paused')                    -> when sound is paused
-    // sound.trigger('audio-stopped')                   -> when sound is stopped
     // sound.trigger('audio-ended')                     -> when sound is finished playing
     // sound.trigger('audio-duration-changed')          -> when the audio duration changes
     // sound.trigger('audio-position-changed')          -> when the audio position changes

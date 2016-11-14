@@ -362,7 +362,6 @@ export default Service.extend(Ember.Evented, {
     let service = this;
     sound.on('audio-played',           service,   service._relayPlayedEvent);
     sound.on('audio-paused',           service,   service._relayPausedEvent);
-    sound.on('audio-stopped',          service,   service._relayStoppedEvent);
     sound.on('audio-ended',            service,   service._relayEndedEvent);
     sound.on('audio-duration-changed', service,   service._relayDurationChangedEvent);
     sound.on('audio-position-changed', service,   service._relayPositionChangedEvent);
@@ -387,7 +386,6 @@ export default Service.extend(Ember.Evented, {
     let service = this;
     sound.off('audio-played',           service,   service._relayPlayedEvent);
     sound.off('audio-paused',           service,   service._relayPausedEvent);
-    sound.off('audio-stopped',          service,   service._relayStoppedEvent);
     sound.off('audio-ended',            service,   service._relayEndedEvent);
     sound.off('audio-duration-changed', service,   service._relayDurationChangedEvent);
     sound.off('audio-position-changed', service,   service._relayPositionChangedEvent);
@@ -417,9 +415,6 @@ export default Service.extend(Ember.Evented, {
   },
   _relayPausedEvent(sound) {
     this._relayEvent('audio-paused', sound);
-  },
-  _relayStoppedEvent(sound) {
-    this._relayEvent('audio-stopped', sound);
   },
   _relayEndedEvent(sound) {
     this._relayEvent('audio-ended', sound);

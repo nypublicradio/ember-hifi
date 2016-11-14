@@ -22,7 +22,7 @@ let DummyConnection = Ember.Object.extend(Ember.Evented, {
     this.trigger('audio-paused');
   },
   stop() {
-    this.trigger('audio-stopped');
+    this.trigger('audio-paused');
   },
   _setPosition() {},
   _currentPosition() {},
