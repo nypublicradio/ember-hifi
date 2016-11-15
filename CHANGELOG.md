@@ -1,5 +1,11 @@
 # ember-hifi Changelog
 
+### 1.5.0 (November 14, 2016)
+- dbc80f4 [BUGFIX] - gets rid of 'audio-stopped' event, which wasn't in use. replace it with 'audio-ended' and make sure Howler sends the correct event. Thanks to @aaronfischer for bringing it up, even though the bug he was experiencing turned to be a server-side thing.
+- 0574a94 [BUGFIX] - only track internal audio element state if we're on mobile. fixes bad playback behavior on firefox.
+- [IMPROVEMENT] - Allow passing in of event callbacks. Useful for testing.
+- Update to ember 2.9.1
+
 ### 1.4.1 (October 31, 2016) :pumpkin:
 - start dummy connections with a 0 position
 
