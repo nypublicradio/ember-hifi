@@ -1,4 +1,8 @@
 # ember-hifi Changelog
+### 1.5.1 (January 26, 2017)
+- 3433e18 -  `alwaysUseSharedAudioElement: true` in the emberHIfi config will now force hifi to use a single shared audio element all the time, instead of just on mobile browsers as is done normally. This resolves an issue with cookied content providers that limit one connection per client (in this case, adswizz on wnyc) where without this option audio might stall out when switching between different audio resources.
+- set `isDevelopingAddon` to `false`, since this is released.
+- Fixed some test failures on ember-beta and ember-canary
 
 ### 1.5.0 (November 14, 2016)
 - dbc80f4 [BUGFIX] - gets rid of 'audio-stopped' event, which wasn't in use. replace it with 'audio-ended' and make sure Howler sends the correct event. Thanks to @aaronfischer for bringing it up, even though the bug he was experiencing turned to be a server-side thing.
