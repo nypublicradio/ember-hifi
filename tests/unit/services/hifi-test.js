@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
-const { get } = Ember;
+const { get, set } = Ember;
 import DummyConnection from 'dummy/hifi-connections/local-dummy-connection';
 import { stubConnectionCreateWithSuccess, stubConnectionCreateWithFailure } from '../../helpers/ember-hifi-test-helpers';
 
@@ -622,6 +622,38 @@ test("for mobile devices, audio element should still be passed if a custom strat
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
+    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
+    done();
+  });
+});
+
+test('you can specify alwaysUseSingleAudioElement in config to always use a single audio element', function(assert) {
+  let options = chooseActiveConnections('LocalDummyConnection');
+  set(options, 'emberHifi.alwaysUseSingleAudioElement', true);
+
+  const service = this.subject({ options });
+  assert.equal(get(service, 'alwaysUseSingleAudioElement'), true);
+});
+
+test("shared audio element should be passed if alwaysUseSingleAudioElement config option is specified", function(assert) {
+  let done        = assert.async();
+  let urls        = ["first-test-url.mp3", "second-test-url.mp3", "third-test-url.mp3"];
+  let connections = ['LocalDummyConnection', 'Howler', 'NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+
+  stubConnectionCreateWithSuccess(service, "NativeAudio");
+  stubConnectionCreateWithSuccess(service, "LocalDummyConnection");
+  stubConnectionCreateWithSuccess(service, "Howler");
+
+  let findAudioSpy      = sinon.spy(service, '_findFirstPlayableSound');
+
+  service.set('isMobileDevice', false);
+  service.set('alwaysUseSingleAudioElement', true);
+
+  return service.load(urls, {useConnections:['LocalDummyConnection']}).then(() => {
+    let strategies = findAudioSpy.firstCall.args[0];
+
     let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
     assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
