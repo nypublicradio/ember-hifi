@@ -30,6 +30,8 @@ export default Service.extend(Ember.Evented, {
     set(k, v) { return v; }
   }),
 
+  useSharedAudioAccess: computed.or('isMobileDevice', 'alwaysUseSingleAudioElement'),
+
   currentSound:      null,
   isPlaying:         computed.readOnly('currentSound.isPlaying'),
   isLoading:         computed('currentSound.isLoading', {
@@ -81,11 +83,13 @@ export default Service.extend(Ember.Evented, {
     const connections = getWithDefault(this, 'options.emberHifi.connections', emberArray());
     const owner = getOwner(this);
     const debugEnabled = getWithDefault(this, 'options.emberHifi.debug', false);
+
     this._setupDebugger(debugEnabled);
 
     owner.registerOptionsForType('ember-hifi@hifi-connection', { instantiate: false });
     owner.registerOptionsForType('hifi-connection', { instantiate: false });
 
+    set(this, 'alwaysUseSingleAudioElement',  getWithDefault(this, 'options.emberHifi.alwaysUseSingleAudioElement', false));
     set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
     set(this, '_connections', {});
     set(this, 'oneAtATime', OneAtATime.create());
@@ -158,9 +162,13 @@ export default Service.extend(Ember.Evented, {
             strategies  = this._prepareStandardStrategies(urlsToTry);
           }
 
-          if (this.get('isMobileDevice')) {
-            // If we're on a mobile device, pass in sharedAudioAccess into each
-            // connection to combat autoplay blocking issues on touch devices
+          if (this.get('useSharedAudioAccess')) {
+            // If we're on a mobile device or have specified to always use a single audio element,
+            // pass in sharedAudioAccess into each connection.
+
+            // Using a single audio element combats autoplay blocking issues on touch devices, and resolves
+            // some issues when using a cookied content provider (adswizz)
+
             strategies  = strategies.map(s => {
               s.sharedAudioAccess = sharedAudioAccess;
               return s;
