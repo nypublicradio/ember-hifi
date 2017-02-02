@@ -6,11 +6,10 @@ export default BaseSound.extend({
     return 'Local Dummy Connection';
   },
 
-  init: Ember.K,
-  willDestroy: Ember.K,
-  
-  currentPosition: Ember.K,
-  play: Ember.K,
-  pause: Ember.K,
-  _setVolume: Ember.K
+  init           : function() {},
+  willDestroy    : function() {},
+  currentPosition: function() {},
+  play           : function() {},
+  pause          : function() {},
+  _setVolume     : function() {}
 });

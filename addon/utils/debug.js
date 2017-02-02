@@ -16,7 +16,7 @@ export default class Debug {
       const colorString = `color: ${this.color}; font-weight: bold;`;
       const name = this.name.slice(0, this.padLength);
       const titleContent = Array(this.padLength + 3 - name.length).join(' ');
-      if (this._isIE()) {
+      if (this._isIE() || !!window.callPhantom) {
         // IE's console isn't so great. Make this plain.
         const title = `${name}${titleContent} | ${content}`;
         console.log(title);
