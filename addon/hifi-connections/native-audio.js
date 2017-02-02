@@ -113,17 +113,29 @@ let Sound = BaseSound.extend({
     if (!this.get('sharedAudioAccess')) {
       return;
     }
+
     this.get('sharedAudioAccess').releaseControl(this);
 
     // save current state of audio element to the internal element that won't be played
     this._saveState(this.get('sharedAudioAccess.audioElement'));
   },
-  
+
   _saveState(audio) {
+    this.debug('Saving audio state');
     let shadowAudio = document.createElement('audio');
-    shadowAudio.currentTime = audio.currentTime;
-    shadowAudio.volume      = audio.volume;
     this.set('_audioElement', shadowAudio);
+    shadowAudio.src = audio.src;
+
+    try {
+      shadowAudio.currentTime = audio.currentTime;
+    }
+    catch(e) {
+      this.debug('Errored while trying to save audio current time');
+      this.debug(e);
+    }
+
+    shadowAudio.volume      = audio.volume;
+    this.debug('Saved audio state');
   },
 
   requestControl() {
@@ -133,18 +145,26 @@ let Sound = BaseSound.extend({
       return this.audioElement();
     }
   },
-  
+
   restoreState() {
     let sharedElement     = this.audioElement();
     let internalElement   = this.get('_audioElement');
 
     if (this.get('sharedAudioAccess') && internalElement) {
-      // restore the state of the shared element from the dummy element
-      if (internalElement.currentTime) {
-        sharedElement.currentTime = internalElement.currentTime;
+      this.debug('Restoring audio state…');
+      try {
+        // restore the state of the shared element from the dummy element
+        if (internalElement.currentTime) {
+          sharedElement.currentTime = internalElement.currentTime;
+        }
+        if (internalElement.volume) {
+          sharedElement.volume      = internalElement.volume;
+        }
+        this.debug('Restored audio state');
       }
-      if (internalElement.volume) {
-        sharedElement.volume      = internalElement.volume;
+      catch(e) {
+        this.debug('Errored while trying to restore audio state');
+        this.debug(e);
       }
     }
   },
