@@ -2,12 +2,11 @@ import Ember from 'ember';
 import Debug from './debug';
 
 const SharedAudioAccess = Ember.Object.extend({
-
   unlock(andPlay) {
     let audioElement = this.get('audioElement');
     if (!audioElement) {
       this.get('logger').log('creating new audio element');
-      audioElement = document.createElement('audio');
+      audioElement = this._createElement();
       this.set('audioElement', audioElement);
 
       if (andPlay) {
@@ -50,6 +49,10 @@ const SharedAudioAccess = Ember.Object.extend({
     if (this.hasControl(who)) {
       this.set('owner', null);
     }
+  },
+
+  _createElement() {
+    return document.createElement('audio');
   },
 
   _reset() {
