@@ -283,7 +283,7 @@ let Sound = BaseSound.extend({
       this._setPosition(position);
     }
 
-    this.debug('telling audio to play')
+    this.debug('telling audio to play');
     audio.play();
   },
 

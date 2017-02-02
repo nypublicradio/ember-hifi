@@ -11,8 +11,8 @@ test('it works', function(assert) {
 
 test('restricts access to the audio element', function(assert) {
   let sharedAudioAccess = SharedAudioAccess.unlock();
-  let foo = {};
-  let bar = {};
+  let foo = { debug: function() {} };
+  let bar = { debug: function() {} };
   sharedAudioAccess.requestControl(foo);
 
   assert.ok(sharedAudioAccess.hasControl(foo), 'foo has access');

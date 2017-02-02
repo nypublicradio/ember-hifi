@@ -12,6 +12,9 @@ moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native
   needs:['service:hifi-logger',
          'ember-hifi@hifi-connection:base'],
   beforeEach() {
+    // The use of this singleton here really messes with testing, so we need to reset it
+    SharedAudioAccess._reset();
+
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock
     });

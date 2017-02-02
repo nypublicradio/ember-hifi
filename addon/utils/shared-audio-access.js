@@ -10,8 +10,8 @@ const SharedAudioAccess = Ember.Object.extend({
       audioElement = document.createElement('audio');
       this.set('audioElement', audioElement);
 
-      this.get('logger').log(`telling blank audio element to play`);
       if (andPlay) {
+        this.get('logger').log(`telling blank audio element to play`);
         audioElement.play();
       }
     }
@@ -50,9 +50,13 @@ const SharedAudioAccess = Ember.Object.extend({
     if (this.hasControl(who)) {
       this.set('owner', null);
     }
+  },
+
+  _reset() {
+    this.set('owner', null);
+    this.set('audioElement', null);
   }
 });
-
 
 export default SharedAudioAccess.create({
   logger: new Debug('audio access manager')
