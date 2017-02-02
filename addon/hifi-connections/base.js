@@ -166,7 +166,11 @@ let Sound = Ember.Object.extend(Ember.Evented, {
   },
 
   debug(message) {
-    this.get('logger').log(this.get('url'), message);
+    var parser = document.createElement('a');
+    parser.href = this.get('url');
+    let parts = parser.pathname.split('/');
+
+    this.get('logger').log(`${this.get('connectionName')} (${parts[parts.length - 1]})`, message);
   },
 
   fastForward(duration) {

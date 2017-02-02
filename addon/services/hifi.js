@@ -328,6 +328,7 @@ export default Service.extend(Ember.Evented, {
     this._registerEvents(sound);
     sound._setVolume(this.get('volume'));
     this.set('currentSound', sound);
+    this.debug('ember-hifi', `setting current sound -> ${sound.get('url')}`);
   },
 
 /* ------------------------ PRIVATE(ISH) METHODS ---------------------------- */
@@ -544,17 +545,17 @@ export default Service.extend(Ember.Evented, {
       let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess');
       let sound              = Connection.create(connectionOptions);
 
-      this.debug(options.debugName, `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
+      this.debug('ember-hifi', `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
 
       sound.one('audio-load-error', (error) => {
         strategy.error = error;
         markAsFailure(strategy);
-        this.debug(options.debugName, `FAILED: [${strategy.connectionName}] -> ${error} (${strategy.url})`);
+        this.debug('ember-hifi', `FAILED: [${strategy.connectionName}] -> ${error} (${strategy.url})`);
       });
 
       sound.one('audio-ready',      () => {
         returnSuccess(sound);
-        this.debug(options.debugName, `SUCCESS: [${strategy.connectionName}] -> (${strategy.url})`);
+        this.debug('ember-hifi', `SUCCESS: [${strategy.connectionName}] -> (${strategy.url})`);
       });
     });
 
@@ -668,7 +669,12 @@ export default Service.extend(Ember.Evented, {
    */
 
    _createAndUnlockAudio() {
-    return SharedAudioAccess.unlock();
+     // Audio will play automatically if is Mobile device to get around
+     // autoplaying restrictions. If not, it won't autoplay because
+     // IE desktop browsers can't deal with that and will suddenly
+     // play the loading audio before it's ready
+     
+     return SharedAudioAccess.unlock(this.get('isMobileDevice'));
   },
 
   /**

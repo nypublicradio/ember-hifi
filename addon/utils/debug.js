@@ -10,13 +10,22 @@ export default class Debug {
   * Logs some content in a pretty fromat
   * @param  {string} content - Content to log
   */
-  log(content) {
-    const colorString = `color: ${this.color}; font-weight: bold;`;
-    const name = this.name.slice(0, this.padLength);
-    const titleContent = Array(this.padLength + 3 - name.length).join(' ');
-    const title = `%c${name}${titleContent}|`;
 
-    console.log(title, colorString, content); // eslint-disable-line no-console
+  log(content) {
+    if (window.console && window.console.log) {
+      const colorString = `color: ${this.color}; font-weight: bold;`;
+      const name = this.name.slice(0, this.padLength);
+      const titleContent = Array(this.padLength + 3 - name.length).join(' ');
+      if (this._isIE()) {
+        // IE's console isn't so great. Make this plain.
+        const title = `${name}${titleContent} | ${content}`;
+        console.log(title);
+      }
+      else {
+        const title = `%c${name}${titleContent} | `;
+        console.log(title, colorString, content); // eslint-disable-line no-console
+      }
+    }
   }
 
   /**
@@ -57,5 +66,31 @@ export default class Debug {
 
   _random(min, max) {
     return min + Math.random() * (max - min);
+  }
+
+  _isIE() {
+    var ua = window.navigator.userAgent;
+
+    var msie = ua.indexOf('MSIE ');
+    if (msie > 0) {
+      // IE 10 or older => return version number
+      return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+    }
+
+    var trident = ua.indexOf('Trident/');
+    if (trident > 0) {
+      // IE 11 => return version number
+      var rv = ua.indexOf('rv:');
+      return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+    }
+
+    var edge = ua.indexOf('Edge/');
+    if (edge > 0) {
+      // Edge (IE 12+) => return version number
+      return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+    }
+
+    // other browser
+    return false;
   }
 }

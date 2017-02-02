@@ -48,7 +48,6 @@ let Sound = BaseSound.extend({
 
       // but if the target src is empty it means we've been stopped and in
       // that case should allow the event through.
-
       return;
     }
 
@@ -263,6 +262,8 @@ let Sound = BaseSound.extend({
     if (typeof position !== 'undefined') {
       this._setPosition(position);
     }
+
+    this.debug('telling audio to play')
     audio.play();
   },
 
