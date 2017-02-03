@@ -12,7 +12,6 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
 
   needs: [
     'service:poll',
-    'service:hifi-logger',
     'service:hifi-cache',
     'ember-hifi@hifi-connection:howler',
     'ember-hifi@hifi-connection:native-audio',

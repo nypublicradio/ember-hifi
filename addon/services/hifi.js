@@ -1,9 +1,9 @@
 import Ember from 'ember';
 import OneAtATime from '../helpers/one-at-a-time';
-import getOwner from 'ember-getowner-polyfill';
 import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
 import SharedAudioAccess from '../utils/shared-audio-access';
+import DebugLogging from '../mixins/debug-logging';
 import { bind } from 'ember-runloop';
 
 const {
@@ -19,10 +19,9 @@ const {
 } = Ember;
 
 
-export default Service.extend(Ember.Evented, {
+export default Service.extend(Ember.Evented).extend(DebugLogging, {
   poll:              Ember.inject.service(),
   soundCache:        Ember.inject.service('hifi-cache'),
-  logger:            Ember.inject.service('hifi-logger'),
   isMobileDevice:    computed({
     get() {
       return ('ontouchstart' in window);
@@ -81,10 +80,7 @@ export default Service.extend(Ember.Evented, {
 
   init() {
     const connections = getWithDefault(this, 'options.emberHifi.connections', emberArray());
-    const owner = getOwner(this);
-    const debugEnabled = getWithDefault(this, 'options.emberHifi.debug', false);
-
-    this._setupDebugger(debugEnabled);
+    const owner = Ember.getOwner(this);
 
     owner.registerOptionsForType('ember-hifi@hifi-connection', { instantiate: false });
     owner.registerOptionsForType('hifi-connection', { instantiate: false });
@@ -493,8 +489,8 @@ export default Service.extend(Ember.Evented, {
     assert('[ember-hifi] Could not find a hifi connection without a name.', connectionName);
 
     const dasherizedConnectionName = dasherize(connectionName);
-    const availableConnection      = getOwner(this).lookup(`ember-hifi@hifi-connection:${dasherizedConnectionName}`);
-    const localConnection          = getOwner(this).lookup(`hifi-connection:${dasherizedConnectionName}`);
+    const availableConnection      = Ember.getOwner(this).lookup(`ember-hifi@hifi-connection:${dasherizedConnectionName}`);
+    const localConnection          = Ember.getOwner(this).lookup(`hifi-connection:${dasherizedConnectionName}`);
 
     assert(`[ember-hifi] Could not load hifi connection ${dasherizedConnectionName}`, (localConnection || availableConnection));
 
@@ -692,36 +688,5 @@ export default Service.extend(Ember.Evented, {
       sound.one('audio-played', () => Ember.run.cancel(blockCheck));
     }
     sound.play(options);
-  },
-
-  /**
-   * Make the debug log service a little nicer to interact with in this service
-   * @method _setupDebugger
-   * @param {void}
-   * @private
-   * @returns {void}
-   */
-
-  _setupDebugger(enabled) {
-    let logger = this.get('logger');
-    logger.set('enabled', enabled);
-
-    this.debug = function() {
-      if (arguments.length === 1) {
-        logger.log('ember-hifi', arguments[0]);
-      }
-      else if (arguments.length === 2) {
-        logger.log(arguments[0], arguments[1]);
-      }
-    };
-
-    this.timeStart = function() {
-      logger.timeStart(...arguments);
-    };
-
-    this.timeEnd = function() {
-      logger.timeEnd(...arguments);
-    };
   }
-
 });

@@ -10,8 +10,7 @@ const goodUrl = "http://example.org/good.m3u8";
 const badUrl  = "http://example.org/bad.m3u8";
 
 moduleFor('ember-hifi@hifi-connection:hls', 'Unit | Connection | HLS', {
-  needs:['service:hifi-logger',
-         'ember-hifi@hifi-connection:base'],
+  needs:['ember-hifi@hifi-connection:base'],
   beforeEach() {
     sandbox = sinon.sandbox.create({
       useFakeServer: sinon.fakeServerWithClock

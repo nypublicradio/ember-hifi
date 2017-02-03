@@ -1,16 +1,18 @@
 import Ember from 'ember';
-import Debug from './debug';
+import DebugLogging from '../mixins/debug-logging';
 
-const SharedAudioAccess = Ember.Object.extend({
+const SharedAudioAccess = Ember.Object.extend(DebugLogging, {
+  debugName: 'audio access manager',
+
   unlock(andPlay) {
     let audioElement = this.get('audioElement');
     if (!audioElement) {
-      this.get('logger').log('creating new audio element');
+      this.debug('creating new audio element');
       audioElement = this._createElement();
       this.set('audioElement', audioElement);
 
       if (andPlay) {
-        this.get('logger').log(`telling blank audio element to play`);
+        this.debug(`telling blank audio element to play`);
         audioElement.play();
       }
     }
@@ -22,7 +24,7 @@ const SharedAudioAccess = Ember.Object.extend({
 
     if ((owner !== who) && owner) {
       who.debug("I need audio control");
-      this.get('logger').log("coordinating peaceful transfer of power");
+      this.debug("coordinating peaceful transfer of power");
     }
 
     if (owner) {
@@ -61,6 +63,4 @@ const SharedAudioAccess = Ember.Object.extend({
   }
 });
 
-export default SharedAudioAccess.create({
-  logger: new Debug('audio access manager')
-});
+export default SharedAudioAccess.create();

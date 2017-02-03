@@ -1,4 +1,3 @@
-import Ember from 'ember';
 import BaseSound from 'ember-hifi/hifi-connections/base';
 
 export default BaseSound.extend({
