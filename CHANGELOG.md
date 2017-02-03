@@ -1,5 +1,11 @@
 # ember-hifi Changelog
 
+### 1.7.0 (February 3, 2017)
+- [BUGFIX] Don't autoplay the blank audio element on desktop browsers if using a single audio element. IE can't deal with it, and audio will start playing before events are wired up. Also handle case where IE errors after trying to set `.currentTime` on the audio element.
+- [IMPROVEMENT] - Refactoring debug logger and included better debug messages, especially around transferring of audio control when using a single audio element.
+- [BUGFIX] Don't set isLoading flag to false right away after retreiving a sound from the cache. This fixes a problem where after resuming audio from a stopped stream `hifi` would report `isLoading = false`, making buttons show up as playing when it was really loading stuff up again.
+- Updated ember try scenarios and fix some deprecation warnings.
+
 ### 1.6.0 (January 26, 2017)
 - 3433e18 -  `alwaysUseSharedAudioElement: true` in the emberHIfi config will now force hifi to use a single shared audio element all the time, instead of just on mobile browsers as is done normally. This resolves an issue with cookied content providers that limit one connection per client (in this case, adswizz on wnyc) where without this option audio might stall out when switching between different audio resources.
 - set `isDevelopingAddon` to `false`, since this is released.
@@ -15,7 +21,7 @@
 - start dummy connections with a 0 position
 
 ### 1.4.0 (October 31, 2016) :pumpkin:
-- 3a9438 [BUGFIX] - Handle audio position overruns 
+- 3a9438 [BUGFIX] - Handle audio position overruns
 - 460149 [IMPROVEMENT] - `.play` on the Service and Connections accepts an options hash. The only option currently supported is `position`, so you can `sound.play({position: 0})` to restart a sound.
 - Change when some properties are updated for snappier feedback
 - [#18](https://github.com/nypublicradio/ember-hifi/pull/18) [IMPROVEMENT] - Adds a `SharedAudioAccess` library to manage access to a singleton HTML5 Audio element on mobile devices. This is due to the long-standing iOS issue with calling `play` on an audio element that is not in direct response to a user action like a `click` or `tap`. This allows us to do things like playlist playback on mobile.
