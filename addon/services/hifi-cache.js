@@ -6,6 +6,8 @@ const {
 } = Ember;
 
 export default Ember.Service.extend(DebugLogging, {
+  debugName: 'hifi-cache',
+
   _cache: Ember.Map.create(),
 
   reset() {
@@ -20,10 +22,10 @@ export default Ember.Service.extend(DebugLogging, {
     let foundSounds  = emberArray(sounds).compact();
 
     if (foundSounds.length > 0) {
-      this.debug('hifi-cache', `cache hit for ${foundSounds[0].get('url')}`);
+      this.debug(`cache hit for ${foundSounds[0].get('url')}`);
     }
     else {
-      this.debug('hifi-cache', `cache miss for ${keysToSearch.join(',')}`);
+      this.debug(`cache miss for ${keysToSearch.join(',')}`);
     }
 
     return foundSounds[0];
@@ -31,7 +33,7 @@ export default Ember.Service.extend(DebugLogging, {
 
   cache(sound) {
     let cache = this.get("_cache");
-    this.debug('hifi-cache', `caching sound with url: ${sound.get('url')}`);
+    this.debug(`caching sound with url: ${sound.get('url')}`);
     cache.set(sound.get('url'), sound);
   }
 });

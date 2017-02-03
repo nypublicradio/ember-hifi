@@ -20,6 +20,8 @@ const {
 
 
 export default Service.extend(Ember.Evented).extend(DebugLogging, {
+  debugName: 'ember-hifi',
+
   poll:              Ember.inject.service(),
   soundCache:        Ember.inject.service('hifi-cache'),
   isMobileDevice:    computed({
@@ -129,7 +131,7 @@ export default Service.extend(Ember.Evented).extend(DebugLogging, {
     let sharedAudioAccess = this._createAndUnlockAudio();
     let assign = Ember.assign || Ember.merge;
 
-    options = assign({ debugName: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}, options);
+    options = assign({ debugName: `load-${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}`}, options);
 
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
@@ -668,7 +670,7 @@ export default Service.extend(Ember.Evented).extend(DebugLogging, {
      // autoplaying restrictions. If not, it won't autoplay because
      // IE desktop browsers can't deal with that and will suddenly
      // play the loading audio before it's ready
-     
+
      return SharedAudioAccess.unlock(this.get('isMobileDevice'));
   },
 

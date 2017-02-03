@@ -2,7 +2,7 @@ import Ember from 'ember';
 import DebugLogging from '../mixins/debug-logging';
 
 const SharedAudioAccess = Ember.Object.extend(DebugLogging, {
-  debugName: 'audio access manager',
+  debugName: 'sharedAudioAccess',
 
   unlock(andPlay) {
     let audioElement = this.get('audioElement');
