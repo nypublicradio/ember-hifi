@@ -56,7 +56,7 @@ let ClassMethods = Ember.Mixin.create({
   }
 });
 
-let Sound = Ember.Object.extend(Ember.Evented).extend(DebugLogging, {
+let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
   debugName: Ember.computed('url', 'connectionName', function() {
     var parser = document.createElement('a');
     parser.href = this.get('url');
@@ -110,7 +110,7 @@ let Sound = Ember.Object.extend(Ember.Evented).extend(DebugLogging, {
       this.set('isLoading', false);
       this.set('isPlaying', true);
       this.set('error', null);
-      
+
       if (audioPlayed) { audioLoading(this); }
     });
 

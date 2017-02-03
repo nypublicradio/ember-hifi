@@ -19,7 +19,7 @@ const {
 } = Ember;
 
 
-export default Service.extend(Ember.Evented).extend(DebugLogging, {
+export default Service.extend(Ember.Evented, DebugLogging, {
   debugName: 'ember-hifi',
 
   poll:              Ember.inject.service(),

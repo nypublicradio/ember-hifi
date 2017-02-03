@@ -1,18 +1,18 @@
 import Ember from 'ember';
-const { getWithDefault, get } = Ember;
+const { getWithDefault, get, set } = Ember;
 import Debug from '../utils/debug';
 
 // Keep this object around to keep track of logs.
 const DebugLogging = Ember.Object.create({
-  loggers: new Ember.Map(),
+  loggers: {},
 
   findOrCreateLogger(name) {
     let loggerMap = this.get('loggers');
-    let logger    = loggerMap.get(name);
+    let logger    = get(loggerMap, name);
 
     if (!logger) {
       logger = new Debug(name);
-      loggerMap.set(name, logger);
+      set(loggerMap, name, logger);
     }
 
     return logger;
