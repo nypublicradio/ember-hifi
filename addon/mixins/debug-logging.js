@@ -46,12 +46,17 @@ export default Ember.Mixin.create({
   debug() {
     if (!this.get('debugEnabled')) { return; }
 
+    let debugName, message;
     if (arguments.length === 1) {
-      DebugLogging.log(get(this, 'debugName'), arguments[0]);
+      debugName = get(this, 'debugName');
+      message   = arguments[0];
     }
     else if (arguments.length === 2) {
-      DebugLogging.log(arguments[0], arguments[1]);
+      debugName = arguments[0];
+      message   = arguments[1];
     }
+
+    DebugLogging.log(debugName, message);
   },
 
   timeStart() {
