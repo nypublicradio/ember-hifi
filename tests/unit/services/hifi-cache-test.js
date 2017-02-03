@@ -3,7 +3,6 @@ import Ember from 'ember';
 
 moduleFor('service:hifi-cache', 'Unit | Service | hifi cache', {
   // Specify the other units that are required for this test.
-  needs: ['service:hifi-logger']
 });
 
 const Sound = Ember.Object.extend(Ember.Evented, {
