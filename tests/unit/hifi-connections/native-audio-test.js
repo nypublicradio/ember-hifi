@@ -9,8 +9,7 @@ const goodUrl = "http://example.org/good.aac";
 const badUrl  = "http://example.org/there-aint-nothing-here.aac";
 
 moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native Audio', {
-  needs:['service:hifi-logger',
-         'ember-hifi@hifi-connection:base'],
+  needs:['ember-hifi@hifi-connection:base'],
   beforeEach() {
     // The use of this singleton here really messes with testing, so we need to reset it
     SharedAudioAccess._reset();

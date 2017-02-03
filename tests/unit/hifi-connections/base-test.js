@@ -3,7 +3,7 @@ import { moduleFor, test } from 'ember-qunit';
 let baseSound;
 
 moduleFor('ember-hifi@hifi-connection:base', 'Unit | Connection | base', {
-  needs:['util:promise-race', 'service:hifi-logger'],
+  needs:['util:promise-race'],
   beforeEach() {
     baseSound = this.subject({
       setup() {},

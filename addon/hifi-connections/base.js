@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import { getMimeType } from 'ember-hifi/utils/mime-types';
+import DebugLogging from '../mixins/debug-logging';
 
 const {
   assert,
@@ -55,8 +56,15 @@ let ClassMethods = Ember.Mixin.create({
   }
 });
 
-let Sound = Ember.Object.extend(Ember.Evented, {
-  logger:            Ember.inject.service('hifi-logger'),
+let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
+  debugName: Ember.computed('url', 'connectionName', function() {
+    var parser = document.createElement('a');
+    parser.href = this.get('url');
+    let parts = parser.pathname.split('/');
+
+    return `${this.get('connectionName')} (${parts[parts.length - 1]})`;
+  }),
+
   pollInterval:      1000,
   timeout:           30000,
 
@@ -102,7 +110,7 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.set('isLoading', false);
       this.set('isPlaying', true);
       this.set('error', null);
-      
+
       if (audioPlayed) { audioLoading(this); }
     });
 
@@ -163,14 +171,6 @@ let Sound = Ember.Object.extend(Ember.Evented, {
       this.on('audio-ready',      () => Ember.run.cancel(timeout));
       this.on('audio-load-error', () => Ember.run.cancel(timeout));
     }
-  },
-
-  debug(message) {
-    var parser = document.createElement('a');
-    parser.href = this.get('url');
-    let parts = parser.pathname.split('/');
-
-    this.get('logger').log(`${this.get('connectionName')} (${parts[parts.length - 1]})`, message);
   },
 
   fastForward(duration) {

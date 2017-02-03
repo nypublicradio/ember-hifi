@@ -1,11 +1,14 @@
 import Ember from 'ember';
+import DebugLogging from '../mixins/debug-logging';
+
 const {
   A: emberArray
 } = Ember;
 
-export default Ember.Service.extend({
+export default Ember.Service.extend(DebugLogging, {
+  debugName: 'hifi-cache',
+
   _cache: Ember.Map.create(),
-  logger: Ember.inject.service('hifi-logger'),
 
   reset() {
     this.set('_cache', Ember.Map.create());
@@ -19,10 +22,10 @@ export default Ember.Service.extend({
     let foundSounds  = emberArray(sounds).compact();
 
     if (foundSounds.length > 0) {
-      this.get('logger').log('hifi-cache', `cache hit for ${foundSounds[0].get('url')}`);
+      this.debug(`cache hit for ${foundSounds[0].get('url')}`);
     }
     else {
-      this.get('logger').log('hifi-cache', `cache miss for ${keysToSearch.join(',')}`);
+      this.debug(`cache miss for ${keysToSearch.join(',')}`);
     }
 
     return foundSounds[0];
@@ -30,7 +33,7 @@ export default Ember.Service.extend({
 
   cache(sound) {
     let cache = this.get("_cache");
-    this.get('logger').log('hifi-cache', `caching sound with url: ${sound.get('url')}`);
+    this.debug(`caching sound with url: ${sound.get('url')}`);
     cache.set(sound.get('url'), sound);
   }
 });
