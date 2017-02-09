@@ -311,7 +311,6 @@ let Sound = BaseSound.extend({
 
   loadAudio(audio) {
     if (!this.urlsAreEqual(audio.src, this.get('url'))) {
-      this.set('isLoading', true);
       audio.setAttribute('src', this.get('url'));
     }
   },

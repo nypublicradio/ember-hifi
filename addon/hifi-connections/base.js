@@ -112,6 +112,9 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       this.set('error', null);
 
       if (audioPlayed) { audioLoading(this); }
+      
+      // recover lost isLoading update
+      this.notifyPropertyChange('isLoading');
     });
 
     this.on('audio-paused',   () => {
