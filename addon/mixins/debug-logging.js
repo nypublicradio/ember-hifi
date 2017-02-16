@@ -1,5 +1,5 @@
 import Ember from 'ember';
-const { getWithDefault, get, set } = Ember;
+const { getWithDefault } = Ember;
 import Debug from '../utils/debug';
 
 // Keep this object around to keep track of logs.
@@ -48,7 +48,7 @@ export default Ember.Mixin.create({
 
     let debugName, message;
     if (arguments.length === 1) {
-      debugName = get(this, 'debugName');
+      debugName = this.get('debugName');
       message   = arguments[0];
     }
     else if (arguments.length === 2) {

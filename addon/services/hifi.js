@@ -556,7 +556,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       });
     });
     promise.catch(({failures}) => {
-      this.debug('ember-hifi', `All promises failed:`)
+      this.debug('ember-hifi', `All promises failed:`);
       failures.forEach(f => {
         this.debug('ember-hifi', `${f.connectionName}: ${f.error}`);
       });
