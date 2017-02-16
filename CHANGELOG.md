@@ -1,5 +1,9 @@
 # ember-hifi Changelog
 
+### 1.7.1 (February 15, 2017)
+- [BUGFIX] Fixed error that was getting thrown in the logging and causing a strange error when debugging was enabled
+- [BUGFIX] Fix out of sync loading indicators by forcing notifyPropertyChanges with isLoading.
+
 ### 1.7.0 (February 3, 2017)
 - [BUGFIX] Don't autoplay the blank audio element on desktop browsers if using a single audio element. IE can't deal with it, and audio will start playing before events are wired up. Also handle case where IE errors after trying to set `.currentTime` on the audio element.
 - [IMPROVEMENT] - Refactoring debug logger and included better debug messages, especially around transferring of audio control when using a single audio element.
