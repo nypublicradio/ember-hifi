@@ -262,6 +262,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       this.get('currentSound').pause();
     }
     else {
+      this.set('isLoading', true);
       this.get('currentSound').play();
     }
   },
