@@ -8,11 +8,11 @@ const DebugLogging = Ember.Object.create({
 
   findOrCreateLogger(name) {
     let loggerMap = this.get('loggers');
-    let logger    = get(loggerMap, name);
+    let logger    = loggerMap[name];
 
     if (!logger) {
       logger = new Debug(name);
-      set(loggerMap, name, logger);
+      loggerMap[name] = logger;
     }
 
     return logger;

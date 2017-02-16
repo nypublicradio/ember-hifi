@@ -555,6 +555,12 @@ export default Service.extend(Ember.Evented, DebugLogging, {
         this.debug('ember-hifi', `SUCCESS: [${strategy.connectionName}] -> (${strategy.url})`);
       });
     });
+    promise.catch(({failures}) => {
+      this.debug('ember-hifi', `All promises failed:`)
+      failures.forEach(f => {
+        this.debug('ember-hifi', `${f.connectionName}: ${f.error}`);
+      });
+    });
 
     promise.finally(() => this.timeEnd(options.debugName, "_findFirstPlayableSound"));
 
