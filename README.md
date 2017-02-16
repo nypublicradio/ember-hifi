@@ -109,7 +109,7 @@ export default Component.extend({
 })
 
 //template.hbs
-{{input type="range" value=hifi.position min=0 max=hifi.duration, step=1000}}
+{{input type="range" value=hifi.position min=0 max=hifi.duration step=1000}}
 ```
 
 ###### Read Only Properties
