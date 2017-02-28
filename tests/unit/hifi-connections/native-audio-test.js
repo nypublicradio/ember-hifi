@@ -224,3 +224,25 @@ test('sound does not have control of the shared audio element when another is pl
 
   assert.notEqual(sound1.audioElement(), sharedAudioAccess.get('audioElement'), "sound should have control while another sound is playing");
 });
+
+test("when streaming and using a shared audio element we don't save a stream URL on the shadow element", function(assert) {
+  let sharedAudioAccess = SharedAudioAccess.unlock();
+
+  let sound  = this.subject({url: '/assets/silence2.mp3', timeout: false, duration: Infinity, sharedAudioAccess});
+
+  sound.play();
+  sound.stop();
+
+  assert.equal(sound.get('_audioElement').src,  '', "audio src attribute is blank");
+});
+
+test("when playing an on demand source and using a shared audio element we don't save the URL on the shadow element", function(assert) {
+  let sharedAudioAccess = SharedAudioAccess.unlock();
+
+  let sound   = this.subject({url: '/assets/silence.mp3', timeout: false, duration: 1000, sharedAudioAccess});
+
+  sound.play();
+  sound.stop();
+
+  assert.equal(sound.get('_audioElement').src, '', "audio src attribute is set");
+});

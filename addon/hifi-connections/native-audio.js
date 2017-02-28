@@ -124,7 +124,9 @@ let Sound = BaseSound.extend({
     this.debug('Saving audio state');
     let shadowAudio = document.createElement('audio');
     this.set('_audioElement', shadowAudio);
-    shadowAudio.src = audio.src;
+
+    // Don't src on shadow element because it causes two requests to fire
+    // shadowAudio.src = audio.src;
 
     try {
       shadowAudio.currentTime = audio.currentTime;
