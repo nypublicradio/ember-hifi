@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.7.2 (February 15, 2017)
+- [BUGFIX] Resolve issue where two requests would happen for one piece of audio when using a shared audio element. We don't save the src on the shadowAudio element when saving audio state anymore, and it turns out that wasn't instantly resuming audio when switching between audio sources like we thought it was anyway.
+
 ### 1.7.1 (February 15, 2017)
 - [BUGFIX] Fixed error that was getting thrown in the logging and causing a strange error when debugging was enabled
 - [BUGFIX] Fix out of sync loading indicators by forcing notifyPropertyChanges with isLoading.
