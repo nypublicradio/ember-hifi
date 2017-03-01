@@ -1,6 +1,9 @@
 # ember-hifi Changelog
 
-### 1.7.2 (February 15, 2017)
+### 1.7.3 (March 1, 2017)
+- [BUGFIX] Fix my goof from yesterday and use preload='none' instead of not having the src, since IE freaks out about the latter.
+
+### 1.7.2 (February 28, 2017)
 - [BUGFIX] Resolve issue where two requests would happen for one piece of audio when using a shared audio element. We don't save the src on the shadowAudio element when saving audio state anymore, and it turns out that wasn't instantly resuming audio when switching between audio sources like we thought it was anyway.
 
 ### 1.7.1 (February 15, 2017)
