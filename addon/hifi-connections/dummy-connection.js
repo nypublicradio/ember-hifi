@@ -10,6 +10,35 @@ let ClassMethods = Ember.Mixin.create({
 let DummyConnection = Ember.Object.extend(Ember.Evented, {
   position: 0,
   init() {
+    this.on('audio-played',    () => {
+      this.set('hasPlayed', true);
+      this.set('isLoading', false);
+      this.set('isPlaying', true);
+      this.set('error', null);
+      
+      // recover lost isLoading update
+      this.notifyPropertyChange('isLoading');
+    });
+
+    this.on('audio-paused',   () => {
+      this.set('isPlaying', false);
+    });
+    this.on('audio-ended',    () => { 
+      this.set('isPlaying', false);
+    });
+    
+    this.on('audio-load-error', (e) => {
+      if (this.get('hasPlayed')) {
+        this.set('isLoading', false);
+        this.set('isPlaying', false);
+      }
+      this.set('error', e);
+    });
+
+    this.on('audio-loaded', () => {
+      this.set('isLoading', false);
+    });
+    
     Ember.run.next(() => this.trigger('audio-ready'));
   },
   play({position} = {}) {
