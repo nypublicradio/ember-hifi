@@ -9,6 +9,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let DummyConnection = Ember.Object.extend(Ember.Evented, {
   position: 0,
+  duration: 10000,
   init() {
     this.on('audio-played',    () => {
       this.set('hasPlayed', true);
@@ -52,6 +53,12 @@ let DummyConnection = Ember.Object.extend(Ember.Evented, {
   },
   stop() {
     this.trigger('audio-paused');
+  },
+  fastForward(duration) {
+    this.set('position', this.get('position') + duration);
+  },
+  rewind(duration) {
+    this.set('position', this.get('position') - duration);
   },
   _setPosition() {},
   _currentPosition() {},
