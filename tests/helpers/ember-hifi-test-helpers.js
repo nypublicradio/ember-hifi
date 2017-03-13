@@ -1,16 +1,22 @@
 import Ember from 'ember';
-import DummyConnection from 'dummy/hifi-connections/local-dummy-connection';
+import BaseSound from 'ember-hifi/hifi-connections/base';
 
 const {
   get
 } = Ember;
+
+const dummyOps = {
+  setup() {},
+  _audioDuration() {},
+  _setVolume() {}
+};
 
 function stubConnectionCreateWithSuccess(service, connectionName, test) {
   let Connection =  get(service, `_connections.${connectionName}`);
   test.stub(Connection, 'canPlay').returns(true);
 
   let connectionSpy = test.stub(Connection, 'create', function(options) {
-    let sound =  DummyConnection.create(...arguments);
+    let sound = BaseSound.create(Object.assign({}, dummyOps, options));
     test.stub(sound, 'play', () => sound.trigger('audio-played'));
     test.stub(sound, 'pause', () => sound.trigger('audio-paused'));
     
@@ -27,7 +33,7 @@ function stubConnectionCreateWithFailure(service, connectionName, test) {
 
   let connectionSpy = test.stub(Connection, 'create', function(options) {
     console.log(`stubbed ${Connection} create called`);
-    let sound =  DummyConnection.create(...arguments);
+    let sound = BaseSound.create(Object.assign({}, dummyOps, options));
     Ember.run.next(() => sound.trigger('audio-load-error'));
     return sound;
   });
@@ -37,5 +43,6 @@ function stubConnectionCreateWithFailure(service, connectionName, test) {
 
 export {
   stubConnectionCreateWithSuccess,
-  stubConnectionCreateWithFailure
+  stubConnectionCreateWithFailure,
+  dummyOps
 };

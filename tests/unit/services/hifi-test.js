@@ -3,8 +3,10 @@ import { moduleFor } from 'ember-qunit';
 import test from 'ember-sinon-qunit/test-support/test';
 import sinon from 'sinon';
 const { get, set } = Ember;
-import DummyConnection from 'dummy/hifi-connections/local-dummy-connection';
-import { stubConnectionCreateWithSuccess, stubConnectionCreateWithFailure } from '../../helpers/ember-hifi-test-helpers';
+import LocalDummyConnection from 'dummy/hifi-connections/local-dummy-connection';
+import DummyConnection from 'ember-hifi/hifi-connections/dummy-connection';
+import BaseSound from 'ember-hifi/hifi-connections/base';
+import { dummyOps, stubConnectionCreateWithSuccess, stubConnectionCreateWithFailure } from '../../helpers/ember-hifi-test-helpers';
 
 let hifiConnections, options;
 
@@ -118,13 +120,10 @@ test('#load tries the first connection that says it can handle the url', functio
   let nativeSpy         = this.stub(NativeAudio, 'canPlay').returns(true);
   let localSpy          = this.stub(LocalDummyConnection, 'canPlay').returns(false);
 
-  let sound             = DummyConnection.create();
+  let sound             = LocalDummyConnection.create();
 
   let nativeCreateSpy   = this.stub(NativeAudio, 'create', function() {
-    let sound =  DummyConnection.create(...arguments);
-    Ember.run.next(() => sound.trigger('audio-ready'));
-
-    return sound;
+    return DummyConnection.create(...arguments);
   });
 
   let howlerCreateSpy   = this.stub(Howler, 'create').returns(sinon.createStubInstance(Howler));
@@ -164,7 +163,7 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   this.stub(LocalDummyConnection, 'canPlay').returns(true);
 
   let localCreateSpy = this.stub(LocalDummyConnection, 'create', function(options) {
-    let sound = DummyConnection.create(...arguments);
+    let sound = BaseSound.create(Object.assign({}, dummyOps, options));
 
     if (sound.get('url') === goodUrl) {
       Ember.run.next(() => sound.trigger('audio-ready'));
@@ -343,8 +342,8 @@ test('position gets polled regularly on the currentSound but not on the others',
 
   const INTERVAL = 500;
 
-  let sound1 = DummyConnection.create({});
-  let sound2 = DummyConnection.create({});
+  let sound1 = LocalDummyConnection.create({});
+  let sound2 = LocalDummyConnection.create({});
 
   let spy1 = this.spy(sound1, '_currentPosition');
   let spy2 = this.spy(sound2, '_currentPosition');
@@ -371,8 +370,8 @@ test('position gets polled regularly on the currentSound but not on the others',
 test('volume changes are set on the current sound', function(assert) {
   const service = this.subject({ options });
 
-  let sound1 = DummyConnection.create({});
-  let sound2 = DummyConnection.create({});
+  let sound1 = LocalDummyConnection.create({});
+  let sound2 = LocalDummyConnection.create({});
 
   let spy1 = this.spy(sound1, '_setVolume');
   let spy2 = this.spy(sound2, '_setVolume');
@@ -458,7 +457,7 @@ test("consumer can specify a mime type for a url", function(assert) {
 
   let mimeTypeSpy = this.stub(LocalDummyConnection, 'canPlayMimeType').returns(true);
   let createSpy   = this.stub(LocalDummyConnection, 'create', function() {
-    let sound =  DummyConnection.create(...arguments);
+    let sound = BaseSound.create(Object.assign({}, dummyOps, options));
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
   });
@@ -482,7 +481,7 @@ test("if a mime type cannot be determined, try to play it anyway", function(asse
   let LocalDummyConnection = get(service, `_connections.LocalDummyConnection`);
 
   let createSpy   = this.stub(LocalDummyConnection, 'create', function() {
-    let sound =  DummyConnection.create(...arguments);
+    let sound = BaseSound.create(Object.assign({}, dummyOps, options));
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
   });
