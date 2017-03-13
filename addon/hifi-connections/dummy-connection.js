@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import DebugLogging from 'ember-hifi/mixins/debug-logging';
 
 let ClassMethods = Ember.Mixin.create({
   setup() {},
@@ -7,9 +8,11 @@ let ClassMethods = Ember.Mixin.create({
   canPlayMimeType: () => true,
 });
 
-let DummyConnection = Ember.Object.extend(Ember.Evented, {
+let DummyConnection = Ember.Object.extend(Ember.Evented, DebugLogging, {
+  debugName: 'dummyConnection',
   position: 0,
   duration: 10000,
+  
   init() {
     this.on('audio-played',    () => {
       this.set('hasPlayed', true);
