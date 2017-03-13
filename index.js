@@ -3,17 +3,22 @@
 
 module.exports = {
   name: 'ember-hifi',
-  included(app) {
-    this._super.included(app);
+  included(app, parentAddon) {
+    this._super.included.apply(this, arguments);
+    var target = parentAddon || app;
 
-    app.import(app.bowerDirectory + '/howler.js/dist/howler.js');
-    app.import('vendor/howler.js');
+    while (target.app && !target.bowerDirectory) {
+      target = target.app;
+    }
 
-    app.import({
-      development: app.bowerDirectory + '/hls.js/dist/hls.js',
-      production: app.bowerDirectory + '/hls.js/dist/hls.min.js'
+    target.import(target.bowerDirectory + '/howler.js/dist/howler.js');
+    target.import('vendor/howler.js');
+
+    target.import({
+      development: target.bowerDirectory + '/hls.js/dist/hls.js',
+      production: target.bowerDirectory + '/hls.js/dist/hls.min.js'
     });
-    app.import('vendor/hls.js');
+    target.import('vendor/hls.js');
   },
 
   isDevelopingAddon: function() {
