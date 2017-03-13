@@ -1,19 +1,18 @@
 import Ember from 'ember';
-import sinon from 'sinon';
 import DummyConnection from 'dummy/hifi-connections/local-dummy-connection';
 
 const {
   get
 } = Ember;
 
-function stubConnectionCreateWithSuccess(service, connectionName) {
+function stubConnectionCreateWithSuccess(service, connectionName, test) {
   let Connection =  get(service, `_connections.${connectionName}`);
-  sinon.stub(Connection, 'canPlay').returns(true);
+  test.stub(Connection, 'canPlay').returns(true);
 
-  let connectionSpy = sinon.stub(Connection, 'create', function() {
+  let connectionSpy = test.stub(Connection, 'create', function(options) {
     let sound =  DummyConnection.create(...arguments);
-    sinon.stub(sound, 'play', () => sound.trigger('audio-played'));
-    sinon.stub(sound, 'pause', () => sound.trigger('audio-paused'));
+    test.stub(sound, 'play', () => sound.trigger('audio-played'));
+    test.stub(sound, 'pause', () => sound.trigger('audio-paused'));
     
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
@@ -22,11 +21,11 @@ function stubConnectionCreateWithSuccess(service, connectionName) {
   return connectionSpy;
 }
 
-function stubConnectionCreateWithFailure(service, connectionName) {
+function stubConnectionCreateWithFailure(service, connectionName, test) {
   let Connection =  get(service, `_connections.${connectionName}`);
-  sinon.stub(Connection, 'canPlay').returns(true);
+  test.stub(Connection, 'canPlay').returns(true);
 
-  let connectionSpy = sinon.stub(Connection, 'create', function() {
+  let connectionSpy = test.stub(Connection, 'create', function(options) {
     console.log(`stubbed ${Connection} create called`);
     let sound =  DummyConnection.create(...arguments);
     Ember.run.next(() => sound.trigger('audio-load-error'));
