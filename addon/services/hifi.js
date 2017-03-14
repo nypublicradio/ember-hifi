@@ -218,7 +218,10 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     });
 
     // We want to keep this chainable elsewhere
-    return load;
+    return new RSVP.Promise((resolve, reject) => {
+      load.then(({sound, failures}) => sound.one('audio-played', () => resolve({sound, failures})));
+      load.catch(reject);
+    });
   },
 
   /**
