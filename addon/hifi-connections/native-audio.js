@@ -34,7 +34,7 @@ let Sound = BaseSound.extend({
 
   _registerEvents(audio) {
     AUDIO_EVENTS.forEach(eventName => {
-      Ember.$(audio).on(eventName, e => this._handleAudioEvent(eventName, e));
+      Ember.$(audio).on(eventName, e => Ember.run(() => this._handleAudioEvent(eventName, e)));
     });
   },
 
