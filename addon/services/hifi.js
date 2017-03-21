@@ -325,6 +325,9 @@ export default Service.extend(Ember.Evented, DebugLogging, {
    */
 
   setCurrentSound(sound) {
+    if (this.get('isDestroyed') || this.get('isDestroying')) {
+      return; // should use ember-concurrency to cancel any pending promises in willDestroy
+    }
     this._unregisterEvents(this.get('currentSound'));
     this._registerEvents(sound);
     sound._setVolume(this.get('volume'));
