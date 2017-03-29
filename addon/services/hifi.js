@@ -212,13 +212,16 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     this.set('isLoading', true);
 
     let load = this.load(urlsOrPromise, options);
-    load.then(({sound}) => {
-      this.debug("ember-hifi", "Finished load, trying to play sound");
-      this._attemptToPlaySound(sound, options);
-    });
 
     // We want to keep this chainable elsewhere
-    return load;
+    return new RSVP.Promise((resolve, reject) => {
+      load.then(({sound, failures}) => {
+        this.debug("ember-hifi", "Finished load, trying to play sound");
+        sound.one('audio-played', () => resolve({sound, failures}));
+        this._attemptToPlaySound(sound, options);
+      });
+      load.catch(reject);
+    });
   },
 
   /**
@@ -322,6 +325,9 @@ export default Service.extend(Ember.Evented, DebugLogging, {
    */
 
   setCurrentSound(sound) {
+    if (this.get('isDestroyed') || this.get('isDestroying')) {
+      return; // should use ember-concurrency to cancel any pending promises in willDestroy
+    }
     this._unregisterEvents(this.get('currentSound'));
     this._registerEvents(sound);
     sound._setVolume(this.get('volume'));

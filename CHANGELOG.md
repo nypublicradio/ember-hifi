@@ -1,5 +1,11 @@
 # ember-hifi Changelog
 
+### 1.7.4 (March 15, 2017)
+- [#31](https://github.com/nypublicradio/ember-hifi/pull/31) [BUGFIX] - Wire up DummyConnection to fire real events
+- f4678a2 Re enable canary because it passes now
+- [#32](https://github.com/nypublicradio/ember-hifi/pull/32) [IMPROVEMENT] - Don't resolve `.play` until the chosen sound actually fires its `audio-played` event, so that the service can properly expose its aliased computed props.
+- 2deba6d [IMPROVEMENT] - Tweak `included` hook so that `ember-hifi` can be nested under other addons.
+
 ### 1.7.3 (March 1, 2017)
 - [BUGFIX] Fix my goof from yesterday and use preload='none' instead of not having the src, since IE freaks out about the latter.
 

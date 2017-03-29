@@ -719,3 +719,15 @@ test("sound can play on native audio using shared element one after the other", 
     silence1.set('position', 10 * 60 * 1000);
   });
 });
+
+test("service has access to the current sound inside the play callback", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  
+  return service.play(s1url).then(({sound}) => {
+    assert.equal(sound.get('position'), service.get('position'));
+    done();
+  });
+});
