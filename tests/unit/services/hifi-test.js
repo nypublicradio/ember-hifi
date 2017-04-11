@@ -732,7 +732,7 @@ test("service has access to the current sound inside the play callback", functio
   });
 });
 
-test("service triggers `hifi-audio-changed` event when sounds change", function(assert) {
+test("service triggers `current-sound-changed` event when sounds change", function(assert) {
   let done        = assert.async();
   let connections = ['NativeAudio'];
   let service     = this.subject({ options: chooseActiveConnections(...connections) });
@@ -741,13 +741,13 @@ test("service triggers `hifi-audio-changed` event when sounds change", function(
 
   assert.expect(4);
 
-  service.one('hifi-audio-changed', ({previousSound, currentSound}) => {
+  service.one('current-sound-changed', ({previousSound, currentSound}) => {
     assert.equal(previousSound, undefined, "there should not a previous sound");
     assert.equal(currentSound.get('url'), s1url, "current sound should be the first sound");
   });
 
   return service.play(s1url).then(() => {
-    service.one('hifi-audio-changed', ({previousSound, currentSound}) => {
+    service.one('current-sound-changed', ({previousSound, currentSound}) => {
       assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
       assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
     });

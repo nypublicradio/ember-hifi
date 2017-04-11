@@ -198,7 +198,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     promise.then(({sound}) => sound.on('audio-played', () => {
       let previousSound = this.get('currentSound');
       let currentSound  = sound;
-      this.trigger('hifi-audio-changed', {previousSound, currentSound});
+      this.trigger('current-sound-changed', {previousSound, currentSound});
       this.setCurrentSound(sound);
     }));
 
