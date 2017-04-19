@@ -187,11 +187,23 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       });
     });
 
+
+    promise.then(({sound}) => sound.set('metadata', options.metadata));
     promise.then(({sound}) => this.get('soundCache').cache(sound));
+
 
     // On audio-played this pauses all the other sounds. One at a time!
     promise.then(({sound}) => this.get('oneAtATime').register(sound));
-    promise.then(({sound}) => sound.on('audio-played', () => this.setCurrentSound(sound)));
+
+    promise.then(({sound}) => sound.on('audio-played', () => {
+      let previousSound = this.get('currentSound');
+      let currentSound  = sound;
+
+      if (previousSound !== currentSound) {
+        this.trigger('current-sound-changed', {previousSound, currentSound});
+        this.setCurrentSound(sound);
+      }
+    }));
 
     return promise;
   },
@@ -548,7 +560,6 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       let Connection         = strategy.connection;
       let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess');
       let sound              = Connection.create(connectionOptions);
-
       this.debug('ember-hifi', `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
 
       sound.one('audio-load-error', (error) => {
