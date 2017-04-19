@@ -1,5 +1,9 @@
 # ember-hifi Changelog
 
+### 1.8.0 (April 19, 2017)
+- [#35](https://github.com/nypublicradio/ember-hifi/pull/35) [IMPROVEMENT] - Add another method to get around iOS autoplay restrictions. If on mobile, we now add a document `touchstart` listener that will trigger a play on touch if the sound hasn't played yet.
+- [#34](https://github.com/nypublicradio/ember-hifi/pull/34) [IMPROVEMENT] - Add service level 'current-sound-changed' event, and allowed metadata to be attached to sound at play time so consumers can retreive it later
+
 ### 1.7.4 (March 15, 2017)
 - [#31](https://github.com/nypublicradio/ember-hifi/pull/31) [BUGFIX] - Wire up DummyConnection to fire real events
 - f4678a2 Re enable canary because it passes now
