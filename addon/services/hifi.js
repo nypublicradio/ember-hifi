@@ -697,10 +697,21 @@ export default Service.extend(Ember.Evented, DebugLogging, {
 
   _attemptToPlaySound(sound, options) {
     if (this.get('isMobileDevice')) {
+      let touchPlay = ()=> {
+        this.debug(`triggering sound play from document touch`);
+        sound.play();
+      };
+
+      Ember.$(document).on('touchstart', touchPlay);
+
       let blockCheck = Ember.run.later(() => {
         this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
       }, 2000);
-      sound.one('audio-played', () => Ember.run.cancel(blockCheck));
+
+      sound.one('audio-played', () => {
+        Ember.$(document).off('touchstart', touchPlay);
+        Ember.run.cancel(blockCheck);
+      });
     }
     sound.play(options);
   }
