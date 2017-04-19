@@ -725,9 +725,56 @@ test("service has access to the current sound inside the play callback", functio
   let connections = ['NativeAudio'];
   let service     = this.subject({ options: chooseActiveConnections(...connections) });
   let s1url       = "/assets/silence.mp3";
-  
+
   return service.play(s1url).then(({sound}) => {
     assert.equal(sound.get('position'), service.get('position'));
     done();
+  });
+});
+
+test("service triggers `current-sound-changed` event when sounds change", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(4);
+
+  service.one('current-sound-changed', ({previousSound, currentSound}) => {
+    assert.equal(previousSound, undefined, "there should not a previous sound");
+    assert.equal(currentSound.get('url'), s1url, "current sound should be the first sound");
+  });
+
+  return service.play(s1url).then(() => {
+    service.one('current-sound-changed', ({previousSound, currentSound}) => {
+      assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
+      assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
+    });
+    return service.play(s2url).then(() => done());
+  });
+});
+
+
+test("metadata can be sent with a play and load request and it will stay with the sound", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  let storyId = 12544;
+  let currentSound;
+
+  return service.play(s1url, {metadata: {
+    storyId: storyId
+  }}).then(({sound}) => {
+    assert.equal(sound.get('metadata.storyId'), storyId, "storyId should be in metadata");
+    currentSound = sound;
+    return service.play(s2url).then(({sound}) => {
+      assert.equal(sound.get('metadata.storyId'), undefined, "metadata hasn't been set and shouldn't exist");
+      assert.equal(currentSound.get('metadata.storyId'), storyId, "storyId should be in saved sound");
+      done();
+    });
   });
 });
