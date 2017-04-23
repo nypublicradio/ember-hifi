@@ -1,0 +1,9 @@
+{
+  "name": "ember-hifi",
+  "dependencies": {
+    "howler.js": "howler#^2.0.0",
+    "hls.js": "^0.6.1",
+    "remarkable": "^1.7.1",
+    "highlightjs": "^9.10.0"
+  }
+}
