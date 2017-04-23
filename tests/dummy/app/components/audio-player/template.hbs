@@ -1,0 +1,7 @@
+{{#if isLoading}}
+  loading ---
+{{else}}
+playing: {{currentItem.url}}
+{{/if}}
+<button {{action 'toggle'}}>{{if isPlaying 'Pause' 'Play'}}</button>
+{{input type="range" value=audioService.volume}}

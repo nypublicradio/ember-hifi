@@ -7,6 +7,10 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
+  this.route('sound-objects');
+  this.route('hifi-service');
+  this.route('audio-connections');
+  this.route('advanced-usage');
 });
 
 export default Router;
