@@ -1,9 +1,12 @@
 machine:
   node:
-    version: 6.10.0
+    version: 6.10.2
 
 dependencies:
   override:
+    - sudo apt-get update && sudo apt-get install ruby-sass
+    - gem update --system
+    - gem install compass --no-ri --no-rdoc
     - yarn global add bower
     - bower install
     - yarn
@@ -12,3 +15,9 @@ test:
   override:
     - yarn test:
         timeout: 1200
+
+deployment:
+  docs:
+    branch: master
+      - git checkout gh-pages; git checkout master
+      - ./node_modules/ember-cli/bin/ember deploy production
