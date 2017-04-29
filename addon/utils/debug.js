@@ -19,7 +19,7 @@ export default class Debug {
       if (this._isIE() || !!window.callPhantom) {
         // IE's console isn't so great. Make this plain.
         const title = `${name}${titleContent} | ${content}`;
-        console.log(title);
+        console.log(title); // eslint-disable-line no-console
       }
       else {
         const title = `%c${name}${titleContent} | `;

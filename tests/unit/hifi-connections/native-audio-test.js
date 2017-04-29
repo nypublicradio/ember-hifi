@@ -18,12 +18,10 @@ moduleFor('ember-hifi@hifi-connection:native-audio', 'Unit | Connection | Native
       useFakeServer: sinon.fakeServerWithClock
     });
     sandbox.server.respondWith(goodUrl, function (xhr) {
-      console.log("responded good");
       xhr.respond(200, {}, []);
     });
 
     sandbox.server.respondWith(badUrl, function (xhr) {
-      console.log("responded bad");
       xhr.respond(404, {}, []);
     });
   },

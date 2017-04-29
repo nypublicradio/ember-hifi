@@ -368,7 +368,8 @@ export default Service.extend(Ember.Evented, DebugLogging, {
         set(sound, '_position', sound._currentPosition());
       }
       catch(e) {
-
+        // continue regardless of error
+        // TODO: why is this wrapped in a try catch?
       }
     }
   },

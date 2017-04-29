@@ -20,8 +20,10 @@ let ClassMethods = Ember.Mixin.create({
     if (typeof url === 'string') {
       let mimeType = getMimeType(url);
       if (!mimeType) {
+        /* eslint-disable no-console */
         console.warn(`Could not determine mime type for ${url}`);
         console.warn('Attempting to play urls with an unknown mime type can be bad for performance. See documentation for more info.');
+        /* eslint-enable no-console */
         return true;
       }
       else {

@@ -1,9 +1,0 @@
-<h3>{{story.title}}</h3>
-
-{{#unless sound}}
-  loading...
-{{else}}
-  duration: {{sound.duration}}
-{{/unless}}
-
-<button {{action 'play' story}}>Play Story</button>

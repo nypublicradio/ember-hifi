@@ -122,7 +122,7 @@ test('#load tries the first connection that says it can handle the url', functio
 
   let sound             = LocalDummyConnection.create();
 
-  let nativeCreateSpy   = this.stub(NativeAudio, 'create', function() {
+  let nativeCreateSpy   = this.stub(NativeAudio, 'create').callsFake(function() {
     return DummyConnection.create(...arguments);
   });
 
@@ -162,7 +162,7 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   let LocalDummyConnection =  get(service, `_connections.LocalDummyConnection`);
   this.stub(LocalDummyConnection, 'canPlay').returns(true);
 
-  let localCreateSpy = this.stub(LocalDummyConnection, 'create', function(options) {
+  let localCreateSpy = this.stub(LocalDummyConnection, 'create').callsFake(function(options) {
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
 
     if (sound.get('url') === goodUrl) {
@@ -456,7 +456,7 @@ test("consumer can specify a mime type for a url", function(assert) {
   let LocalDummyConnection = get(service, `_connections.LocalDummyConnection`);
 
   let mimeTypeSpy = this.stub(LocalDummyConnection, 'canPlayMimeType').returns(true);
-  let createSpy   = this.stub(LocalDummyConnection, 'create', function() {
+  let createSpy   = this.stub(LocalDummyConnection, 'create').callsFake(function() {
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
@@ -480,7 +480,7 @@ test("if a mime type cannot be determined, try to play it anyway", function(asse
 
   let LocalDummyConnection = get(service, `_connections.LocalDummyConnection`);
 
-  let createSpy   = this.stub(LocalDummyConnection, 'create', function() {
+  let createSpy   = this.stub(LocalDummyConnection, 'create').callsFake(function() {
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
     Ember.run.next(() => sound.trigger('audio-ready'));
     return sound;
@@ -685,8 +685,7 @@ test("individual native audio sounds keep track of their own state", function(as
       assert.equal(sound2._currentPosition(), 9000, "second sound should still have its own position");
       sound2.one('audio-played', done);
     });
-  }).catch((e) => {
-    console.log(e.failures);
+  }).catch(() => {
     done();
   });
 });
