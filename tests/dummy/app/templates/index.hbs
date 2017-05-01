@@ -30,14 +30,26 @@ Now make a button wired up to your actions:
 
 {{code-snippet name="play1.hbs"}}
 
-{{play-basic stream=stream}}
+{{play-basic stream=wnyc}}
 
 {{md-text text="
 As you can see, `hifi` provides a helpful `isPlaying` attribute you can use to help manage your UI state. But you might have also noticed a slight delay between clicking play and actually hearing some audio from your speakers.
 
-This delay is caused by the network request and the `isPlaying` attribute updates in time, but the UI is still in the \"paused\" state until the sound starts. It's accurate, but `hifi` also exposes an `isLoading` attribute you can use for finer grained UI.
+This delay is caused by the network request to start buffering audio. The `isPlaying` attribute updates in time, but the UI is still in the \"paused\" state until the sound starts. It's accurate, but `hifi` also exposes an `isLoading` attribute you can use for finer grained UI.
 "}}
 
 {{code-snippet name="play2.hbs"}}
 
-{{play-basic stream=stream useLoading=true}}
+{{play-basic stream=wqxr useLoading=true}}
+
+{{md-text text="
+But hold up: those buttons play different audio sources, yet they are tied to each other's state. That's because they are reading off of `hifi`'s `isLoading` and `isPlaying` states without regard to whether or not `hifi` is loading that button's specific audio. As long as a button ties its UI to `hifi`'s state uncondtionally, you'll have this problem.
+
+When you load a piece of audio, `hifi` will update its `currentId` value with the first argument you pass to `play`; typically a url pointing to an audio file or streaming endpoint. There are times when you may need to specify an id for a piece of audio that is not its url; that will be covered in advanced usage.
+"}}
+
+{{code-snippet name="play-stateful.js"}}
+
+{{code-snippet name="play-with-state.hbs"}}
+
+{{stateful-play-basic stream=q2}}
