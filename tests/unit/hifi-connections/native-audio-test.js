@@ -186,7 +186,6 @@ test('switching sounds with internal elements keep current state', function(asse
   assert.equal(sound2._currentPosition(), 10000, "sound 2 should have kept its position");
 });
 
-
 test('on setup the sound has control of the shared audio element', function(assert) {
   let url1 = '/assets/silence.mp3';
   let sharedAudioAccess = SharedAudioAccess.unlock();
@@ -232,4 +231,25 @@ test("when using a shared audio element we set preload=none on the shadow elemen
   sound.stop();
 
   assert.equal(sound.get('_audioElement').preload,  'none', "audio preload attribute is none");
+});
+
+test('switching sounds with a shared audio element sends pause event on first sound', function(assert) {
+  // let done = assert.async();
+  let url1 = '/assets/silence.mp3';
+  let url2 = '/assets/silence2.mp3';
+  let sharedAudioAccess = SharedAudioAccess.unlock();
+
+  let sound1 = NativeAudio.create({url: url1, timeout: false, sharedAudioAccess});
+  let sound2 = NativeAudio.create({url: url2, timeout: false, sharedAudioAccess});
+
+  let pauseStub = sinon.stub(sound1, '_onAudioPaused');
+
+  sinon.stub(sound1, 'debug');
+  sinon.stub(sound2, 'debug');
+
+  sound1.play(); // sound 1 has control
+  sound1.set('isPlaying', true);
+  sound2.play(); // sound 2 has control
+
+  assert.equal(pauseStub.callCount, 1, "audio 1 pause event should have been fired");
 });

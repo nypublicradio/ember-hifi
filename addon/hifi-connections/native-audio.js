@@ -114,6 +114,11 @@ let Sound = BaseSound.extend({
       return;
     }
 
+    if (this.get('isPlaying')) {
+      // send a pause event so anyone subscribed to hifi's relayed events gets the message
+      this._onAudioPaused(this);
+    }
+
     this.get('sharedAudioAccess').releaseControl(this);
 
     // save current state of audio element to the internal element that won't be played
