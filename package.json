@@ -1,6 +1,6 @@
 {
   "name": "ember-hifi",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "The easy way to play audio in your ember app.",
   "directories": {
     "doc": "doc",
