@@ -200,7 +200,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       let currentSound  = sound;
 
       if (previousSound !== currentSound) {
-        this.trigger('current-sound-changed', {previousSound, currentSound});
+        this.trigger('current-sound-changed', currentSound, previousSound);
         this.setCurrentSound(sound);
       }
     }));
@@ -230,6 +230,8 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       load.then(({sound, failures}) => {
         this.debug("ember-hifi", "Finished load, trying to play sound");
         sound.one('audio-played', () => resolve({sound, failures}));
+
+        this._registerEvents(sound);
         this._attemptToPlaySound(sound, options);
       });
       load.catch(reject);
@@ -385,6 +387,8 @@ export default Service.extend(Ember.Evented, DebugLogging, {
    */
 
   _registerEvents(sound) {
+    this._unregisterEvents(sound);
+
     let service = this;
     sound.on('audio-played',           service,   service._relayPlayedEvent);
     sound.on('audio-paused',           service,   service._relayPausedEvent);

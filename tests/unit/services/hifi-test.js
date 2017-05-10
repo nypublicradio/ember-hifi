@@ -731,6 +731,40 @@ test("service has access to the current sound inside the play callback", functio
   });
 });
 
+test("sound events get relayed at the service level", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  let sound1PlayEventTriggered;
+  let sound2PlayEventTriggered;
+  let sound1PauseEventTriggered;
+  let sound2PauseEventTriggered;
+
+  service.on('audio-played', (sound) => {
+    sound1PlayEventTriggered = (sound.get('url') === s1url);
+    sound2PlayEventTriggered = (sound.get('url') === s2url);
+  });
+
+  service.on('audio-paused', (sound) => {
+    sound1PauseEventTriggered = (sound.get('url') === s1url);
+    sound2PauseEventTriggered = (sound.get('url') === s2url);
+  });
+
+  service.play(s1url).then(() => {
+    assert.equal(sound1PlayEventTriggered, true, "sound 1 play event should have been triggered");
+    service.play(s2url).then(({sound}) => {
+      assert.equal(sound1PauseEventTriggered, true, "sound 1 pause event should have been triggered");
+      assert.equal(sound2PlayEventTriggered, true, "sound 2 play event should have been triggered");
+      sound.pause();
+      assert.equal(sound2PauseEventTriggered, false, "sound 2 pause event should not have been triggered");
+      done();
+    });
+  });
+});
+
 test("service triggers `current-sound-changed` event when sounds change", function(assert) {
   let done        = assert.async();
   let connections = ['NativeAudio'];
@@ -740,13 +774,13 @@ test("service triggers `current-sound-changed` event when sounds change", functi
 
   assert.expect(4);
 
-  service.one('current-sound-changed', ({previousSound, currentSound}) => {
+  service.one('current-sound-changed', (currentSound, previousSound) => {
     assert.equal(previousSound, undefined, "there should not a previous sound");
     assert.equal(currentSound.get('url'), s1url, "current sound should be the first sound");
   });
 
   return service.play(s1url).then(() => {
-    service.one('current-sound-changed', ({previousSound, currentSound}) => {
+    service.one('current-sound-changed', (currentSound, previousSound) => {
       assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
       assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
     });
