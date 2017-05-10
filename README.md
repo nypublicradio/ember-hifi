@@ -150,6 +150,20 @@ Moves the playhead of the sound backwards by duration (in ms)
 - `percentLoaded` (integer, not always available)
 - `url` the url of the sound
 
+### Events
+The `hifi` service and the `sound` objects are extended with [Ember.Evented](https://www.emberjs.com/api/classes/Ember.Evented.html). You can subscribe to the following events in your application.
+
+###### Triggered on both the sound and relayed through the hifi service
+
+- `audio-played` (sound) - the sound started playing
+- `audio-paused` (sound) - the sound was paused
+- `audio-ended` (sound) - the sound finished playing
+- `audio-load-error` (error) - loading sound failed
+- `audio-ready` (sound) - the sound is ready to play
+
+###### Hifi service events
+- `current-sound-changed` (currentSound, previousSound) - triggered when the current sound changes. On initial play, previousSound will be undefined.
+
 ## Details
 
 ### Included audio connections

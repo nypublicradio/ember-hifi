@@ -1,8 +1,14 @@
 # ember-hifi Changelog
 
+### 1.9.0 (May 10, 2017)
+- [IMPROVEMENT] Changed API (and documented) `current-sound-changed` to `(currentSound, previousSound)` from `({previousSound, currentSound})` to be more consistent with the other APIs.
+- [BUGFIX] Make sure events of the not-yet-current sound are relayed through hifi. Previously current sound would be set on `audio-played`, and that `audio-played` event wasn't relayed through the service.
+- [BUGFIX] Fix pause event so it gets triggered properly when using a shared audio element. Previously, when ownership of the audio element was transferred between sounds, the sound releasing control did not properly trigger a pause event on the service.
+- Upgrade to eslint and yarn.
+
 ### 1.8.0 (April 19, 2017)
 - [#35](https://github.com/nypublicradio/ember-hifi/pull/35) [IMPROVEMENT] - Add another method to get around iOS autoplay restrictions. If on mobile, we now add a document `touchstart` listener that will trigger a play on touch if the sound hasn't played yet.
-- [#34](https://github.com/nypublicradio/ember-hifi/pull/34) [IMPROVEMENT] - Add service level 'current-sound-changed' event, and allowed metadata to be attached to sound at play time so consumers can retreive it later
+- [#34](https://github.com/nypublicradio/ember-hifi/pull/34) [IMPROVEMENT] - Add service level 'current-sound-changed' event, and allowed metadata to be attached to sound at play time so consumers can retrieve it later
 
 ### 1.7.4 (March 15, 2017)
 - [#31](https://github.com/nypublicradio/ember-hifi/pull/31) [BUGFIX] - Wire up DummyConnection to fire real events
