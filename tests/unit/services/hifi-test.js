@@ -738,7 +738,6 @@ test("sound events get relayed at the service level", function(assert) {
   let s1url       = "/assets/silence.mp3";
   let s2url       = "/assets/silence2.mp3";
 
-  let sound1, sound2;
   let sound1PlayEventTriggered;
   let sound2PlayEventTriggered;
   let sound1PauseEventTriggered;
@@ -754,11 +753,9 @@ test("sound events get relayed at the service level", function(assert) {
     sound2PauseEventTriggered = (sound.get('url') === s2url);
   });
 
-  service.play(s1url).then(({sound}) => {
-    sound1 = sound;
+  service.play(s1url).then(() => {
     assert.equal(sound1PlayEventTriggered, true, "sound 1 play event should have been triggered");
     service.play(s2url).then(({sound}) => {
-      sound2 = sound;
       assert.equal(sound1PauseEventTriggered, true, "sound 1 pause event should have been triggered");
       assert.equal(sound2PlayEventTriggered, true, "sound 2 play event should have been triggered");
       sound.pause();
@@ -777,13 +774,13 @@ test("service triggers `current-sound-changed` event when sounds change", functi
 
   assert.expect(4);
 
-  service.one('current-sound-changed', ({previousSound, currentSound}) => {
+  service.one('current-sound-changed', (currentSound, previousSound) => {
     assert.equal(previousSound, undefined, "there should not a previous sound");
     assert.equal(currentSound.get('url'), s1url, "current sound should be the first sound");
   });
 
   return service.play(s1url).then(() => {
-    service.one('current-sound-changed', ({previousSound, currentSound}) => {
+    service.one('current-sound-changed', (currentSound, previousSound) => {
       assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
       assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
     });

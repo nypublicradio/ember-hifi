@@ -200,7 +200,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       let currentSound  = sound;
 
       if (previousSound !== currentSound) {
-        this.trigger('current-sound-changed', {previousSound, currentSound});
+        this.trigger('current-sound-changed', currentSound, previousSound);
         this.setCurrentSound(sound);
       }
     }));
