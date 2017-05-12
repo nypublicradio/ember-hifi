@@ -1,4 +1,6 @@
 # ember-hifi Changelog
+### 1.9.1 (May 12, 2017)
+- [BUGFIX] `hifiNeeds` test helper didn't include all needed services (it was missing `service:poll`)
 
 ### 1.9.0 (May 10, 2017)
 - [IMPROVEMENT] Changed API (and documented) `current-sound-changed` to `(currentSound, previousSound)` from `({previousSound, currentSound})` to be more consistent with the other APIs.
