@@ -1,1 +1,1 @@
-export default ['service:hifi', 'service:hifi-cache'];
+export default ['service:hifi', 'service:hifi-cache', 'service:poll'];
