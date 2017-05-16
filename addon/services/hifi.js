@@ -188,7 +188,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     });
 
 
-    promise.then(({sound}) => sound.set('metadata', options.metadata));
+    promise.then(({sound}) => sound.set('metadata', (options.metadata || {})));
     promise.then(({sound}) => this.get('soundCache').cache(sound));
 
     // On audio-played this pauses all the other sounds. One at a time!
