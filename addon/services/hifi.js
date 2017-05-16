@@ -191,7 +191,6 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     promise.then(({sound}) => sound.set('metadata', options.metadata));
     promise.then(({sound}) => this.get('soundCache').cache(sound));
 
-
     // On audio-played this pauses all the other sounds. One at a time!
     promise.then(({sound}) => this.get('oneAtATime').register(sound));
 
@@ -537,7 +536,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       return Ember.A(Ember.makeArray(urls)).uniq().reject(i => Ember.isEmpty(i));
     };
 
-    if (urlsOrPromise.then) {
+    if (urlsOrPromise && urlsOrPromise.then) {
       this.debug('ember-hifi', "#load passed URL promise");
     }
 

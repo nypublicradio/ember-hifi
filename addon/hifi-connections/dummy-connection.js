@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import DebugLogging from 'ember-hifi/mixins/debug-logging';
+import BaseSound from './base';
 
 let ClassMethods = Ember.Mixin.create({
   setup() {},
@@ -8,67 +8,87 @@ let ClassMethods = Ember.Mixin.create({
   canPlayMimeType: () => true,
 });
 
-let DummyConnection = Ember.Object.extend(Ember.Evented, DebugLogging, {
+
+let DummyConnection = BaseSound.extend({
   debugName: 'dummyConnection',
-  position: 0,
-  duration: 10000,
-  
-  init() {
-    this.on('audio-played',    () => {
-      this.set('hasPlayed', true);
-      this.set('isLoading', false);
-      this.set('isPlaying', true);
-      this.set('error', null);
-      
-      // recover lost isLoading update
-      this.notifyPropertyChange('isLoading');
-    });
-
-    this.on('audio-paused',   () => {
-      this.set('isPlaying', false);
-    });
-    this.on('audio-ended',    () => { 
-      this.set('isPlaying', false);
-    });
-    
-    this.on('audio-load-error', (e) => {
-      if (this.get('hasPlayed')) {
-        this.set('isLoading', false);
-        this.set('isPlaying', false);
-      }
-      this.set('error', e);
-    });
-
-    this.on('audio-loaded', () => {
-      this.set('isLoading', false);
-    });
-    
-    Ember.run.next(() => this.trigger('audio-ready'));
+  _position: 0,
+  setup() {
+    let {result} = this.getInfoFromUrl();
+    if (result === 'bad') {
+      Ember.run.next(() => this.trigger('audio-load-error'));
+    }
+    else {
+      Ember.run.next(() => this.trigger('audio-ready'));
+    }
   },
+
+  stopTicking: function() {
+    Ember.run.cancel(this.tick());
+  },
+
+  startTicking: function() {
+    this.tick = Ember.run.later(() => {
+      this._setPosition((this._currentPosition() || 0) + 100);
+      this.startTicking();
+    }, 100);
+  },
+
+  getInfoFromUrl: function() {
+    let [, result, length, name] = this.get('url').split('/');
+
+    return {result, length, name};
+  },
+
+  handlePositioningEvents: Ember.observer('_position', function(){
+    if (this.get('_position') >= this._audioDuration()) {
+      this.trigger('audio-ended');
+    }
+  }),
+
   play({position} = {}) {
     if (typeof position !== 'undefined') {
-      this.set('position', position);
+      this.set('_position', position);
     }
     this.trigger('audio-played', this);
+    this.startTicking();
   },
   pause() {
     this.trigger('audio-paused');
+    this.stopTicking();
   },
   stop() {
     this.trigger('audio-paused');
+    this.stopTicking();
   },
   fastForward(duration) {
-    this.set('position', this.get('position') + duration);
+    this.set('_position', this.get('position') + duration);
   },
   rewind(duration) {
-    this.set('position', this.get('position') - duration);
+    this.set('_position', this.get('position') - duration);
   },
-  _setPosition() {},
-  _currentPosition() {},
+  _setPosition(duration) {
+    this.set('_position', duration);
+  },
+  _currentPosition() {
+    return this.get('_position');
+  },
   _setVolume(v) {
     this.set('volume', v);
   },
-  _audioDuration() {},
+  _audioDuration() {
+    let {result, length} = this.getInfoFromUrl();
+
+    if (result === 'bad') {
+      return;
+    }
+
+    if (length === 'stream') {
+      return Infinity;
+    }
+    else {
+      return parseInt(length, 10);
+    }
+  },
 });
 
 DummyConnection.reopenClass(ClassMethods);
