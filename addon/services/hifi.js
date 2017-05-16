@@ -198,6 +198,10 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       let previousSound = this.get('currentSound');
       let currentSound  = sound;
 
+      if (previousSound && get(previousSound, 'isPlaying')) {
+        this.trigger('current-sound-interrupted', previousSound);
+      }
+
       if (previousSound !== currentSound) {
         this.trigger('current-sound-changed', currentSound, previousSound);
         this.setCurrentSound(sound);
@@ -217,6 +221,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
 
   play(urlsOrPromise, options) {
     if (this.get('isPlaying')) {
+      this.trigger('current-sound-interrupted', get(this, 'currentSound'));
       this.pause();
     }
     // update the UI immediately while `.load` figures out which sound is playable

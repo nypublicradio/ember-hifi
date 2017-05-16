@@ -811,3 +811,47 @@ test("metadata can be sent with a play and load request and it will stay with th
     });
   });
 });
+
+test("current-sound-interrupted event gets fired when a new `play` request happens while a sound is playing", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(1);
+
+  service.one('current-sound-interrupted', (currentSound) => {
+    assert.equal(currentSound.get('url'), s1url, "current sound should be reported as interrupted");
+  });
+
+  return service.play(s1url).then(() => {
+    return service.play(s2url).then(() => done());
+  });
+});
+
+test("current-sound-interrupted event gets fired when another sound starts playing while one is already playing", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(1);
+  let sound1, sound2;
+
+  service.one('current-sound-interrupted', (currentSound) => {
+    assert.equal(currentSound, sound1, "current sound should be the one that got interrupted");
+  });
+
+  return service.load(s1url).then(({sound}) => {
+    sound1 = sound;
+    return service.load(s2url).then(({sound}) => {
+      sound2 = sound;
+      sound1.play();
+      sound2.play();
+      done();
+    });
+  });
+
+});
