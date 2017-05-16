@@ -15,10 +15,10 @@ let DummyConnection = BaseSound.extend({
   setup() {
     let {result} = this.getInfoFromUrl();
     if (result === 'bad') {
-      Ember.run.next(() => this.trigger('audio-load-error'));
+      Ember.run.next(() => this.trigger('audio-load-error', this));
     }
     else {
-      Ember.run.next(() => this.trigger('audio-ready'));
+      Ember.run.next(() => this.trigger('audio-ready', this));
     }
   },
 
@@ -41,7 +41,7 @@ let DummyConnection = BaseSound.extend({
 
   handlePositioningEvents: Ember.observer('_position', function(){
     if (this.get('_position') >= this._audioDuration()) {
-      this.trigger('audio-ended');
+      this.trigger('audio-ended', this);
     }
   }),
 
@@ -53,11 +53,11 @@ let DummyConnection = BaseSound.extend({
     this.startTicking();
   },
   pause() {
-    this.trigger('audio-paused');
+    this.trigger('audio-paused', this);
     this.stopTicking();
   },
   stop() {
-    this.trigger('audio-paused');
+    this.trigger('audio-paused', this);
     this.stopTicking();
   },
   fastForward(duration) {
