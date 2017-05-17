@@ -11,7 +11,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let DummyConnection = BaseSound.extend({
   debugName: 'dummyConnection',
-  _position: 0,
+  _dummy_position: 0,
   setup() {
     let {result} = this.getInfoFromUrl();
     if (result === 'bad') {
@@ -23,14 +23,14 @@ let DummyConnection = BaseSound.extend({
   },
 
   stopTicking: function() {
-    Ember.run.cancel(this.tick());
+    Ember.run.cancel(this.tick);
   },
 
   startTicking: function() {
     this.tick = Ember.run.later(() => {
-      this._setPosition((this._currentPosition() || 0) + 100);
+      this._setPosition((this._currentPosition() || 0) + 1000);
       this.startTicking();
-    }, 100);
+    }, 1000);
   },
 
   getInfoFromUrl: function() {
@@ -39,15 +39,15 @@ let DummyConnection = BaseSound.extend({
     return {result, length, name};
   },
 
-  handlePositioningEvents: Ember.observer('_position', function(){
-    if (this.get('_position') >= this._audioDuration()) {
+  handlePositioningEvents: Ember.observer('_dummy_position', function(){
+    if (this.get('_dummy_position') >= this._audioDuration()) {
       this.trigger('audio-ended', this);
     }
   }),
 
   play({position} = {}) {
     if (typeof position !== 'undefined') {
-      this.set('_position', position);
+      this.set('_dummy_position', position);
     }
     this.trigger('audio-played', this);
     this.startTicking();
@@ -61,16 +61,18 @@ let DummyConnection = BaseSound.extend({
     this.stopTicking();
   },
   fastForward(duration) {
-    this.set('_position', this.get('position') + duration);
+    this.set('_dummy_position', this._currentPosition() + duration);
   },
   rewind(duration) {
-    this.set('_position', this.get('position') - duration);
+    this.set('_dummy_position', this._currentPosition() - duration);
   },
   _setPosition(duration) {
-    this.set('_position', duration);
+    this.set('_dummy_position', duration);
+
+    return duration;
   },
   _currentPosition() {
-    return this.get('_position');
+    return this.get('_dummy_position');
   },
   _setVolume(v) {
     this.set('volume', v);

@@ -123,7 +123,7 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       this.set('isPlaying', false);
       if (audioPaused) { audioPaused(this); }
     });
-    this.on('audio-ended',    () => { 
+    this.on('audio-ended',    () => {
       this.set('isPlaying', false);
       if (audioEnded) { audioEnded(this); }
     });
