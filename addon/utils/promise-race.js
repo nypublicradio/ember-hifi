@@ -17,6 +17,7 @@ import Ember from 'ember';
  */
 
 function start(params, callback) {
+
   return new RSVP.Promise((resolve, reject) => {
     let paramsToTry = Ember.copy(params);
     var failures = [];
@@ -32,9 +33,10 @@ function start(params, callback) {
           }
           let nextParam = paramsToTry.shift();
           if (!nextParam) {
-            let error = new Error('All given promises failed.');
-            error.failures = failures;
-            reject(error);
+            Ember.run(null, reject, {
+              message: 'All given promises failed.',
+              failures: failures
+            });
           }
           else {
             return tryNext(promisifyCallback(callback, nextParam));

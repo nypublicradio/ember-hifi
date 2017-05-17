@@ -136,13 +136,14 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
         if (Ember.isEmpty(urlsToTry)) {
-          return reject(new Error('[ember-hifi] URLs must be provided'));
+          Ember.run(null, reject, {message: "No urls were provided"});
+          return;
         }
 
         let sound = this.get('soundCache').find(urlsToTry);
         if (sound) {
           this.debug('ember-hifi', 'retreived sound from cache');
-          return resolve({sound});
+          resolve({sound});
         }
         else {
           let strategies = [];
@@ -181,9 +182,11 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       .catch(e => {
         // reset the UI since trying to play that sound failed
         this.set('isLoading', false);
-        let err = new Error(`[ember-hifi] URL Promise failed because: ${e.message}`);
-        err.failures = e.failures;
-        reject(err);
+
+        Ember.run(null, reject, {
+          message: `[ember-hifi] URL Promise failed because: ${e.message}`,
+          failures: e.failures
+        });
       });
     });
 

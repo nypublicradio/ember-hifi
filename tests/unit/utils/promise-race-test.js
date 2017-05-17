@@ -48,3 +48,30 @@ test('findFirst should not try the rest of the items if the first one resolves',
     done();
   });
 });
+//
+// test('catch handler should only be called once', function(assert) {
+//   let done = assert.async();
+//   let paramsTried = [];
+//
+//   let promise1 = new RSVP.Promise((resolve, reject) => {
+//     let promise2 = new RSVP.Promise((resolve1, reject1) => {
+//       reject1(new Error('internal promise rejection'));
+//     });
+//
+//     return promise2.catch(() => {
+//       reject();
+//     });
+//   }).catch(e => {
+//     console.log('main handler');
+//   })
+//
+//
+//   let params = [promise1];
+//   PromiseRace.start(params, function(nextParam, returnSuccess, markFailure) {
+//     paramsTried.push(nextParam);
+//     markFailure(nextParam);
+//   }).catch(({failures}) => {
+//     assert.ok(true)
+//     done();
+//   });
+// });
