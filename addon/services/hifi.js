@@ -131,7 +131,10 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     let sharedAudioAccess = this._createAndUnlockAudio();
     let assign = Ember.assign || Ember.merge;
 
-    options = assign({ debugName: `load-${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}`}, options);
+    options = assign({
+      debugName: `load-${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}`,
+      metadata: {},
+    }, options);
 
     let promise = new RSVP.Promise((resolve, reject) => {
       return this._resolveUrls(urlsOrPromise).then(urlsToTry => {
@@ -187,8 +190,9 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       });
     });
 
+    this.trigger('new-load-request', {loadPromise:promise, urlsOrPromise, options});
 
-    promise.then(({sound}) => sound.set('metadata', (options.metadata || {})));
+    promise.then(({sound}) => sound.set('metadata', (options.metadata)));
     promise.then(({sound}) => this.get('soundCache').cache(sound));
 
     // On audio-played this pauses all the other sounds. One at a time!

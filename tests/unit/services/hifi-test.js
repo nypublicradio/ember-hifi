@@ -821,7 +821,7 @@ test("current-sound-interrupted event gets fired when a new `play` request happe
 
   assert.expect(1);
 
-  service.one('current-sound-interrupted', (currentSound) => {
+  service.on('current-sound-interrupted', (currentSound) => {
     assert.equal(currentSound.get('url'), s1url, "current sound should be reported as interrupted");
   });
 
@@ -840,7 +840,7 @@ test("current-sound-interrupted event gets fired when another sound starts playi
   assert.expect(1);
   let sound1, sound2;
 
-  service.one('current-sound-interrupted', (currentSound) => {
+  service.on('current-sound-interrupted', (currentSound) => {
     assert.equal(currentSound, sound1, "current sound should be the one that got interrupted");
   });
 
@@ -853,5 +853,55 @@ test("current-sound-interrupted event gets fired when another sound starts playi
       done();
     });
   });
+});
 
+test("new-load-request gets fired on new load and play requests", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(4);
+
+  service.one('new-load-request', ({urlsOrPromise, options}) => {
+    assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+    assert.equal(options.metadata.id, 1, "metadata id should be equale");
+  });
+
+  return service.play(s1url, {metadata: {id: 1}}).then(() => {
+    service.one('new-load-request', ({urlsOrPromise, options}) => {
+      assert.equal(urlsOrPromise, s2url, "url should equal url passed in");
+      assert.equal(options.metadata.id, undefined, "metadata id should be undefined");
+    });
+
+    return service.load(s2url).then(() => {
+      done();
+    });
+  });
+});
+
+test("new-load-request gets fired on new load requests that are cached", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+
+  assert.expect(4);
+
+  service.one('new-load-request', ({urlsOrPromise, options}) => {
+    assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+    assert.equal(options.metadata.id, 1, "metadata id should be equale");
+  });
+
+  return service.load(s1url, {metadata: {id: 1}}).then(() => {
+    service.one('new-load-request', ({urlsOrPromise, options}) => {
+      assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+      assert.equal(options.metadata.id, 2, "metadata id should be undefined");
+    });
+
+    return service.load(s1url, {metadata: {id: 2}}).then(() => {
+      done();
+    });
+  });
 });
