@@ -24,7 +24,6 @@ moduleFor('service:audio', 'Unit | Service | hifi integration test.js', {
   }
 });
 
-// Replace this with your real tests.
 test('playing good url works', function(assert) {
   let service = this.subject({})
   service.playGood().then(({sound}) => {
