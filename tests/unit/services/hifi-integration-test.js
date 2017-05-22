@@ -1,8 +1,6 @@
 import { moduleFor, test } from 'ember-qunit';
-import sinon from 'sinon';
 import Ember from 'ember';
 import { dummyHifi, hifiNeeds } from '../../../tests/helpers/hifi-integration-helpers';
-// let audioService;
 var originalLoggerError, originalTestAdapterException;
 
 moduleFor('service:audio', 'Unit | Service | hifi integration test.js', {
@@ -83,22 +81,18 @@ test('it sets stream duration correctly', function(assert) {
 });
 
 test('it simulates play', function(assert) {
+  let done = assert.async();
+  assert.expect(3);
   let service = this.subject({});
   let hifi = service.get('hifi');
-  this.clock = sinon.useFakeTimers();
-  this.clock.tick(10000);
-  hifi.play('/good/3000/test').then(({sound}) => {
+
+  hifi.play('/good/1500/test/yes').then(({sound}) => {
     assert.equal(sound._currentPosition(), 0, "initial position should be 0");
-    this.clock.tick(1000);
-    assert.equal(sound._currentPosition(), 1000, "position should be 2000");
-    assert.equal(sound.get('isPlaying'), true, "should be playing");
 
-    this.clock.tick(2000);
-    assert.equal(sound._currentPosition(), 3000, "position should be 2000");
-    assert.equal(sound.get('isPlaying'), false, "should not be playing");
-
-    this.clock.restore();
+    Ember.run.later(() => {
+      assert.equal(sound._currentPosition(), 1000, "position should be 1000");
+      assert.equal(sound.get('isPlaying'), true, "should be playing");
+      done();
+    }, 1000)
   });
-  this.clock.tick(100);
-
 });
