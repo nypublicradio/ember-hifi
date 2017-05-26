@@ -23,14 +23,14 @@ let DummyConnection = BaseSound.extend({
   },
 
   stopTicking: function() {
-    Ember.run.cancel(this.tick);
+    window.clearTimeout(this.tick);
   },
 
   startTicking: function() {
-    this.tick = Ember.run.later(() => {
-      this._setPosition((this._currentPosition() || 0) + 1000);
+    this.tick = window.setTimeout(Ember.run.bind(() => {
+      this._setPosition((this._currentPosition() || 0) + 100);
       this.startTicking();
-    }, 1000);
+    }), 100)
   },
 
   getInfoFromUrl: function() {
