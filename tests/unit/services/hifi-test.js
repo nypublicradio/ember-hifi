@@ -18,6 +18,7 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
     'service:hifi-cache',
     'ember-hifi@hifi-connection:howler',
     'ember-hifi@hifi-connection:native-audio',
+    'ember-hifi@hifi-connection:dummy-connection',
     'hifi-connection:local-dummy-connection'
   ],
   beforeEach() {
@@ -40,7 +41,7 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
         config: {
           testOption: 'LocalDummyConnection'
         }
-      },
+      }
     ];
 
     options = {
@@ -84,6 +85,20 @@ function chooseActiveConnections(...connectionsToActivate) {
   };
 }
 
+function activateDummyConnection() {
+  return {
+    emberHifi: {
+      debug: false,
+      connections: [{
+        name: 'DummyConnection',
+        config: {
+          testOption: 'DummyConnection'
+        }
+      }]
+    }
+  };
+}
+
 test('it activates local connections', function(assert) {
   options.config = {'foo': 'bar'};
   const service = this.subject({ options: chooseActiveConnections('LocalDummyConnection') });
@@ -103,7 +118,7 @@ test('#activateConnections activates an array of connections', function(assert) 
 
 test('it returns a list of the available connections', function(assert) {
   const service = this.subject({ options });
-  assert.deepEqual(service.availableConnections(), ["Howler", "NativeAudio", "LocalDummyConnection"]);
+  assert.deepEqual(service.availableConnections(), ["Howler", "NativeAudio", "LocalDummyConnection", "DummyConnection"]);
 });
 
 test('#load tries the first connection that says it can handle the url', function(assert) {
@@ -852,6 +867,27 @@ test("current-sound-interrupted event gets fired when another sound starts playi
       sound2.play();
       done();
     });
+  });
+});
+
+test("current-sound-interrupted event does not fire when position gets changed", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/25000/test";
+
+  assert.expect(1);
+
+  let callCount = 0;
+  service.on('current-sound-interrupted', () => {
+    callCount = callCount + 1;
+  });
+
+  return service.play(s1url).then(({sound}) => {
+    sound.set('position', 100);
+
+    sound.set('position', 1500);
+    assert.equal(callCount, 0, "interrupt should not have been called");
+    done();
   });
 });
 

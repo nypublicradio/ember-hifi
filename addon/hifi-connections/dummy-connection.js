@@ -6,6 +6,9 @@ let ClassMethods = Ember.Mixin.create({
   canPlay: () => true,
   canUseConnection: () => true,
   canPlayMimeType: () => true,
+  toString() {
+    return 'Dummy Connection';
+  }
 });
 
 

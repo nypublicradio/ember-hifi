@@ -202,11 +202,11 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       let previousSound = this.get('currentSound');
       let currentSound  = sound;
 
-      if (previousSound && get(previousSound, 'isPlaying')) {
-        this.trigger('current-sound-interrupted', previousSound);
-      }
-
       if (previousSound !== currentSound) {
+        if (previousSound && get(previousSound, 'isPlaying')) {
+          this.trigger('current-sound-interrupted', previousSound);
+        }
+
         this.trigger('current-sound-changed', currentSound, previousSound);
         this.setCurrentSound(sound);
       }
