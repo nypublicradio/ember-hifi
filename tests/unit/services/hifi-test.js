@@ -118,7 +118,7 @@ test('#activateConnections activates an array of connections', function(assert) 
 
 test('it returns a list of the available connections', function(assert) {
   const service = this.subject({ options });
-  assert.deepEqual(service.availableConnections(), ["Howler", "NativeAudio", "LocalDummyConnection", "DummyConnection"]);
+  assert.deepEqual(service.availableConnections(), ["Howler", "NativeAudio", "LocalDummyConnection"]);
 });
 
 test('#load tries the first connection that says it can handle the url', function(assert) {

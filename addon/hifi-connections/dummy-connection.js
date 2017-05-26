@@ -72,7 +72,6 @@ let DummyConnection = BaseSound.extend({
   },
   _setPosition(duration) {
     this.set('_dummy_position', duration);
-
     return duration;
   },
   _currentPosition() {
