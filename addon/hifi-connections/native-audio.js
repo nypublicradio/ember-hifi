@@ -261,6 +261,15 @@ let Sound = BaseSound.extend({
 
   _audioDuration() {
     let audio = this.audioElement();
+
+    if (audio.duration > 172800000) {
+      // if audio is longer than 3 days in milliseconds,
+      // assume it's a stream, and set duration to infinity as it should be
+      // this is a bug in Opera and was reported on 5/25/2017
+
+      return Infinity;
+    }
+
     return audio.duration * 1000;
   },
 
