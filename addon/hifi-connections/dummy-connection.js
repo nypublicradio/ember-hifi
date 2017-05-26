@@ -12,6 +12,7 @@ let ClassMethods = Ember.Mixin.create({
 let DummyConnection = BaseSound.extend({
   debugName: 'dummyConnection',
   _dummy_position: 0,
+  _tickInterval: 50,
   setup() {
     let {result} = this.getInfoFromUrl();
     if (result === 'bad') {
@@ -28,9 +29,9 @@ let DummyConnection = BaseSound.extend({
 
   startTicking: function() {
     this.tick = window.setTimeout(Ember.run.bind(() => {
-      this._setPosition((this._currentPosition() || 0) + 100);
+      this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
       this.startTicking();
-    }), 100)
+    }), this.get('_tickInterval'))
   },
 
   getInfoFromUrl: function() {

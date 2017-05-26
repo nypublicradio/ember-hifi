@@ -86,12 +86,14 @@ test('it simulates play', function(assert) {
   let hifi = service.get('hifi');
 
   hifi.play('/good/1500/test/yes').then(({sound}) => {
+    let tickInterval = sound.get('_tickInterval');
+    let ticks = 5;
     assert.equal(sound._currentPosition(), 0, "initial position should be 0");
-
     Ember.run.later(() => {
-      assert.equal(sound._currentPosition(), 1000, "position should be 1000");
+      assert.equal(sound._currentPosition(), tickInterval * ticks, `position should be ${tickInterval * ticks}`);
       assert.equal(sound.get('isPlaying'), true, "should be playing");
       done();
-    }, 1000)
+      sound.stop();
+    }, (tickInterval * (ticks + 1)))
   });
 });
