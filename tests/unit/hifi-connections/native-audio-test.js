@@ -89,6 +89,22 @@ test("If it's a stream, we stop on pause", function(assert) {
   });
 });
 
+test("Don't fire audio-played events on position changes", function(assert) {
+  let sound = this.subject({url: '/assets/silence.mp3', timeout: false});
+  let done = assert.async();
+  assert.expect(1);
+
+  sound.on('audio-played', function() {
+    assert.ok('audio event fired');
+    sound._setPosition(1000);
+    sound._setPosition(2000);
+    sound._setPosition(3000);
+    done();
+  });
+  
+  sound.play();
+});
+
 test("stopping an audio stream still sends the pause event", function(assert) {
   let sharedAudioAccess = SharedAudioAccess.unlock();
 

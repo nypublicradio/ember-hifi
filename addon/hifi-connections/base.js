@@ -91,6 +91,8 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       return this._currentPosition();
     },
     set(k, v) {
+      this.trigger('audio-position-will-change', this, {currentPosition: this._currentPosition(), newPosition: v});
+
       return this._setPosition(v);
     }
   }),
@@ -114,7 +116,7 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       this.set('error', null);
 
       if (audioPlayed) { audioLoading(this); }
-      
+
       // recover lost isLoading update
       this.notifyPropertyChange('isLoading');
     });
@@ -123,7 +125,7 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       this.set('isPlaying', false);
       if (audioPaused) { audioPaused(this); }
     });
-    this.on('audio-ended',    () => { 
+    this.on('audio-ended',    () => {
       this.set('isPlaying', false);
       if (audioEnded) { audioEnded(this); }
     });
@@ -181,20 +183,20 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
   fastForward(duration) {
     let audioLength     = this._audioDuration();
     let currentPosition = this._currentPosition();
-    let newPosition     = (currentPosition + duration);
+    let newPosition     = Math.min((currentPosition + duration), audioLength);
 
-    this._setPosition(newPosition > audioLength ? audioLength : newPosition);
+    this.trigger('audio-will-fast-forward', this, {currentPosition, newPosition});
+    this._setPosition(newPosition);
   },
 
   rewind(duration) {
     let currentPosition = this._currentPosition();
-    let newPosition     = (currentPosition - duration);
-
-    this._setPosition(newPosition < 0 ? 0 : newPosition);
+    let newPosition     = Math.max((currentPosition - duration), 0);
+    this.trigger('audio-will-rewind', this, {currentPosition, newPosition});
+    this._setPosition(newPosition);
   },
 
   /* To be defined on the subclass */
-
   setup() {
     assert("[ember-hifi] #setup interface not implemented", false);
   },

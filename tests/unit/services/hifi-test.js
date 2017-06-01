@@ -18,6 +18,7 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
     'service:hifi-cache',
     'ember-hifi@hifi-connection:howler',
     'ember-hifi@hifi-connection:native-audio',
+    'ember-hifi@hifi-connection:dummy-connection',
     'hifi-connection:local-dummy-connection'
   ],
   beforeEach() {
@@ -40,7 +41,7 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
         config: {
           testOption: 'LocalDummyConnection'
         }
-      },
+      }
     ];
 
     options = {
@@ -80,6 +81,20 @@ function chooseActiveConnections(...connectionsToActivate) {
     emberHifi: {
       debug: false,
       connections: connections
+    }
+  };
+}
+
+function activateDummyConnection() {
+  return {
+    emberHifi: {
+      debug: false,
+      connections: [{
+        name: 'DummyConnection',
+        config: {
+          testOption: 'DummyConnection'
+        }
+      }]
     }
   };
 }
@@ -784,7 +799,7 @@ test("service triggers `current-sound-changed` event when sounds change", functi
       assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
       assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
     });
-    return service.play(s2url).then(() => done());
+    return service.play(s2url).then(done);
   });
 });
 
@@ -809,5 +824,181 @@ test("metadata can be sent with a play and load request and it will stay with th
       assert.equal(currentSound.get('metadata.storyId'), storyId, "storyId should be in saved sound");
       done();
     });
+  });
+});
+
+test("current-sound-interrupted event gets fired when a new `play` request happens while a sound is playing", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(1);
+
+  service.on('current-sound-interrupted', (currentSound) => {
+    assert.equal(currentSound.get('url'), s1url, "current sound should be reported as interrupted");
+  });
+
+  return service.play(s1url).then(() => {
+    return service.play(s2url).then(done);
+  });
+});
+
+test("current-sound-interrupted event gets fired when another sound starts playing while one is already playing", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(1);
+  let sound1, sound2;
+
+  service.on('current-sound-interrupted', (currentSound) => {
+    assert.equal(currentSound, sound1, "current sound should be the one that got interrupted");
+  });
+
+  return service.load(s1url).then(({sound}) => {
+    sound1 = sound;
+    return service.load(s2url).then(({sound}) => {
+      sound2 = sound;
+      sound1.play();
+      sound2.play();
+      done();
+    });
+  });
+});
+
+test("current-sound-interrupted event does not fire when position gets changed", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/25000/test";
+
+  assert.expect(1);
+
+  let callCount = 0;
+  service.on('current-sound-interrupted', () => {
+    callCount = callCount + 1;
+  });
+
+  return service.play(s1url).then(({sound}) => {
+    sound.set('position', 100);
+
+    sound.set('position', 1500);
+    assert.equal(callCount, 0, "interrupt should not have been called");
+    done();
+  });
+});
+
+test("new-load-request gets fired on new load and play requests", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+  let s2url       = "/assets/silence2.mp3";
+
+  assert.expect(4);
+
+  service.one('new-load-request', ({urlsOrPromise, options}) => {
+    assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+    assert.equal(options.metadata.id, 1, "metadata id should be equale");
+  });
+
+  return service.play(s1url, {metadata: {id: 1}}).then(() => {
+    service.one('new-load-request', ({urlsOrPromise, options}) => {
+      assert.equal(urlsOrPromise, s2url, "url should equal url passed in");
+      assert.equal(options.metadata.id, undefined, "metadata id should be undefined");
+    });
+
+    return service.load(s2url).then(() => {
+      done();
+    });
+  });
+});
+
+test("new-load-request gets fired on new load requests that are cached", function(assert) {
+  let done        = assert.async();
+  let connections = ['NativeAudio'];
+  let service     = this.subject({ options: chooseActiveConnections(...connections) });
+  let s1url       = "/assets/silence.mp3";
+
+  assert.expect(4);
+
+  service.one('new-load-request', ({urlsOrPromise, options}) => {
+    assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+    assert.equal(options.metadata.id, 1, "metadata id should be equale");
+  });
+
+  return service.load(s1url, {metadata: {id: 1}}).then(() => {
+    service.one('new-load-request', ({urlsOrPromise, options}) => {
+      assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+      assert.equal(options.metadata.id, 2, "metadata id should be 2");
+    });
+
+    return service.load(s1url, {metadata: {id: 2}}).then(() => {
+      done();
+    });
+  });
+});
+
+test("audio-position-will-change gets fired on position changes", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/15000/test";
+
+  assert.expect(2);
+
+  service.one('audio-position-will-change', (sound, {currentPosition, newPosition}) => {
+    assert.equal(currentPosition, 0, "current position should be zero");
+    assert.equal(newPosition, 5000, "new position should be 5000");
+  });
+
+  return service.play(s1url).then(() => {
+    service.set('position', 5000);
+    done();
+  });
+});
+
+test("audio-will-rewind gets fired on rewind", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/15000/test2";
+
+  assert.expect(4);
+
+  service.one('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
+    assert.equal(currentPosition, 5000, "current position should be 5000");
+    assert.equal(newPosition, 4000, "new position should be 4000");
+  });
+
+  return service.play(s1url, {position: 5000}).then(() => {
+    service.rewind(1000);
+
+    service.on('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
+      assert.equal(currentPosition, 4000, "current position should be 4000");
+      assert.equal(newPosition, 0, "new position should be 0");
+    });
+
+    service.rewind(6000);
+    done();
+  });
+});
+
+test("audio-will-fast-forward gets fired on fast forward", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/15000/1.mp3";
+
+  assert.expect(2);
+
+  service.on('audio-will-fast-forward', (sound, {currentPosition, newPosition}) => {
+    assert.equal(currentPosition, 5000, "current position should be 5000");
+    assert.equal(newPosition, 6000, "new position should be 6000");
+  });
+
+  return service.play(s1url, {position: 5000}).then(() => {
+    service.fastForward(1000);
+    done();
   });
 });

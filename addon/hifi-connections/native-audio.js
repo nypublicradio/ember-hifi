@@ -184,7 +184,9 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioPlayed() {
-    this.trigger('audio-played', this);
+    if (!this.get('isPlaying')) {
+      this.trigger('audio-played', this);
+    }
   },
 
   _onAudioEnded() {
