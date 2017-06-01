@@ -91,6 +91,8 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       return this._currentPosition();
     },
     set(k, v) {
+      this.trigger('audio-position-will-change', this, {currentPosition: this._currentPosition(), newPosition: v});
+
       return this._setPosition(v);
     }
   }),
@@ -183,18 +185,19 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
     let currentPosition = this._currentPosition();
     let newPosition     = (currentPosition + duration);
 
+    this.trigger('audio-will-fast-forward', this, {currentPosition, newPosition});
     this._setPosition(newPosition > audioLength ? audioLength : newPosition);
   },
 
   rewind(duration) {
     let currentPosition = this._currentPosition();
-    let newPosition     = (currentPosition - duration);
+    let newPosition     = Math.max((currentPosition - duration), 0);
 
-    this._setPosition(newPosition < 0 ? 0 : newPosition);
+    this.trigger('audio-will-rewind', this, {currentPosition, newPosition});
+    this._setPosition(newPosition);
   },
 
   /* To be defined on the subclass */
-
   setup() {
     assert("[ember-hifi] #setup interface not implemented", false);
   },

@@ -398,13 +398,17 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     this._unregisterEvents(sound);
 
     let service = this;
-    sound.on('audio-played',           service,   service._relayPlayedEvent);
-    sound.on('audio-paused',           service,   service._relayPausedEvent);
-    sound.on('audio-ended',            service,   service._relayEndedEvent);
-    sound.on('audio-duration-changed', service,   service._relayDurationChangedEvent);
-    sound.on('audio-position-changed', service,   service._relayPositionChangedEvent);
-    sound.on('audio-loaded',           service,   service._relayLoadedEvent);
-    sound.on('audio-loading',          service,   service._relayLoadingEvent);
+    sound.on('audio-played',               service,   service._relayPlayedEvent);
+    sound.on('audio-paused',               service,   service._relayPausedEvent);
+    sound.on('audio-ended',                service,   service._relayEndedEvent);
+    sound.on('audio-duration-changed',     service,   service._relayDurationChangedEvent);
+    sound.on('audio-position-changed',     service,   service._relayPositionChangedEvent);
+    sound.on('audio-loaded',               service,   service._relayLoadedEvent);
+    sound.on('audio-loading',              service,   service._relayLoadingEvent);
+
+    sound.on('audio-position-will-change', service,   service._relayPositionWillChangeEvent);
+    sound.on('audio-will-rewind',          service,   service._relayWillRewindEvent);
+    sound.on('audio-will-fast-forward',    service,   service._relayWillFastForwardEvent);
   },
 
   /**
@@ -422,13 +426,17 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       return;
     }
     let service = this;
-    sound.off('audio-played',           service,   service._relayPlayedEvent);
-    sound.off('audio-paused',           service,   service._relayPausedEvent);
-    sound.off('audio-ended',            service,   service._relayEndedEvent);
-    sound.off('audio-duration-changed', service,   service._relayDurationChangedEvent);
-    sound.off('audio-position-changed', service,   service._relayPositionChangedEvent);
-    sound.off('audio-loaded',           service,   service._relayLoadedEvent);
-    sound.off('audio-loading',          service,   service._relayLoadingEvent);
+    sound.off('audio-played',               service,   service._relayPlayedEvent);
+    sound.off('audio-paused',               service,   service._relayPausedEvent);
+    sound.off('audio-ended',                service,   service._relayEndedEvent);
+    sound.off('audio-duration-changed',     service,   service._relayDurationChangedEvent);
+    sound.off('audio-position-changed',     service,   service._relayPositionChangedEvent);
+    sound.off('audio-loaded',               service,   service._relayLoadedEvent);
+    sound.off('audio-loading',              service,   service._relayLoadingEvent);
+    
+    sound.off('audio-position-will-change', service,   service._relayPositionWillChangeEvent);
+    sound.off('audio-will-rewind',          service,   service._relayWillRewindEvent);
+    sound.off('audio-will-fast-forward',    service,   service._relayWillFastForwardEvent);
   },
 
   /**
@@ -440,8 +448,8 @@ export default Service.extend(Ember.Evented, DebugLogging, {
    * @return {Void}
    */
 
-  _relayEvent(eventName, sound) {
-    this.trigger(eventName, sound);
+  _relayEvent(eventName, sound, info = {}) {
+    this.trigger(eventName, sound, info);
   },
 
   /**
@@ -469,7 +477,15 @@ export default Service.extend(Ember.Evented, DebugLogging, {
   _relayLoadingEvent(sound) {
     this._relayEvent('audio-loading', sound);
   },
-
+  _relayPositionWillChangeEvent(sound,  info = {}) {
+    this._relayEvent('audio-position-will-change', sound, info);
+  },
+  _relayWillRewindEvent(sound,  info) {
+    this._relayEvent('audio-will-rewind', sound, info);
+  },
+  _relayWillFastForwardEvent(sound, info) {
+    this._relayEvent('audio-will-fast-forward', sound, info);
+  },
   /**
    * Activates the connections as specified in the config options
    *

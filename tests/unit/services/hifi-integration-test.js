@@ -97,3 +97,33 @@ test('it simulates play', function(assert) {
     }, (tickInterval * (ticks + 1)))
   });
 });
+
+test('it can not rewind before 0', function(assert) {
+  let done = assert.async();
+  let service = this.subject({});
+  let hifi = service.get('hifi');
+
+  hifi.one('audio-will-rewind', (sound, {newPosition}) => {
+    assert.equal(newPosition, 0, "sound should be at the end");
+  });
+
+  hifi.play('/good/1000/test').then(() => {
+    hifi.rewind(5000);
+    done();
+  });
+});
+
+test('it sends an audio-ended event when the sound ends',function(assert) {
+  let done = assert.async();
+  let service = this.subject({});
+  let hifi = service.get('hifi');
+
+  hifi.one('audio-ended', (sound) => {
+    assert.equal(sound.get('position'), sound.get('duration'), "sound should be at the end");
+  });
+
+  hifi.play('/good/1000/test').then(() => {
+    hifi.set('position', 5000);
+    done();
+  })
+});

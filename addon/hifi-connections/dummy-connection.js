@@ -64,14 +64,15 @@ let DummyConnection = BaseSound.extend({
     this.trigger('audio-paused', this);
     this.stopTicking();
   },
-  fastForward(duration) {
-    this.set('_dummy_position', this._currentPosition() + duration);
-  },
-  rewind(duration) {
-    this.set('_dummy_position', this._currentPosition() - duration);
-  },
   _setPosition(duration) {
+    duration = Math.max(0, duration);
+    duration = Math.min(this._audioDuration(), duration);
     this.set('_dummy_position', duration);
+
+    if (duration >= this._audioDuration()) {
+      this.trigger('audio-ended', this);
+    }
+
     return duration;
   },
   _currentPosition() {

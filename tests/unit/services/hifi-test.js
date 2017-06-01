@@ -941,3 +941,64 @@ test("new-load-request gets fired on new load requests that are cached", functio
     });
   });
 });
+
+test("audio-position-will-change gets fired on position changes", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/15000/test";
+
+  assert.expect(2);
+
+  service.one('audio-position-will-change', (sound, {currentPosition, newPosition}) => {
+    assert.equal(currentPosition, 0, "current position should be zero");
+    assert.equal(newPosition, 5000, "new position should be 5000");
+  });
+
+  return service.play(s1url).then(() => {
+    service.set('position', 5000);
+    done();
+  });
+});
+
+test("audio-will-rewind gets fired on rewind", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/15000/test2";
+
+  assert.expect(4);
+
+  service.one('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
+    assert.equal(currentPosition, 5000, "current position should be zero");
+    assert.equal(newPosition, 4000, "new position should be 5000");
+  });
+
+  return service.play(s1url, {position: 5000}).then(() => {
+    service.rewind(1000);
+
+    service.on('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
+      assert.equal(currentPosition, 4000, "current position should be zero");
+      assert.equal(newPosition, 0, "new position should be 5000");
+    });
+
+    service.rewind(6000);
+    done();
+  });
+});
+
+test("audio-will-fast-forward gets fired on fast forward", function(assert) {
+  let done        = assert.async();
+  let service     = this.subject({ options: activateDummyConnection() });
+  let s1url       = "/good/15000/1.mp3";
+
+  assert.expect(2);
+
+  service.on('audio-will-fast-forward', (sound, {currentPosition, newPosition}) => {
+    assert.equal(currentPosition, 5000, "current position should be zero");
+    assert.equal(newPosition, 6000, "new position should be 5000");
+  });
+
+  return service.play(s1url, {position: 5000}).then(() => {
+    service.fastForward(1000);
+    done();
+  });
+});
