@@ -116,7 +116,7 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       this.set('error', null);
 
       if (audioPlayed) { audioLoading(this); }
-      
+
       // recover lost isLoading update
       this.notifyPropertyChange('isLoading');
     });
@@ -192,7 +192,6 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
   rewind(duration) {
     let currentPosition = this._currentPosition();
     let newPosition     = Math.max((currentPosition - duration), 0);
-
     this.trigger('audio-will-rewind', this, {currentPosition, newPosition});
     this._setPosition(newPosition);
   },

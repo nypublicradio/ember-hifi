@@ -14,7 +14,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let DummyConnection = BaseSound.extend({
   debugName: 'dummyConnection',
-  _dummy_position: 0,
+  _position: 0,
   _tickInterval: 50,
   setup() {
     let {result} = this.getInfoFromUrl();
@@ -43,15 +43,9 @@ let DummyConnection = BaseSound.extend({
     return {result, length, name};
   },
 
-  handlePositioningEvents: Ember.observer('_dummy_position', function(){
-    if (this.get('_dummy_position') >= this._audioDuration()) {
-      this.trigger('audio-ended', this);
-    }
-  }),
-
   play({position} = {}) {
     if (typeof position !== 'undefined') {
-      this.set('_dummy_position', position);
+      this.set('_position', position);
     }
     this.trigger('audio-played', this);
     this.startTicking();
@@ -67,16 +61,16 @@ let DummyConnection = BaseSound.extend({
   _setPosition(duration) {
     duration = Math.max(0, duration);
     duration = Math.min(this._audioDuration(), duration);
-    this.set('_dummy_position', duration);
+    this.set('_position', duration);
 
     if (duration >= this._audioDuration()) {
-      this.trigger('audio-ended', this);
+      Ember.run.next(() => this.trigger('audio-ended', this));
     }
 
     return duration;
   },
   _currentPosition() {
-    return this.get('_dummy_position');
+    return this.get('_position');
   },
   _setVolume(v) {
     this.set('volume', v);

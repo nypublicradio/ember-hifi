@@ -119,7 +119,7 @@ test('it sends an audio-ended event when the sound ends',function(assert) {
   let hifi = service.get('hifi');
 
   hifi.one('audio-ended', (sound) => {
-    assert.equal(sound.get('position'), sound.get('duration'), "sound should be at the end");
+    assert.equal(sound.get('position'), 1000, "sound should be at the end");
   });
 
   hifi.play('/good/1000/test').then(() => {
