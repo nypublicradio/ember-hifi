@@ -4,6 +4,8 @@ machine:
 
 dependencies:
   override:
+    - gem update --system
+    - gem install compass --no-ri --no-rdoc
     - yarn global add bower
     - bower install
     - yarn
