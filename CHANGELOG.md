@@ -1,4 +1,11 @@
 # ember-hifi Changelog
+
+### 1.10 (June 1, 2017)
+- [IMPROVEMENT] Improved dummyHifi service to better mimic a real sound.
+- [IMPROVEMENT] Added `new-load-request` and `current-sound-interrupted` on the service.
+- [IMPROVEMENT] Added `audio-position-will-change`, `audio-will-rewind`, and `audio-will-fast-forward` on the Base sound.
+- [BUGFIX] Fixed opera bug where native audio element with a stream source didn't report as having Infinity duration
+
 ### 1.9.1 (May 12, 2017)
 - [BUGFIX] `hifiNeeds` test helper didn't include all needed services (it was missing `service:poll`)
 
