@@ -42,15 +42,16 @@ let DummyConnection = BaseSound.extend({
     if (!(result && length && name)) {
       console.error('[dummy-connection] url format should be "/:result/:length/:name"');
     }
+    else {
+      if (!(length === 'stream' || parseInt(length) > 0)) {
+        console.error('[dummy-connection] url format should be "/:result/:length/:name"');
+        console.error(`[dummy-connection] length should be an integer or "stream". Was given ${this.get('url')}`);
+      }
 
-    if (!(length === 'stream' || parseInt(length) > 0)) {
-      console.error('[dummy-connection] url format should be "/:result/:length/:name"');
-      console.error(`[dummy-connection] length should be an integer or "stream". Was given ${this.get('url')}`);
-    }
-
-    if (!(result === 'good' || result === 'bad')) {
-      console.error('[dummy-connection] url format should be "/:result/:length/:name"');
-      console.error(`[dummy-connection] status should be 'good' or 'bad'. Was given ${this.get('url')}`);
+      if (!(result === 'good' || result === 'bad')) {
+        console.error('[dummy-connection] url format should be "/:result/:length/:name"');
+        console.error(`[dummy-connection] status should be 'good' or 'bad'. Was given ${this.get('url')}`);
+      }      
     }
 
     return {result, length, name};
