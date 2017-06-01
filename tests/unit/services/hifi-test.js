@@ -841,7 +841,7 @@ test("current-sound-interrupted event gets fired when a new `play` request happe
   });
 
   return service.play(s1url).then(() => {
-    return service.play(s2url).then(() => done());
+    return service.play(s2url).then(done);
   });
 });
 
