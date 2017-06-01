@@ -183,10 +183,10 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
   fastForward(duration) {
     let audioLength     = this._audioDuration();
     let currentPosition = this._currentPosition();
-    let newPosition     = (currentPosition + duration);
+    let newPosition     = Math.min((currentPosition + duration), audioLength);
 
     this.trigger('audio-will-fast-forward', this, {currentPosition, newPosition});
-    this._setPosition(newPosition > audioLength ? audioLength : newPosition);
+    this._setPosition(newPosition);
   },
 
   rewind(duration) {

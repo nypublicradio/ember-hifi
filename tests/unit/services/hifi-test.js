@@ -799,7 +799,7 @@ test("service triggers `current-sound-changed` event when sounds change", functi
       assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
       assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
     });
-    return service.play(s2url).then(() => done());
+    return service.play(s2url).then(done);
   });
 });
 
@@ -933,7 +933,7 @@ test("new-load-request gets fired on new load requests that are cached", functio
   return service.load(s1url, {metadata: {id: 1}}).then(() => {
     service.one('new-load-request', ({urlsOrPromise, options}) => {
       assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
-      assert.equal(options.metadata.id, 2, "metadata id should be undefined");
+      assert.equal(options.metadata.id, 2, "metadata id should be 2");
     });
 
     return service.load(s1url, {metadata: {id: 2}}).then(() => {
@@ -968,16 +968,16 @@ test("audio-will-rewind gets fired on rewind", function(assert) {
   assert.expect(4);
 
   service.one('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
-    assert.equal(currentPosition, 5000, "current position should be zero");
-    assert.equal(newPosition, 4000, "new position should be 5000");
+    assert.equal(currentPosition, 5000, "current position should be 5000");
+    assert.equal(newPosition, 4000, "new position should be 4000");
   });
 
   return service.play(s1url, {position: 5000}).then(() => {
     service.rewind(1000);
 
     service.on('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
-      assert.equal(currentPosition, 4000, "current position should be zero");
-      assert.equal(newPosition, 0, "new position should be 5000");
+      assert.equal(currentPosition, 4000, "current position should be 4000");
+      assert.equal(newPosition, 0, "new position should be 0");
     });
 
     service.rewind(6000);
@@ -993,8 +993,8 @@ test("audio-will-fast-forward gets fired on fast forward", function(assert) {
   assert.expect(2);
 
   service.on('audio-will-fast-forward', (sound, {currentPosition, newPosition}) => {
-    assert.equal(currentPosition, 5000, "current position should be zero");
-    assert.equal(newPosition, 6000, "new position should be 5000");
+    assert.equal(currentPosition, 5000, "current position should be 5000");
+    assert.equal(newPosition, 6000, "new position should be 6000");
   });
 
   return service.play(s1url, {position: 5000}).then(() => {

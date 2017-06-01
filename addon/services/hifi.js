@@ -192,7 +192,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
 
     this.trigger('new-load-request', {loadPromise:promise, urlsOrPromise, options});
 
-    promise.then(({sound}) => sound.set('metadata', (options.metadata)));
+    promise.then(({sound}) => sound.set('metadata', options.metadata));
     promise.then(({sound}) => this.get('soundCache').cache(sound));
 
     // On audio-played this pauses all the other sounds. One at a time!
@@ -433,7 +433,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
     sound.off('audio-position-changed',     service,   service._relayPositionChangedEvent);
     sound.off('audio-loaded',               service,   service._relayLoadedEvent);
     sound.off('audio-loading',              service,   service._relayLoadingEvent);
-    
+
     sound.off('audio-position-will-change', service,   service._relayPositionWillChangeEvent);
     sound.off('audio-will-rewind',          service,   service._relayWillRewindEvent);
     sound.off('audio-will-fast-forward',    service,   service._relayWillFastForwardEvent);

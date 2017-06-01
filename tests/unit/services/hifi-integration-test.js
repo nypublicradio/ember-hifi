@@ -33,8 +33,7 @@ test('playing good url works', function(assert) {
 
 test('playing a bad url fails', function(assert) {
   let service = this.subject({});
-  let failures, success;
-
+  let failures, success = false;
   let play = service.playBad();
 
   play.then(() => (success = true));
@@ -43,7 +42,7 @@ test('playing a bad url fails', function(assert) {
     assert.ok(failures && failures.length > 0, "should have reported failures");
   });
 
-  assert.equal(!!success, false, "should not be successful")
+  assert.equal(success, false, "should not be successful")
 });
 
 test('playing a blank url fails', function(assert) {
@@ -109,6 +108,18 @@ test('it can not rewind before 0', function(assert) {
 
   hifi.play('/good/1000/test').then(() => {
     hifi.rewind(5000);
+    done();
+  });
+});
+
+test('it can not fast forward past duration', function(assert) {
+  let done = assert.async();
+  let service = this.subject({});
+  let hifi = service.get('hifi');
+
+  hifi.play('/good/1000/test').then(() => {
+    hifi.fastForward(5000);
+    assert.equal(hifi.get('position'), 1000, "sound should be at the end");
     done();
   });
 });
