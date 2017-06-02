@@ -190,23 +190,43 @@ Import this helper into acceptance tests to stub out hifi.
 import '[your-app-name]/tests/helpers/hifi-acceptance-helper';
 ```
 
-#### Unit Tests
+#### Unit Tests + Integration Tests
 
 If you have a unit test that interacts with ember-hifi, you might get some errors if hifi's needs aren't met. Hifi uses some internal services that we'd hate for you to have to know about or type out, so just use our helper instead.
 
 ```javascript
-import hifiNeeds from 'overhaul/tests/helpers/hifi-needs';
+import { hifiNeeds, dummyHifi } from 'overhaul/tests/helpers/hifi-integration-helpers';
 
 moduleFor('[your module]', 'Unit | [type] | [your module]', {
-  // Specify the other units that are required for this test.
   needs: [...hifiNeeds]
 
 ...
 });
 ```
 
+If you need to fake out the hifiService to test how your app handles hifi events, you can use the dummyHifi service
 
+```javascript
+import { hifiNeeds, dummyHifi } from 'overhaul/tests/helpers/hifi-integration-helpers';
 
+moduleFor('[your module]', 'Integration | [type] | [your module]', {
+  needs: [...hifiNeeds],
+
+  beforeEach() {
+    this.register('service:hifi', dummyHifi);
+    this.inject.service('hifi');
+  }
+...
+});
+```
+
+After stubbing out the service with the dummyHifi service you can pass it some special urls in the format `/:status/:length/:name` to mimic responses, where `status` can be `good` or `bad`, and `length` can be an integer representing the duration in ms, or `stream`.
+
+A 10 second audio clip: `/good/10000/test`
+
+A web stream: `/good/stream/test`
+
+A url that will fail: `/bad/stream/test`
 
 
 ## Writing Your Own Hifi Connection
