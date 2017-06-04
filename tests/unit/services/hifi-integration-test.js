@@ -68,6 +68,15 @@ test('it sets fixed duration correctly', function(assert) {
   });
 });
 
+test('by default it succeeds and pretends its a 1 second long file', function(assert) {
+  let service = this.subject({});
+  let hifi = service.get('hifi');
+
+  hifi.load('http://test.example').then(({sound}) => {
+    assert.equal(sound.get('duration'), 1000);
+  });
+});
+
 test('it sets stream duration correctly', function(assert) {
   let service = this.subject({});
   let hifi = service.get('hifi');

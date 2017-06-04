@@ -37,24 +37,32 @@ let DummyConnection = BaseSound.extend({
   },
 
   getInfoFromUrl: function() {
-    let [, result, length, name] = this.get('url').split('/');
-    /*eslint no-console: 0 */
-    if (!(result && length && name)) {
-      console.error('[dummy-connection] url format should be "/:result/:length/:name"');
+    if (!this.get('url')) {
+      return {};
     }
-    else {
-      if (!(length === 'stream' || parseInt(length) > 0)) {
+    else if (this.get('url').startsWith('/')) {
+      let [, result, length, name] = this.get('url').split('/');
+      /*eslint no-console: 0 */
+      if (!(result && length && name)) {
         console.error('[dummy-connection] url format should be "/:result/:length/:name"');
-        console.error(`[dummy-connection] length should be an integer or "stream". Was given ${this.get('url')}`);
+      }
+      else {
+        if (!(length === 'stream' || parseInt(length) > 0)) {
+          console.error('[dummy-connection] url format should be "/:result/:length/:name"');
+          console.error(`[dummy-connection] length should be an integer or "stream". Was given ${this.get('url')}`);
+        }
+
+        if (!(result === 'good' || result === 'bad')) {
+          console.error('[dummy-connection] url format should be "/:result/:length/:name"');
+          console.error(`[dummy-connection] status should be 'good' or 'bad'. Was given ${this.get('url')}`);
+        }
       }
 
-      if (!(result === 'good' || result === 'bad')) {
-        console.error('[dummy-connection] url format should be "/:result/:length/:name"');
-        console.error(`[dummy-connection] status should be 'good' or 'bad'. Was given ${this.get('url')}`);
-      }      
+      return {result, length, name};
     }
-
-    return {result, length, name};
+    else {
+      return {result:'good', length:1000, name:'default'};
+    }
   },
 
   play({position} = {}) {
