@@ -229,6 +229,6 @@ A web stream: `/good/stream/test`
 A url that will fail: `/bad/stream/test`
 
 
-## [Writing Your Own Hifi Connection](CUSTOM_CONNECIONS.md)
+## [Writing Your Own Hifi Connection](CUSTOM_CONNECTIONS.md)
 
-Do you need to support a funky audio format that hifi's built-in connections can't handle? Read more about how to write your own custom connection [here](CUSTOM_CONNECIONS.md).
+Do you need to support a funky audio format that hifi's built-in connections can't handle? Read more about how to write your own custom connection [here](CUSTOM_CONNECTIONS.md).
