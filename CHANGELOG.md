@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.10.1 (June 4, 2017)
+- Quieted most of the logging messages for how to handle special urls when using dummyHifi
+
 ### 1.10 (June 1, 2017)
 - [IMPROVEMENT] Improved dummyHifi service to better mimic a real sound.
 - [IMPROVEMENT] Added `new-load-request` and `current-sound-interrupted` on the service.
