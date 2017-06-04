@@ -1,7 +1,8 @@
 machine:
   node:
     version: 7.10.0
-
+  post:
+    - npm rebuild node-sass
 dependencies:
   override:
     - yarn global add bower
