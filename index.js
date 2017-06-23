@@ -1,6 +1,10 @@
 /* eslint-env node */
 'use strict';
 
+var path = require('path');
+var Funnel = require('broccoli-funnel');
+var mergeTrees = require('broccoli-merge-trees');
+
 module.exports = {
   name: 'ember-hifi',
   included(app, parentAddon) {
@@ -11,14 +15,32 @@ module.exports = {
       target = target.app;
     }
 
-    target.import(target.bowerDirectory + '/howler.js/dist/howler.js');
-    target.import('vendor/howler.js');
+    target.import({
+      development: 'vendor/third-party/howler.js',
+      production: 'vendor/third-party/howler.min.js'
+    });
 
     target.import({
-      development: target.bowerDirectory + '/hls.js/dist/hls.js',
-      production: target.bowerDirectory + '/hls.js/dist/hls.min.js'
+      development: 'vendor/third-party/hls.js',
+      production: 'vendor/third-party/hls.min.js'
     });
+
+    target.import('vendor/howler.js');
     target.import('vendor/hls.js');
+  },
+
+  treeForVendor(vendorTree) {
+    var howlerTree = new Funnel(path.dirname(require.resolve('howler')), {
+      files: ['howler.js', 'howler.min.js'],
+      destDir: 'third-party'
+    });
+
+    var hlsTree = new Funnel(path.dirname(require.resolve('hls.js')), {
+      files: ['hls.js', 'hls.min.js', 'hls.js.map'],
+      destDir: 'third-party'
+    });
+
+    return mergeTrees([vendorTree, howlerTree, hlsTree]);
   },
 
   isDevelopingAddon: function() {
