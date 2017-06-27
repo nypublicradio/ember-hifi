@@ -59,9 +59,13 @@
     "web"
   ],
   "dependencies": {
+    "broccoli-funnel": "^1.2.0",
+    "broccoli-merge-trees": "^1.2.0",
     "ember-cli-babel": "^5.1.7",
     "ember-getowner-polyfill": "^1.0.1",
-    "ember-poll": "^1.0.1"
+    "ember-poll": "^1.0.1",
+    "hls.js": "^0.7.9",
+    "howler": "^2.0.4"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
