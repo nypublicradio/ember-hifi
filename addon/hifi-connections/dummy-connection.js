@@ -33,7 +33,7 @@ let DummyConnection = BaseSound.extend({
     this.tick = window.setTimeout(Ember.run.bind(() => {
       this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
       this.startTicking();
-    }), this.get('_tickInterval'))
+    }), this.get('_tickInterval'));
   },
 
   getInfoFromUrl: function() {
