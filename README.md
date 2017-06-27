@@ -11,7 +11,7 @@ The `hifi` service makes it easy to play audio in the unfriendly landscape that 
 ## Installing The Addon
 
 ```shell
-ember install ember-hifi
+npm install ember-hifi
 ```
 
 ## Usage
