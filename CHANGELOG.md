@@ -1,7 +1,7 @@
 # ember-hifi Changelog
 
 ### 1.11.0 (June 26, 2017)
-- [IMPROVEMENT] `ember-hifi` no longer adds bower dependencies. Thanks to [@gmurphey](https://github.com/gmurphey) for [#41](https://github.com/nypublicradio/ember-hifi/pull/41). See [Upgrading](https://github.com/nypublicradio/ember-hifi#upgrading-from--1101) for more.
+- [IMPROVEMENT] `ember-hifi` no longer adds bower dependencies. Thanks to [@gmurphey](https://github.com/gmurphey) for [#41](https://github.com/nypublicradio/ember-hifi/pull/41). See [Upgrading](https://github.com/nypublicradio/ember-hifi#upgrading-from--1110) for more.
 
 ### 1.10.1 (June 4, 2017)
 - Quieted most of the logging messages for how to handle special urls when using dummyHifi
