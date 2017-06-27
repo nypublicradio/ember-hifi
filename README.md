@@ -15,7 +15,7 @@ npm install ember-hifi
 ```
 
 ### Upgrading from < 1.10.1
-`ember-hifi` no longer adds bower dependencies. If you are upgrading, you should edit your app's `bower.json` to remove the `hls.js` and `howler.js` entries added by previous versions of `ember-hifi`. NPM's dependency graph will take care of installing these libraries, and they will be added to your app's vendor tree at build time. Thanks to @gmurphey for #41.
+`ember-hifi` no longer adds bower dependencies. If you are upgrading, you should edit your app's `bower.json` to remove the `hls.js` and `howler.js` entries added by previous versions of `ember-hifi`. NPM's dependency graph will take care of installing these libraries, and they will be added to your app's vendor tree at build time. Thanks to [@gmurphey](https://github.com/gmurphey) for [#41](https://github.com/nypublicradio/ember-hifi/pull/41).
 
 ## Usage
 
