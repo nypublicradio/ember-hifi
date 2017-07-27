@@ -88,14 +88,18 @@ test('it sets stream duration correctly', function(assert) {
 });
 
 test('it simulates play', function(assert) {
+  Ember.Test.registerWaiter(this, function() {
+    return this.sound && this.sound.get('_tickInterval') * ticks === this.sound._currentPosition();
+  });
   let done = assert.async();
   assert.expect(3);
   let service = this.subject({});
   let hifi = service.get('hifi');
+  let ticks = 5;
 
   hifi.play('/good/1500/test/yes').then(({sound}) => {
+    this.sound = sound;
     let tickInterval = sound.get('_tickInterval');
-    let ticks = 5;
     assert.equal(sound._currentPosition(), 0, "initial position should be 0");
     Ember.run.later(() => {
       assert.equal(sound._currentPosition(), tickInterval * ticks, `position should be ${tickInterval * ticks}`);
