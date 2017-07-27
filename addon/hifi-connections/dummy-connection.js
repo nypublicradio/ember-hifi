@@ -30,10 +30,14 @@ let DummyConnection = BaseSound.extend({
   },
 
   startTicking: function() {
-    this.tick = window.setTimeout(Ember.run.bind(() => {
-      this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
-      this.startTicking();
-    }), this.get('_tickInterval'));
+    if (Ember.Test.checkWaiters()) {
+      this.tick = window.setTimeout(Ember.run.bind(() => {
+        this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
+        this.startTicking();
+      }), this.get('_tickInterval'));
+    } else {
+      this.stopTicking();
+    }
   },
 
   getInfoFromUrl: function() {
