@@ -7,7 +7,7 @@ dependencies:
   override:
     - yarn global add bower
     - bower install
-    - yarn
+    - yarn --pure-lockfile
 
 test:
   override:
