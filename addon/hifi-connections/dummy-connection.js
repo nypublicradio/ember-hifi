@@ -30,7 +30,7 @@ let DummyConnection = BaseSound.extend({
   },
 
   startTicking: function() {
-    if (Ember.Test.checkWaiters()) {
+    if (!Ember.Test.checkWaiters || Ember.Test.checkWaiters()) {
       this.tick = window.setTimeout(Ember.run.bind(() => {
         this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
         this.startTicking();
