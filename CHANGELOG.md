@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.11.2 (August 4, 2017)
+- [BUGFIX] Remove IE11 workarounds. The issue these corrected has since been fixed by more robust event handling by hifi. This also fixes issues with upstream apps waiting for `pause` events, since finished sounds would also fire pause events.
+
 ### 1.11.1 (June 27, 2017)
 - [BUGFIX] Fix a test by using `checkWaiters`
 - [IMPROVEMENT] Docs deploys should be more reliable now with the `--pure-lockfile` flag
