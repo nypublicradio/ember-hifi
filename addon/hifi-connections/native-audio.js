@@ -190,10 +190,7 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioEnded() {
-    this.pause(); // For IE11, who never learned to communicate a pause event
-                 // after finishing playback
     this.trigger('audio-ended', this);
-    this._setPosition(0); // avoid event handling; resetting to 0 is a playback affordance
   },
 
   _onAudioError(e) {

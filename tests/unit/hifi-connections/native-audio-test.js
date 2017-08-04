@@ -150,8 +150,6 @@ test("can play an mp3 twice in a row using internal element", function(assert) {
 
   Ember.$(sound.audioElement()).trigger('ended');
 
-  assert.equal(sound._currentPosition(), 0, "position is reset to 0");
-
   sound.play();
 
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
