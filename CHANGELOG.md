@@ -1,5 +1,10 @@
 # ember-hifi Changelog
 
+### 1.11.1 (June 27, 2017)
+- [BUGFIX] Fix a test by using `checkWaiters`
+- [IMPROVEMENT] Docs deploys should be more reliable now with the `--pure-lockfile` flag
+- [IMPROVEMENT] Remove unneeded ember-power-select addons
+
 ### 1.11.0 (June 26, 2017)
 - [IMPROVEMENT] `ember-hifi` no longer adds bower dependencies. Thanks to [@gmurphey](https://github.com/gmurphey) for [#41](https://github.com/nypublicradio/ember-hifi/pull/41). See [Upgrading](https://github.com/nypublicradio/ember-hifi#upgrading-from--1110) for more.
 
