@@ -1,4 +1,6 @@
 # ember-hifi Changelog
+### 1.11.3 (August 15, 2017)
+- [BUGFIX] Stop dummyHifi ticking after an audio-end signal, which can cause audio-end signals to continue sending for all eternity leaving tests to wait.
 
 ### 1.11.2 (August 4, 2017)
 - [BUGFIX] Remove IE11 workarounds. The issue these corrected has since been fixed by more robust event handling by hifi. This also fixes issues with upstream apps waiting for `pause` events, since finished sounds would also fire pause events.
