@@ -90,7 +90,10 @@ let DummyConnection = BaseSound.extend({
     this.set('_position', duration);
 
     if (duration >= this._audioDuration()) {
-      Ember.run.next(() => this.trigger('audio-ended', this));
+      Ember.run.next(() => {
+        this.trigger('audio-ended', this);
+        this.stopTicking();
+      });
     }
 
     return duration;
