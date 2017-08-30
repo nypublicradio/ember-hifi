@@ -1,4 +1,7 @@
 # ember-hifi Changelog
+### 1.11.4 (August 30, 2017)
+- [BUGFIX] Native Audio sounds weren't firing their `audio-loaded` event. Fix it!
+
 ### 1.11.3 (August 15, 2017)
 - [BUGFIX] Stop dummyHifi ticking after an audio-end signal, which can cause audio-end signals to continue sending for all eternity leaving tests to wait.
 
