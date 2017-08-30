@@ -267,3 +267,19 @@ test('switching sounds with a shared audio element sends pause event on first so
 
   assert.equal(pauseStub.callCount, 1, "audio 1 pause event should have been fired");
 });
+
+test("sounds update their isLoading property when they've loaded", function(assert) {
+  let done = assert.async();
+  let sound = this.subject({url: '/assets/silence.mp3', timeout: false});
+  let count = 0;
+  sound.on('audio-loaded', function() {
+    // BW 8/30/2017
+    // audio-loaded is fired with audio-ready, which is fired on `loadeddata`, `canplay`, and `canplaythrough` events
+    // this was originally meant to work around a firefox bug, but now we might able to just rely on canplaythrough
+    count++;
+    if (count === 3) {
+      assert.ok('called loaded');
+      done();
+    }
+  });
+});

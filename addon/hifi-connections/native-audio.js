@@ -229,6 +229,7 @@ let Sound = BaseSound.extend({
 
   _onAudioReady() {
     this.trigger('audio-ready', this);
+    this.trigger('audio-loaded', this);
   },
 
   _calculatePercentLoaded() {
