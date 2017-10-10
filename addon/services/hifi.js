@@ -696,7 +696,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
       let connectionSuccesses = [];
       connectionNames.forEach(name => {
         let connection = this.get(`_connections.${name}`);
-        let config = connectionOptions.fidnBy('name', name);
+        let config = connectionOptions.findBy('name', name);
         if (connection.canPlay(url)) {
           connectionSuccesses.push(name);
           strategies.push({
