@@ -587,7 +587,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
       let Connection         = strategy.connection;
-      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess');
+      let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess', 'options');
       let sound              = Connection.create(connectionOptions);
       this.debug('ember-hifi', `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
 
@@ -689,17 +689,21 @@ export default Service.extend(Ember.Evented, DebugLogging, {
   _prepareStrategies(urlsToTry, connectionNames) {
     connectionNames = Ember.makeArray(connectionNames);
     let strategies = [];
+    let connectionOptions = this.get('options.emberHifi.connections') || [];
+    connectionOptions = emberArray(connectionOptions);
 
     urlsToTry.forEach(url => {
       let connectionSuccesses = [];
       connectionNames.forEach(name => {
         let connection = this.get(`_connections.${name}`);
+        let config = connectionOptions.fidnBy('name', name);
         if (connection.canPlay(url)) {
           connectionSuccesses.push(name);
           strategies.push({
             connectionName:  name,
             connection:      connection,
-            url:             url.url || url
+            url:             url.url || url,
+            options:         config ? config.options : null
           });
         }
       });
