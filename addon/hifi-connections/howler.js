@@ -14,13 +14,12 @@ let Sound = BaseSound.extend({
   setup() {
     let urls = Ember.makeArray(this.get('url'));
     let sound = this;
-
-    new Howl({
+    let options = Object.assign({
       src:      urls,
-      volume:   1,
       autoplay: false,
       preload:  true,
       html5:    true,
+      volume:   1,
       onload: function() {
         sound.set('url', this._src);
         sound.set('howl', this);
@@ -45,7 +44,9 @@ let Sound = BaseSound.extend({
       onseek: function() {
         sound.trigger('audio-position-changed', sound._currentPosition());
       }
-    });
+    }, this.get('options'));
+
+    new Howl(options);
   },
 
   teardown() {
