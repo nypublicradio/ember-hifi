@@ -1,4 +1,7 @@
 # ember-hifi Changelog
+### 1.12.1 (October 18, 2017)
+This release is just a version number change so I can publish to npm. 1.12.0 was already published accidentally on June 27.
+
 ### 1.12.0 (October 18, 2017)
 - [IMPROVEMENT] Pass config-level `options` object to Howler instances during init
 
