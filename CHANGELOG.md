@@ -1,4 +1,7 @@
 # ember-hifi Changelog
+### 1.12.0 (October 18, 2017)
+- [IMPROVEMENT] Pass config-level `options` object to Howler instances during init
+
 ### 1.11.4 (August 30, 2017)
 - [BUGFIX] Native Audio sounds weren't firing their `audio-loaded` event. Fix it!
 
