@@ -48,7 +48,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
   isMuted:           computed.equal('volume', 0),
   duration:          computed.readOnly('currentSound.duration'),
   percentLoaded:     computed.readOnly('currentSound.percentLoaded'),
-  pollInterval:      500,
+  pollInterval:      computed.reads('options.emberHifi.positionInterval'),
 
   defaultVolume: 50,
 
@@ -100,7 +100,7 @@ export default Service.extend(Ember.Evented, DebugLogging, {
    // for connection authors, and since we only play one sound at a time, we don't
    // need other non-active sounds telling us position info
     this.get('poll').addPoll({
-      interval: get(this, 'pollInterval'),
+      interval: get(this, 'pollInterval') || 500,
       callback: bind(this, this._setCurrentPosition)
     });
 
