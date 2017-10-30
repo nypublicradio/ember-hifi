@@ -1,4 +1,7 @@
 # ember-hifi Changelog
+### 1.13.0 (October 30, 2017) 🎃
+- [IMPROVEMENT] Adds a `positionInterval` option so consuming apps can control how often `hifi.position` is updated. This allows e.g. a smoother position animation for shorter audio.
+
 ### 1.12.1 (October 18, 2017)
 This release is just a version number change so I can publish to npm. 1.12.0 was already published accidentally on June 27.
 
