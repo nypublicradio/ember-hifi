@@ -3,6 +3,8 @@ import { run, later } from '@ember/runloop';
 import { moduleFor, test } from 'ember-qunit';
 import Ember from 'ember';
 import { dummyHifi, hifiNeeds } from '../../../tests/helpers/hifi-integration-helpers';
+import wait from 'ember-test-helpers/wait';
+
 var originalLoggerError, originalTestAdapterException;
 
 moduleFor('service:audio', 'Unit | Service | hifi integration test.js', {
@@ -44,7 +46,9 @@ test('playing a bad url fails', function(assert) {
     assert.ok(failures && failures.length > 0, "should have reported failures");
   });
 
-  assert.equal(success, false, "should not be successful")
+  return wait().then(() => {
+    assert.equal(success, false, "should not be successful")
+  });
 });
 
 test('playing a blank url fails', function(assert) {
