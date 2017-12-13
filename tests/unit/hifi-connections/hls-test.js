@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { A } from '@ember/array';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 import { skip } from 'qunit';
@@ -30,13 +30,13 @@ moduleFor('ember-hifi@hifi-connection:hls', 'Unit | Connection | HLS', {
 });
 
 test("HLS connection should say it can play files with m3u8 extension", function(assert) {
-  let goodUrls = Ember.A([
+  let goodUrls = A([
     "http://example.org/test.m3u8",
     "http://example.org/test.m3u8?query_params",
     "http://example.org/test.m3u8#could_happen?maybe"
   ]);
 
-  let badUrls = Ember.A([
+  let badUrls = A([
     "http://example.org/test.mp3",
     "http://example.org/test.aac",
     "http://example.org/test.wav"
@@ -54,11 +54,11 @@ test("HLS connection should say it can play files with m3u8 extension", function
 });
 
 test("HLS connection should report playability of file objects", function(assert) {
-  let goodFiles = Ember.A([
+  let goodFiles = A([
     {url: "http://example.org/test.m3u8", mimeType: "application/vnd.apple.mpegurl"},
   ]);
   
-  let badFiles = Ember.A([
+  let badFiles = A([
     {url: "http://example.org/test.mp3", mimeType: "audio/mpeg"},
     {url: "http://example.org/test.aac", mimeType: "audio/aac"},
     {url: "http://example.org/test.wav", mimeType: "audio/wav"}

@@ -1,9 +1,6 @@
-import Ember from 'ember';
+import { next } from '@ember/runloop';
+import { get } from '@ember/object';
 import BaseSound from 'ember-hifi/hifi-connections/base';
-
-const {
-  get
-} = Ember;
 
 const dummyOps = {
   setup() {},
@@ -20,7 +17,7 @@ function stubConnectionCreateWithSuccess(service, connectionName, test) {
     test.stub(sound, 'play').callsFake(() => sound.trigger('audio-played'));
     test.stub(sound, 'pause').callsFake(() => sound.trigger('audio-paused'));
     
-    Ember.run.next(() => sound.trigger('audio-ready'));
+    next(() => sound.trigger('audio-ready'));
     return sound;
   });
 
@@ -33,7 +30,7 @@ function stubConnectionCreateWithFailure(service, connectionName, test) {
 
   let connectionSpy = test.stub(Connection, 'create').callsFake(function(options) {
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
-    Ember.run.next(() => sound.trigger('audio-load-error'));
+    next(() => sound.trigger('audio-load-error'));
     return sound;
   });
 

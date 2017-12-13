@@ -1,21 +1,19 @@
-import Ember from 'ember';
+import EmberMap from '@ember/map';
+import Service from '@ember/service';
+import { A as emberArray, makeArray } from '@ember/array';
 import DebugLogging from '../mixins/debug-logging';
 
-const {
-  A: emberArray
-} = Ember;
-
-export default Ember.Service.extend(DebugLogging, {
+export default Service.extend(DebugLogging, {
   debugName: 'hifi-cache',
 
-  _cache: Ember.Map.create(),
+  _cache: EmberMap.create(),
 
   reset() {
-    this.set('_cache', Ember.Map.create());
+    this.set('_cache', EmberMap.create());
   },
 
   find(urls) {
-    urls = Ember.makeArray(urls);
+    urls = makeArray(urls);
     let cache = this.get('_cache');
     let keysToSearch = emberArray(urls).map(url => (url.url || url));
     let sounds       = emberArray(keysToSearch).map(url => cache.get(url));

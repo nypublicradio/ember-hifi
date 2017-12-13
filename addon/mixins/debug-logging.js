@@ -1,9 +1,13 @@
-import Ember from 'ember';
-const { getWithDefault } = Ember;
+import { getOwner } from '@ember/application';
+import Mixin from '@ember/object/mixin';
+import EmberObject, {
+  getWithDefault,
+  computed
+} from '@ember/object';
 import Debug from '../utils/debug';
 
 // Keep this object around to keep track of logs.
-const DebugLogging = Ember.Object.create({
+const DebugLogging = EmberObject.create({
   loggers: {},
 
   findOrCreateLogger(name) {
@@ -31,11 +35,11 @@ const DebugLogging = Ember.Object.create({
   }
 });
 
-export default Ember.Mixin.create({
+export default Mixin.create({
   debugName: 'ember-hifi',
 
-  debugEnabled: Ember.computed(function() {
-    let owner = Ember.getOwner(this);
+  debugEnabled: computed(function() {
+    let owner = getOwner(this);
     // We need this calculated field in the mixin because configuration gets looked up on the container.
     if (owner) { // if there's no owner, we're not quite initialized yet
       let config = owner.resolveRegistration('config:environment') || {};

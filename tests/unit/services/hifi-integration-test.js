@@ -1,3 +1,5 @@
+import { registerWaiter } from '@ember/test';
+import { run, later } from '@ember/runloop';
 import { moduleFor, test } from 'ember-qunit';
 import Ember from 'ember';
 import { dummyHifi, hifiNeeds } from '../../../tests/helpers/hifi-integration-helpers';
@@ -49,7 +51,7 @@ test('playing a blank url fails', function(assert) {
   let service = this.subject({});
   let failures, results;
 
-  Ember.run(() => {
+  run(() => {
     service.playBlank().catch(r => {
       results = r;
       failures = results.failures;
@@ -88,7 +90,7 @@ test('it sets stream duration correctly', function(assert) {
 });
 
 test('it simulates play', function(assert) {
-  Ember.Test.registerWaiter(this, function() {
+  registerWaiter(this, function() {
     return this.sound && this.sound.get('_tickInterval') * ticks === this.sound._currentPosition();
   });
   let done = assert.async();
@@ -101,7 +103,7 @@ test('it simulates play', function(assert) {
     this.sound = sound;
     let tickInterval = sound.get('_tickInterval');
     assert.equal(sound._currentPosition(), 0, "initial position should be 0");
-    Ember.run.later(() => {
+    later(() => {
       assert.equal(sound._currentPosition(), tickInterval * ticks, `position should be ${tickInterval * ticks}`);
       assert.equal(sound.get('isPlaying'), true, "should be playing");
       done();

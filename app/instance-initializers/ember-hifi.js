@@ -15,7 +15,7 @@ export function initialize(application) {
     // Connections were specified in consumer environment file
 
     if (emberHifi.connections.length === 0) {
-      console.warn('[ember-hifi] No hifi connections were specified, using defaults.');
+      console.warn('[ember-hifi] No hifi connections were specified, using defaults.'); // eslint-disable-line
       emberHifi.connections = defaultConnections;
     }
   }

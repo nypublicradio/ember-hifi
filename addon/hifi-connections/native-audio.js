@@ -1,4 +1,7 @@
-import Ember from 'ember';
+import { A } from '@ember/array';
+import { run } from '@ember/runloop';
+import $ from 'jquery';
+import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 
 // These are the events we're watching for
@@ -11,7 +14,7 @@ const HAVE_CURRENT_DATA = 2;
 // const HAVE_FUTURE_DATA = 3;
 // const HAVE_ENOUGH_DATA = 4;
 
-let ClassMethods = Ember.Mixin.create({
+let ClassMethods = Mixin.create({
   canPlayMimeType(mimeType) {
     let audio = new Audio();
     // it returns "probably" and "maybe". Both are worth trying. Empty is bad.
@@ -34,12 +37,12 @@ let Sound = BaseSound.extend({
 
   _registerEvents(audio) {
     AUDIO_EVENTS.forEach(eventName => {
-      Ember.$(audio).on(eventName, e => Ember.run(() => this._handleAudioEvent(eventName, e)));
+      $(audio).on(eventName, e => run(() => this._handleAudioEvent(eventName, e)));
     });
   },
 
   _unregisterEvents(audio) {
-    AUDIO_EVENTS.forEach(eventName => Ember.$(audio).off(eventName));
+    AUDIO_EVENTS.forEach(eventName => $(audio).off(eventName));
   },
 
   _handleAudioEvent(eventName, e) {
@@ -242,7 +245,7 @@ let Sound = BaseSound.extend({
         totals.push(ranges.end(index) - ranges.start(index));
       }
 
-      let total = Ember.A(totals).reduce((a, b) => (a + b), 0);
+      let total = A(totals).reduce((a, b) => (a + b), 0);
 
       this.debug(`ms loaded: ${total * 1000}`);
       this.debug(`duration: ${this._audioDuration()}`);

@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import { makeArray } from '@ember/array';
+import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 import { Howl } from 'howler';
 
-let ClassMethods = Ember.Mixin.create({
+let ClassMethods = Mixin.create({
   rejectMimeTypes:  ['application/vnd.apple.mpegurl'],
 
   toString() {
@@ -12,7 +13,7 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
-    let urls = Ember.makeArray(this.get('url'));
+    let urls = makeArray(this.get('url'));
     let sound = this;
     let options = Object.assign({
       src:      urls,

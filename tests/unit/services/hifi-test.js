@@ -1,12 +1,19 @@
-import Ember from 'ember';
+import { Promise as EmberPromise } from 'rsvp';
+import { next, later } from '@ember/runloop';
+import { A } from '@ember/array';
+import Service from '@ember/service';
+import { set, get } from '@ember/object';
 import { moduleFor } from 'ember-qunit';
 import test from 'ember-sinon-qunit/test-support/test';
 import sinon from 'sinon';
-const { get, set } = Ember;
 import LocalDummyConnection from 'dummy/hifi-connections/local-dummy-connection';
 import DummyConnection from 'ember-hifi/hifi-connections/dummy-connection';
 import BaseSound from 'ember-hifi/hifi-connections/base';
-import { dummyOps, stubConnectionCreateWithSuccess, stubConnectionCreateWithFailure } from '../../helpers/ember-hifi-test-helpers';
+import {
+  dummyOps,
+  stubConnectionCreateWithSuccess,
+  stubConnectionCreateWithFailure
+} from '../../helpers/ember-hifi-test-helpers';
 
 let hifiConnections, options;
 
@@ -51,7 +58,7 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
       }
     };
 
-    const soundCacheStub = Ember.Service.extend({
+    const soundCacheStub = Service.extend({
       find() {
         return false;
       },
@@ -70,7 +77,7 @@ moduleFor('service:hifi', 'Unit | Service | hifi', {
 
 function chooseActiveConnections(...connectionsToActivate) {
   let connections = [];
-  Ember.A(connectionsToActivate).forEach(name => {
+  A(connectionsToActivate).forEach(name => {
     let found = hifiConnections.find(f => (f.name === name));
     if (found) {
       connections.push(found);
@@ -181,13 +188,13 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
 
     if (sound.get('url') === goodUrl) {
-      Ember.run.next(() => sound.trigger('audio-ready'));
+      next(() => sound.trigger('audio-ready'));
     }
     else if (sound.get('url') === badUrl2) {
-      Ember.run.next(() => sound.trigger('audio-load-error', error2));
+      next(() => sound.trigger('audio-load-error', error2));
     }
     else if (sound.get('url') === badUrl1) {
-      Ember.run.next(() => sound.trigger('audio-load-error', error1));
+      next(() => sound.trigger('audio-load-error', error1));
     }
 
     return sound;
@@ -199,7 +206,7 @@ test('#load stops trying urls after a sound loads and reports accurately', funct
   }).finally(() => {
     assert.equal(localCreateSpy.callCount, 3, "create should only be called three times");
     assert.equal(expectedUrl, goodUrl, "sound returned should have the successful url");
-    assert.equal(Ember.A(expectedFailures).mapBy('url').length, 2, "should only have two failures");
+    assert.equal(A(expectedFailures).mapBy('url').length, 2, "should only have two failures");
     assert.equal(expectedFailures[0].error, error1, `first url should have error: ${error1}`);
     assert.equal(expectedFailures[1].error, error2, `second url should have error: ${error2}`);
     assert.equal(expectedFailures[0].url, badUrl1, `first bad url should be: ${badUrl1}`);
@@ -214,8 +221,8 @@ test('#load can take a promise that resolves urls', function(assert) {
 
   let localCreateSpy = stubConnectionCreateWithSuccess(service, "LocalDummyConnection", this);
   let goodUrl        = "http://example.org/good.mp3";
-  let urlPromise     = new Ember.RSVP.Promise(resolve => {
-    Ember.run.later(() => resolve([goodUrl]), 800);
+  let urlPromise     = new EmberPromise(resolve => {
+    later(() => resolve([goodUrl]), 800);
   });
   let expectedUrl;
 
@@ -473,7 +480,7 @@ test("consumer can specify a mime type for a url", function(assert) {
   let mimeTypeSpy = this.stub(LocalDummyConnection, 'canPlayMimeType').returns(true);
   let createSpy   = this.stub(LocalDummyConnection, 'create').callsFake(function() {
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
-    Ember.run.next(() => sound.trigger('audio-ready'));
+    next(() => sound.trigger('audio-ready'));
     return sound;
   });
 
@@ -497,7 +504,7 @@ test("if a mime type cannot be determined, try to play it anyway", function(asse
 
   let createSpy   = this.stub(LocalDummyConnection, 'create').callsFake(function() {
     let sound = BaseSound.create(Object.assign({}, dummyOps, options));
-    Ember.run.next(() => sound.trigger('audio-ready'));
+    next(() => sound.trigger('audio-ready'));
     return sound;
   });
 
@@ -589,7 +596,7 @@ test("for mobile devices, try all the urls on the native audio connection first,
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
-    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    let sharedAudioAccesss = A(A(strategies).map(s => s.sharedAudioAccess)).compact();
     assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
@@ -630,7 +637,7 @@ test("for mobile devices, audio element should still be passed if a custom strat
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
-    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    let sharedAudioAccesss = A(A(strategies).map(s => s.sharedAudioAccess)).compact();
     assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });
@@ -662,7 +669,7 @@ test("shared audio element should be passed if alwaysUseSingleAudioElement confi
   return service.load(urls, {useConnections:['LocalDummyConnection']}).then(() => {
     let strategies = findAudioSpy.firstCall.args[0];
 
-    let sharedAudioAccesss = Ember.A(Ember.A(strategies).map(s => s.sharedAudioAccess)).compact();
+    let sharedAudioAccesss = A(A(strategies).map(s => s.sharedAudioAccess)).compact();
     assert.equal(sharedAudioAccesss.length, strategies.length, "audio element should have been included with the strategies");
     done();
   });

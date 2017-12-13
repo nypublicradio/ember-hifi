@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import Howl, {Howler} from 'howler';
+import Howl, { Howler } from 'howler';
 
 module('howler as an ES6 module');
 

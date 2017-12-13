@@ -1,6 +1,8 @@
+import { next, bind } from '@ember/runloop';
+import Mixin from '@ember/object/mixin';
 import Ember from 'ember';
 import BaseSound from './base';
-let ClassMethods = Ember.Mixin.create({
+let ClassMethods = Mixin.create({
   setup() {},
   canPlay: () => true,
   canUseConnection: () => true,
@@ -18,10 +20,10 @@ let DummyConnection = BaseSound.extend({
   setup() {
     let {result} = this.getInfoFromUrl();
     if (result === 'bad') {
-      Ember.run.next(() => this.trigger('audio-load-error', this));
+      next(() => this.trigger('audio-load-error', this));
     }
     else {
-      Ember.run.next(() => this.trigger('audio-ready', this));
+      next(() => this.trigger('audio-ready', this));
     }
   },
 
@@ -31,7 +33,7 @@ let DummyConnection = BaseSound.extend({
 
   startTicking: function() {
     if (!Ember.Test.checkWaiters || Ember.Test.checkWaiters()) {
-      this.tick = window.setTimeout(Ember.run.bind(() => {
+      this.tick = window.setTimeout(bind(() => {
         this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
         this.startTicking();
       }), this.get('_tickInterval'));
@@ -90,7 +92,7 @@ let DummyConnection = BaseSound.extend({
     this.set('_position', duration);
 
     if (duration >= this._audioDuration()) {
-      Ember.run.next(() => {
+      next(() => {
         this.trigger('audio-ended', this);
         this.stopTicking();
       });

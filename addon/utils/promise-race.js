@@ -1,5 +1,5 @@
+import { copy } from '@ember/object/internals';
 import RSVP from 'rsvp';
-import Ember from 'ember';
 /**
  * Given an array of params, this will go through the list one-by-one and call your
  * callback function until your function calls returnSuccess, at which point the
@@ -18,7 +18,7 @@ import Ember from 'ember';
 
 function start(params, callback) {
   return new RSVP.Promise((resolve, reject) => {
-    let paramsToTry = Ember.copy(params);
+    let paramsToTry = copy(params);
     var failures = [];
 
     (function tryNext(tryThis) {

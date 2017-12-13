@@ -1,6 +1,7 @@
+import $ from 'jquery';
+import { next } from '@ember/runloop';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
-import Ember from 'ember';
 import SharedAudioAccess from 'dummy/utils/shared-audio-access';
 import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
@@ -82,7 +83,7 @@ test("If it's a stream, we stop on pause", function(assert) {
 
   sound.pause();
 
-  Ember.run.next(() => {
+  next(() => {
     assert.equal(sound.audioElement().hasAttribute('src'), false, "audio src attribute is not set");
     assert.equal(loadSpy.callCount, 1, "load was called");
     assert.equal(stopSpy.callCount, 1, "stop was called");
@@ -118,7 +119,7 @@ test("stopping an audio stream still sends the pause event", function(assert) {
   sound.play();
   assert.equal(sound.audioElement().src.split('/').pop(),  'silence.mp3', "audio src attribute is set");
 
-  Ember.run.next(() => {
+  next(() => {
     sound.stop();
   });
 });
@@ -133,7 +134,7 @@ test("can play an mp3 twice in a row using a shared audio element", function(ass
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
   assert.equal(sound.audioElement(), sharedAudioAccess.get('audioElement'), "internal audio tag is shared audio tag");
 
-  Ember.$(sound.audioElement()).trigger('ended');
+  $(sound.audioElement()).trigger('ended');
   sound.play();
 
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
@@ -148,7 +149,7 @@ test("can play an mp3 twice in a row using internal element", function(assert) {
 
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
-  Ember.$(sound.audioElement()).trigger('ended');
+  $(sound.audioElement()).trigger('ended');
 
   sound.play();
 
