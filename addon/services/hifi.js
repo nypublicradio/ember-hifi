@@ -2,7 +2,7 @@ import { or, readOnly, equal, reads, alias } from '@ember/object/computed';
 import { later, cancel } from '@ember/runloop';
 import $ from 'jquery';
 import { isEmpty } from '@ember/utils';
-import { assign, merge } from '@ember/polyfills';
+import { assign } from '@ember/polyfills';
 import { getOwner } from '@ember/application';
 import Evented from '@ember/object/evented';
 import Service, { inject as service } from '@ember/service';
@@ -134,7 +134,6 @@ export default Service.extend(Evented, DebugLogging, {
 
   load(urlsOrPromise, options) {
     let sharedAudioAccess = this._createAndUnlockAudio();
-    let assign = assign || merge;
 
     options = assign({
       debugName: `load-${Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 3)}`,
