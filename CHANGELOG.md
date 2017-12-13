@@ -1,4 +1,8 @@
 # ember-hifi Changelog
+
+### 1.14.0 (December 13, 2017)
+- [IMPROVEMENT] Upgrade to ember 2.17
+
 ### 1.13.0 (October 30, 2017) 🎃
 - [IMPROVEMENT] Adds a `positionInterval` option so consuming apps can control how often `hifi.position` is updated. This allows e.g. a smoother position animation for shorter audio.
 
