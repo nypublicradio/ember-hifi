@@ -1,6 +1,7 @@
+import $ from 'jquery';
+import { next } from '@ember/runloop';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
-import Ember from 'ember';
 import SharedAudioAccess from 'dummy/utils/shared-audio-access';
 import NativeAudio from 'ember-hifi/hifi-connections/native-audio';
 
@@ -82,7 +83,7 @@ test("If it's a stream, we stop on pause", function(assert) {
 
   sound.pause();
 
-  Ember.run.next(() => {
+  next(() => {
     assert.equal(sound.audioElement().hasAttribute('src'), false, "audio src attribute is not set");
     assert.equal(loadSpy.callCount, 1, "load was called");
     assert.equal(stopSpy.callCount, 1, "stop was called");
@@ -118,7 +119,7 @@ test("stopping an audio stream still sends the pause event", function(assert) {
   sound.play();
   assert.equal(sound.audioElement().src.split('/').pop(),  'silence.mp3', "audio src attribute is set");
 
-  Ember.run.next(() => {
+  next(() => {
     sound.stop();
   });
 });
@@ -133,7 +134,7 @@ test("can play an mp3 twice in a row using a shared audio element", function(ass
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
   assert.equal(sound.audioElement(), sharedAudioAccess.get('audioElement'), "internal audio tag is shared audio tag");
 
-  Ember.$(sound.audioElement()).trigger('ended');
+  $(sound.audioElement()).trigger('ended');
   sound.play();
 
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
@@ -148,9 +149,7 @@ test("can play an mp3 twice in a row using internal element", function(assert) {
 
   assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
-  Ember.$(sound.audioElement()).trigger('ended');
-
-  assert.equal(sound._currentPosition(), 0, "position is reset to 0");
+  $(sound.audioElement()).trigger('ended');
 
   sound.play();
 
@@ -268,4 +267,20 @@ test('switching sounds with a shared audio element sends pause event on first so
   sound2.play(); // sound 2 has control
 
   assert.equal(pauseStub.callCount, 1, "audio 1 pause event should have been fired");
+});
+
+test("sounds update their isLoading property when they've loaded", function(assert) {
+  let done = assert.async();
+  let sound = this.subject({url: '/assets/silence.mp3', timeout: false});
+  let count = 0;
+  sound.on('audio-loaded', function() {
+    // BW 8/30/2017
+    // audio-loaded is fired with audio-ready, which is fired on `loadeddata`, `canplay`, and `canplaythrough` events
+    // this was originally meant to work around a firefox bug, but now we might able to just rely on canplaythrough
+    count++;
+    if (count === 3) {
+      assert.ok('called loaded');
+      done();
+    }
+  });
 });

@@ -1,7 +1,7 @@
-import Ember from 'ember';
+import Service, { inject as service } from '@ember/service';
 
-export default Ember.Service.extend({
-  hifi: Ember.inject.service(),
+export default Service.extend({
+  hifi: service(),
 
   playGood() {
     return this.get('hifi').play('/good/1252/ok.mp3');

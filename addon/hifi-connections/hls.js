@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import $ from 'jquery';
+import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 import HLS from 'hls';
 
-let ClassMethods = Ember.Mixin.create({
+let ClassMethods = Mixin.create({
   acceptMimeTypes:  ['application/vnd.apple.mpegurl'],
 
   canUseConnection(/* audioUrl */) {
@@ -55,7 +56,7 @@ let Sound = BaseSound.extend({
   },
 
   _setupPlayerEvents(video) {
-    Ember.$(video).on('playing',         () => {
+    $(video).on('playing',         () => {
       if (this.get('loaded')) {
         this.trigger('audio-played', this);
       }
@@ -64,11 +65,11 @@ let Sound = BaseSound.extend({
       }
     });
 
-    Ember.$(video).on('pause',           ()  => this.trigger('audio-paused', this));
-    Ember.$(video).on('durationchange',  ()  => this.trigger('audio-duration-changed', this));
-    Ember.$(video).on('seeked',          ()  => this.trigger('audio-position-changed', this));
-    Ember.$(video).on('progress',        ()  => this.trigger('audio-loading'));
-    Ember.$(video).on('error',           (e) => this._onVideoError(e));
+    $(video).on('pause',           ()  => this.trigger('audio-paused', this));
+    $(video).on('durationchange',  ()  => this.trigger('audio-duration-changed', this));
+    $(video).on('seeked',          ()  => this.trigger('audio-position-changed', this));
+    $(video).on('progress',        ()  => this.trigger('audio-loading'));
+    $(video).on('error',           (e) => this._onVideoError(e));
   },
 
   _checkIfAudioIsReady() {

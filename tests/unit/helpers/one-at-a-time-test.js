@@ -1,10 +1,11 @@
+import Evented from '@ember/object/evented';
+import EmberObject from '@ember/object';
 import OneAtATime from 'dummy/helpers/one-at-a-time';
 import { module, test } from 'qunit';
-import Ember from 'ember';
 
 module('Unit | Helper | one at a time');
 
-const Sound = Ember.Object.extend(Ember.Evented, {
+const Sound = EmberObject.extend(Evented, {
   play() {
     this.trigger('audio-played');
     this.set('isPlaying', true);

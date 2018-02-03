@@ -1,11 +1,12 @@
+import Evented from '@ember/object/evented';
+import EmberObject from '@ember/object';
 import { moduleFor, test } from 'ember-qunit';
-import Ember from 'ember';
 
 moduleFor('service:hifi-cache', 'Unit | Service | hifi cache', {
   // Specify the other units that are required for this test.
 });
 
-const Sound = Ember.Object.extend(Ember.Evented, {
+const Sound = EmberObject.extend(Evented, {
   play() {
     this.trigger('audio-played');
     this.set('isPlaying', true);

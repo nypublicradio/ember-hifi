@@ -1,7 +1,9 @@
-import Ember from 'ember';
+import { makeArray } from '@ember/array';
+import { inject as service } from '@ember/service';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
-  hifi: Ember.inject.service(),
+export default Component.extend({
+  hifi: service(),
   classNames: ['stream-display'],
 
   didReceiveAttrs() {
@@ -22,7 +24,7 @@ export default Ember.Component.extend({
     load.then(results => {
       logger.log(title, "SUCCESS");
       let badMounts = [];
-      Ember.makeArray(results.failures).forEach(f => badMounts.push(f.url));
+      makeArray(results.failures).forEach(f => badMounts.push(f.url));
       this.set('stream.badMounts', badMounts.uniq());
       this.set('sound', results.sound);
     });
@@ -30,7 +32,7 @@ export default Ember.Component.extend({
     load.catch(results => {
       logger.log(title, "FAILURE");
       let badMounts = [];
-      Ember.makeArray(results.failures).forEach(f => badMounts.push(f.url));
+      makeArray(results.failures).forEach(f => badMounts.push(f.url));
       this.set('stream.badMounts', badMounts.uniq());
     });
 

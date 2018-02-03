@@ -1,5 +1,31 @@
 # ember-hifi Changelog
 
+### 1.14.0 (December 13, 2017)
+- [IMPROVEMENT] Upgrade to ember 2.17
+
+### 1.13.0 (October 30, 2017) 🎃
+- [IMPROVEMENT] Adds a `positionInterval` option so consuming apps can control how often `hifi.position` is updated. This allows e.g. a smoother position animation for shorter audio.
+
+### 1.12.1 (October 18, 2017)
+This release is just a version number change so I can publish to npm. 1.12.0 was already published accidentally on June 27.
+
+### 1.12.0 (October 18, 2017)
+- [IMPROVEMENT] Pass config-level `options` object to Howler instances during init
+
+### 1.11.4 (August 30, 2017)
+- [BUGFIX] Native Audio sounds weren't firing their `audio-loaded` event. Fix it!
+
+### 1.11.3 (August 15, 2017)
+- [BUGFIX] Stop dummyHifi ticking after an audio-end signal, which can cause audio-end signals to continue sending for all eternity leaving tests to wait.
+
+### 1.11.2 (August 4, 2017)
+- [BUGFIX] Remove IE11 workarounds. The issue these corrected has since been fixed by more robust event handling by hifi. This also fixes issues with upstream apps waiting for `pause` events, since finished sounds would also fire pause events.
+
+### 1.11.1 (June 27, 2017)
+- [BUGFIX] Fix a test by using `checkWaiters`
+- [IMPROVEMENT] Docs deploys should be more reliable now with the `--pure-lockfile` flag
+- [IMPROVEMENT] Remove unneeded ember-power-select addons
+
 ### 1.11.0 (June 26, 2017)
 - [IMPROVEMENT] `ember-hifi` no longer adds bower dependencies. Thanks to [@gmurphey](https://github.com/gmurphey) for [#41](https://github.com/nypublicradio/ember-hifi/pull/41). See [Upgrading](https://github.com/nypublicradio/ember-hifi#upgrading-from--1110) for more.
 

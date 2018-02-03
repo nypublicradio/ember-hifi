@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import { makeArray } from '@ember/array';
+import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 import { Howl } from 'howler';
 
-let ClassMethods = Ember.Mixin.create({
+let ClassMethods = Mixin.create({
   rejectMimeTypes:  ['application/vnd.apple.mpegurl'],
 
   toString() {
@@ -12,15 +13,14 @@ let ClassMethods = Ember.Mixin.create({
 
 let Sound = BaseSound.extend({
   setup() {
-    let urls = Ember.makeArray(this.get('url'));
+    let urls = makeArray(this.get('url'));
     let sound = this;
-
-    new Howl({
+    let options = Object.assign({
       src:      urls,
-      volume:   1,
       autoplay: false,
       preload:  true,
       html5:    true,
+      volume:   1,
       onload: function() {
         sound.set('url', this._src);
         sound.set('howl', this);
@@ -45,7 +45,9 @@ let Sound = BaseSound.extend({
       onseek: function() {
         sound.trigger('audio-position-changed', sound._currentPosition());
       }
-    });
+    }, this.get('options'));
+
+    new Howl(options);
   },
 
   teardown() {

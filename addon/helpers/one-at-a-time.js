@@ -1,10 +1,8 @@
-import Ember from 'ember';
+import Evented from '@ember/object/evented';
+import EmberObject from '@ember/object';
+import { A as emberArray } from '@ember/array';
 
-const {
-  A:emberArray
-} = Ember;
-
-export default Ember.Object.extend(Ember.Evented, {
+export default EmberObject.extend(Evented, {
   init() {
     this.set('sounds', emberArray());
   },

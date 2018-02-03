@@ -1,13 +1,14 @@
-import Ember from 'ember';
+import { equal, not } from '@ember/object/computed';
+import { next, later, cancel } from '@ember/runloop';
+import Evented from '@ember/object/evented';
+import { A } from '@ember/array';
+import Mixin from '@ember/object/mixin';
+import { assert } from '@ember/debug';
+import EmberObject, { computed } from '@ember/object';
 import { getMimeType } from 'ember-hifi/utils/mime-types';
 import DebugLogging from '../mixins/debug-logging';
 
-const {
-  assert,
-  computed
-} = Ember;
-
-let ClassMethods = Ember.Mixin.create({
+let ClassMethods = Mixin.create({
   setup(config) {
     this.config = config;
   },
@@ -47,10 +48,10 @@ let ClassMethods = Ember.Mixin.create({
     let mimeTypeBlackList = this.rejectMimeTypes;
 
     if (mimeTypeWhiteList) {
-      return Ember.A(mimeTypeWhiteList).includes(mimeType);
+      return A(mimeTypeWhiteList).includes(mimeType);
     }
     else if (mimeTypeBlackList){
-      return !Ember.A(mimeTypeBlackList).includes(mimeType);
+      return !A(mimeTypeBlackList).includes(mimeType);
     }
     else {
       return true; // assume true
@@ -58,8 +59,8 @@ let ClassMethods = Ember.Mixin.create({
   }
 });
 
-let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
-  debugName: Ember.computed('url', 'connectionName', function() {
+let Sound = EmberObject.extend(Evented, DebugLogging, {
+  debugName: computed('url', 'connectionName', function() {
     var parser = document.createElement('a');
     parser.href = this.get('url');
     let parts = parser.pathname.split('/');
@@ -78,9 +79,9 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
   }),
   error:             null,
 
-  isStream:          computed.equal('duration', Infinity),
-  isFastForwardable: computed.not('isStream'),
-  isRewindable:      computed.not('isStream'),
+  isStream:          equal('duration', Infinity),
+  isFastForwardable: not('isStream'),
+  isRewindable:      not('isStream'),
 
   duration:          0,
   percentLoaded:     0,
@@ -162,7 +163,7 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
       this.setup();
     }
     catch(e) {
-      Ember.run.next(() => {
+      next(() => {
         this.trigger('audio-load-error', `Error in setup ${e.message}`);
         if (audioLoadError) { audioLoadError(this); }
       });
@@ -171,12 +172,12 @@ let Sound = Ember.Object.extend(Ember.Evented, DebugLogging, {
 
   _detectTimeouts() {
     if (this.get('timeout')) {
-      let timeout = Ember.run.later(() => {
+      let timeout = later(() => {
           this.trigger('audio-load-error', "request timed out");
       }, this.get('timeout'));
 
-      this.on('audio-ready',      () => Ember.run.cancel(timeout));
-      this.on('audio-load-error', () => Ember.run.cancel(timeout));
+      this.on('audio-ready',      () => cancel(timeout));
+      this.on('audio-load-error', () => cancel(timeout));
     }
   },
 
