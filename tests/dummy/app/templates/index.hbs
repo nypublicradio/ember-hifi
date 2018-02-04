@@ -2,9 +2,9 @@
 {{md-text text="
 `ember-hifi` provides an easy way to manage audio in your ember app with reliable states, useful events, direct controls and a nice API to interact directly with playing and paused sounds.
 
-**A note before we begin:** Don't try to model your audio. Consider audio a piece of metadata to your other models, like a story or a stream.
+**A note before we begin:** Don't try to model your audio. Consider audio a piece of metadata to your other models, like a story or a stream. Let `ember-hifi` do the modelling for you!
 
-Keeping that in mind, let's say you've got some basic objects that look like the following:
+Keeping that in mind, let's say you've got some POJOs that look like the following:
 "}}
 
 {{code-snippet name="basic-audio.js"}}
@@ -23,7 +23,7 @@ First, set up a couple actions to integrate with `ember-hifi`.
 * an Array of strings
 * a Promise that resolves to either of the above
 
-For now we'll stick with the simple use case of a String, but the other two cases will be reviewed under advanced usage.
+For now we'll stick with the simple use case of a `String`, but the other two cases will be reviewed under advanced usage.
 
 Now make a button wired up to your actions:
 "}}
