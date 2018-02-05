@@ -39,6 +39,12 @@ export default Service.extend(Evented, DebugLogging, {
   useSharedAudioAccess: or('isMobileDevice', 'alwaysUseSingleAudioElement'),
 
   currentSound:      null,
+  currentMetadata:   computed('currentSound.metadata', {
+    get() {
+      return this.get('currentSound.metadata');
+    },
+    set: (k, v) => v
+  }),
   isPlaying:         readOnly('currentSound.isPlaying'),
   isLoading:         computed('currentSound.isLoading', {
     get() {
@@ -122,7 +128,7 @@ export default Service.extend(Evented, DebugLogging, {
 
   availableConnections() {
     return Object.keys(this.get('_connections'));
-  },
+},
 
   /**
    * Given an array of URLS, return a sound ready for playing
@@ -227,13 +233,14 @@ export default Service.extend(Evented, DebugLogging, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  play(urlsOrPromise, options) {
+  play(urlsOrPromise, options = {}) {
     if (this.get('isPlaying')) {
       this.trigger('current-sound-interrupted', get(this, 'currentSound'));
       this.pause();
     }
     // update the UI immediately while `.load` figures out which sound is playable
     this.set('isLoading', true);
+    this.set('currentMetadata', options.metadata)
 
     let load = this.load(urlsOrPromise, options);
 
