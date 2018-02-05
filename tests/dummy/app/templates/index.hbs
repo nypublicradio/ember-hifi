@@ -43,7 +43,9 @@ This delay is caused by the network request to start buffering audio. The `isPla
 {{play-basic stream=wqxr useLoading=true}}
 
 {{md-text text="
-But hold up: those buttons play different audio sources, yet they are tied to each other's state. That's because they are reading off of `hifi`'s `isLoading` and `isPlaying` states without regard to whether or not `hifi` is loading that button's specific audio. As long as a button ties its UI to `hifi`'s state uncondtionally, you'll have this problem.
+But hold up: those buttons play different audio sources, yet they are tied to each other's state. If you click \"Play WNYC\", the \"Play WQXR\" button's UI will change in sync. We can't have that!
+
+The reason this is happening is because each button is reading off of `hifi`'s `isLoading` and `isPlaying` states without regard to whether or not `hifi` is loading that button's specific audio. Those attributes refer to the global, single state of the `hifi` service. As long as a button ties its UI to `hifi`'s state uncondtionally, you'll have this problem.
 
 When you load a piece of audio, `hifi` will update its `currentId` value with the first argument you pass to `play`; typically a url pointing to an audio file or streaming endpoint. There are times when you may need to specify an id for a piece of audio that is not its url; that will be covered in advanced usage.
 "}}
