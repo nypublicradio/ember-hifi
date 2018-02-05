@@ -35,7 +35,7 @@ Now make a button wired up to your actions:
 {{md-text text="
 As you can see, `hifi` provides a helpful `isPlaying` attribute you can use to help manage your UI state. But you might have also noticed a slight delay between clicking play and actually hearing some audio from your speakers.
 
-This delay is caused by the network request to start buffering audio. The `isPlaying` attribute updates in time, but the UI is still in the \"paused\" state until the sound starts. It's accurate, but `hifi` also exposes an `isLoading` attribute you can use for finer grained UI.
+This delay is caused by the network request to start buffering audio. The `isPlaying` attribute updates in time, but the UI is still in the \"paused\" state until the sound actually starts playing. It's accurate, but `hifi` also exposes an `isLoading` attribute you can use for finer grained UI.
 "}}
 
 {{code-snippet name="play2.hbs"}}
