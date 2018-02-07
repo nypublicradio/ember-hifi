@@ -1,6 +1,5 @@
 import { next, bind } from '@ember/runloop';
 import Mixin from '@ember/object/mixin';
-import Ember from 'ember';
 import BaseSound from './base';
 let ClassMethods = Mixin.create({
   setup() {},
@@ -11,7 +10,6 @@ let ClassMethods = Mixin.create({
     return 'Dummy Connection';
   }
 });
-
 
 let DummyConnection = BaseSound.extend({
   debugName: 'dummyConnection',
@@ -27,19 +25,26 @@ let DummyConnection = BaseSound.extend({
     }
   },
 
+  stopAudio: function() {
+    this.stopTicking();
+    if (!this.get('_audioEnded')) {
+      // Don't start audio again after it's finished. I think this is ok for test audio.
+      this.set('_audioEnded', true);
+      this.trigger('audio-ended', this);
+    }
+  },
+
   stopTicking: function() {
     window.clearTimeout(this.tick);
   },
 
   startTicking: function() {
-    if (!Ember.Test.checkWaiters || Ember.Test.checkWaiters()) {
-      this.tick = window.setTimeout(bind(() => {
-        this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
+    this.tick = window.setTimeout(bind(() => {
+      let shouldContinue = this._setPosition((this._currentPosition() || 0) + this.get('_tickInterval'));
+      if (shouldContinue) {
         this.startTicking();
-      }), this.get('_tickInterval'));
-    } else {
-      this.stopTicking();
-    }
+      }
+    }), this.get('_tickInterval'));
   },
 
   getInfoFromUrl: function() {
@@ -92,13 +97,12 @@ let DummyConnection = BaseSound.extend({
     this.set('_position', duration);
 
     if (duration >= this._audioDuration()) {
-      next(() => {
-        this.trigger('audio-ended', this);
-        this.stopTicking();
-      });
+      this.stopAudio();
+      return false
     }
-
-    return duration;
+    else {
+      return duration;
+    }
   },
   _currentPosition() {
     return this.get('_position');
