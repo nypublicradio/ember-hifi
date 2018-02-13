@@ -44,7 +44,7 @@ jobs:
           key: bower-deps-{{ checksum "bower.json" }}
       - run:
           name: Test
-          command: ./node_modules/ember-cli/bin/ember test
+          command: yarn test
 
   deploy:
     docker:
