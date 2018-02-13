@@ -1,0 +1,9 @@
+{{! BEGIN-SNIPPET play-with-state }}
+<button disabled={{isLoading}} {{action (if isPlaying 'pause' 'play') stream.url}}>
+  {{#if isLoading}}
+    Please wait...
+  {{else}}
+    {{if isPlaying 'Pause' 'Play'}} {{stream.name}}
+  {{/if}}
+</button>
+{{! END-SNIPPET }}
