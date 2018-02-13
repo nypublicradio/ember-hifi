@@ -76,7 +76,7 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - build
+            - install
       - deploy:
           requires:
             - test
