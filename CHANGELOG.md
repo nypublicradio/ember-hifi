@@ -1,6 +1,10 @@
 # ember-hifi Changelog
 
-### 1.14.0 (December 13, 2017)
+### 1.14.1 (February 13, 2018) ❤️
+- [CHORE] Add some docs
+- [IMPROVEMENT] Adds `currentMetadata` computed property is updated synchronously with calls to `play`
+
+### 1.14.0 (December 13, 2017) 🕎
 - [IMPROVEMENT] Upgrade to ember 2.17
 
 ### 1.13.0 (October 30, 2017) 🎃
