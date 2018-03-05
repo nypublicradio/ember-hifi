@@ -1,5 +1,5 @@
 import { or, readOnly, equal, reads, alias } from '@ember/object/computed';
-import { later, cancel } from '@ember/runloop';
+import { later, cancel, bind } from '@ember/runloop';
 import $ from 'jquery';
 import { isEmpty } from '@ember/utils';
 import { assign } from '@ember/polyfills';
