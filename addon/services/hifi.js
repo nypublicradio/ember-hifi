@@ -1,6 +1,5 @@
 import { or, readOnly, equal, reads, alias } from '@ember/object/computed';
 import { later, cancel } from '@ember/runloop';
-import $ from 'jquery';
 import { isEmpty } from '@ember/utils';
 import { assign } from '@ember/polyfills';
 import { getOwner } from '@ember/application';
@@ -21,7 +20,7 @@ import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
 import SharedAudioAccess from '../utils/shared-audio-access';
 import DebugLogging from '../mixins/debug-logging';
-import { bind } from 'ember-runloop';
+import { bind } from '@ember/runloop';
 
 
 export default Service.extend(Evented, DebugLogging, {
@@ -757,14 +756,14 @@ export default Service.extend(Evented, DebugLogging, {
         sound.play();
       };
 
-      $(document).on('touchstart', touchPlay);
+      document.addEventListener('touchstart', touchPlay);
 
       let blockCheck = later(() => {
         this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
       }, 2000);
 
       sound.one('audio-played', () => {
-        $(document).off('touchstart', touchPlay);
+        document.removeEventListener('touchstart', touchPlay);
         cancel(blockCheck);
       });
     }

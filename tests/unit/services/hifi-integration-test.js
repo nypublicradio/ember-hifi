@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
 import Ember from 'ember';
-import { dummyHifi, hifiNeeds } from '../../../tests/helpers/hifi-integration-helpers';
+import { dummyHifi } from '../../../tests/helpers/hifi-integration-helpers';
 
 var originalLoggerError, originalTestAdapterException;
 
