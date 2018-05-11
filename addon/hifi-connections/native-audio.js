@@ -196,28 +196,28 @@ let Sound = BaseSound.extend({
     this.trigger('audio-ended', this);
   },
 
-  _onAudioError(e) {
-    let error = "";
-    switch (e.target.error.code) {
-      case e.target.error.MEDIA_ERR_ABORTED:
-        error = 'You aborted the audio playback.';
+  _onAudioError(error) {
+    let message = "";
+    switch (error.code) {
+      case error.MEDIA_ERR_ABORTED:
+        message = 'You aborted the audio playback.';
         break;
-      case e.target.error.MEDIA_ERR_NETWORK:
-        error = 'A network error caused the audio download to fail.';
+      case error.MEDIA_ERR_NETWORK:
+        message = 'A network error caused the audio download to fail.';
         break;
-      case e.target.error.MEDIA_ERR_DECODE:
-        error = 'Decoder error.';
+      case error.MEDIA_ERR_DECODE:
+        message = 'Decoder error.';
         break;
-      case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-        error = 'Audio source format is not supported.';
+      case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        message = 'Audio source format is not supported.';
         break;
       default:
-        error = 'unknown error.';
+        message = 'unknown error.';
         break;
     }
 
-    this.debug(`audio element threw error ${error}`);
-    this.trigger('audio-load-error', error);
+    this.debug(`audio element threw error ${message}`);
+    this.trigger('audio-load-error', message);
   },
 
   _onAudioEmptied() {
