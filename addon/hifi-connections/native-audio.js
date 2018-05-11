@@ -71,7 +71,7 @@ let Sound = BaseSound.extend({
         this._onAudioReady();
         break;
       case 'error':
-        this._onAudioError(e);
+        this._onAudioError(e.target.error);
         break;
       case 'playing':
         this._onAudioPlayed();
