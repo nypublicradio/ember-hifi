@@ -1,4 +1,4 @@
-import Controller from 'ember-controller';
+import Controller from '@ember/controller';
 
 // BEGIN-SNIPPET basic-audio
 const wnyc = {
