@@ -187,17 +187,17 @@ export default Service.extend(Evented, DebugLogging, {
 
           let search = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
+          search.catch(e => {
+            // reset the UI since trying to play that sound failed
+            this.set('isLoading', false);
+            let err = new Error(`[ember-hifi] URL Promise failed because: ${e.message}`);
+            err.failures = e.failures;
+            reject(err);
+          });
 
           return search;
         }
       })
-      .catch(e => {
-        // reset the UI since trying to play that sound failed
-        this.set('isLoading', false);
-        let err = new Error(`[ember-hifi] URL Promise failed because: ${e.message}`);
-        err.failures = e.failures;
-        reject(err);
-      });
     });
 
     this.trigger('new-load-request', {loadPromise:promise, urlsOrPromise, options});
