@@ -94,8 +94,8 @@ module('Unit | Connection | Howler', function(hooks) {
     let sound = this.owner.factoryFor('ember-hifi@hifi-connection:howler').create({
       url: url,
       audioReady: function() {
+        sound.set('position', 9 * 1000);
         sound.play();
-        sound.set('position', 10 * 60 * 1000);
       },
       audioEnded: function() {
         assert.ok('service fires audio-ended');
