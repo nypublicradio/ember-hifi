@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { next } from '@ember/runloop';
-import { module, test } from 'qunit';
+import { module, test, skip } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
 import SharedAudioAccess from 'dummy/utils/shared-audio-access';
@@ -45,16 +45,14 @@ module('Unit | Connection | Native Audio', function(hooks) {
     });
   });
 
-  test("If passed a shared audio element on initialize, use it instead of creating one", function(assert) {
-    let done = assert.async();
+  test("If passed a shared audio element on initialize, use it instead of creating one", async function(assert) {
     let testFlag = "hey, it's me";
     let sharedAudioAccess = SharedAudioAccess.unlock();
     sharedAudioAccess.get('audioElement').testFlag = testFlag;
 
     let sound = this.owner.factoryFor('ember-hifi@hifi-connection:native-audio').create({url: goodUrl, sharedAudioAccess, timeout: false});
-    sound.play();
+    await sound.play();
     assert.equal(sound.audioElement().testFlag, testFlag, "should have used passed audio element");
-    sound.on('audio-load-error', done);
   });
 
   test("If not passed a shared audio element on initialize, use our internal one", function(assert) {
@@ -74,41 +72,40 @@ module('Unit | Connection | Native Audio', function(hooks) {
     });
   });
 
-  test("If it's a stream, we stop on pause", function(assert) {
+  test("If it's a stream, we stop on pause", async function(assert) {
     let sharedAudioAccess = SharedAudioAccess.unlock();
     let sound   = this.owner.factoryFor('ember-hifi@hifi-connection:native-audio').create({url: goodUrl, timeout: false, duration: Infinity, sharedAudioAccess});
     let stopSpy = sinon.spy(sound, 'stop');
     let loadSpy = sinon.spy(sound.get('sharedAudioAccess').requestControl(sound), 'load');
 
-    sound.play();
+    await sound.play();
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
     sound.pause();
 
-    next(() => {
-      assert.equal(sound.audioElement().hasAttribute('src'), false, "audio src attribute is not set");
-      assert.equal(loadSpy.callCount, 1, "load was called");
-      assert.equal(stopSpy.callCount, 1, "stop was called");
-    });
+    assert.equal(sound.audioElement().hasAttribute('src'), false, "audio src attribute is not set");
+    assert.equal(loadSpy.callCount, 1, "load was called");
+    assert.equal(stopSpy.callCount, 1, "stop was called");
   });
 
-  test("Don't fire audio-played events on position changes", function(assert) {
+  test("Don't fire audio-played events on position changes", async function(assert) {
     let sound = this.owner.factoryFor('ember-hifi@hifi-connection:native-audio').create({url: '/assets/silence.mp3', timeout: false});
-    let done = assert.async();
-    assert.expect(1);
+    let count = 0;
 
     sound.on('audio-played', function() {
-      assert.ok('audio event fired');
-      sound._setPosition(1000);
-      sound._setPosition(2000);
-      sound._setPosition(3000);
-      done();
+      count++
     });
-    
-    sound.play();
+
+    await sound.play();
+
+    sound._setPosition(1000);
+    sound._setPosition(2000);
+    sound._setPosition(3000);
+
+    assert.equal(count, 1, 'should only increase once');
   });
 
-  test("stopping an audio stream still sends the pause event", function(assert) {
+  test("stopping an audio stream still sends the pause event", async function(assert) {
     let sharedAudioAccess = SharedAudioAccess.unlock();
 
     let sound   = this.owner.factoryFor('ember-hifi@hifi-connection:native-audio').create({url: '/assets/silence.mp3', timeout: false, duration: Infinity, sharedAudioAccess});
@@ -118,12 +115,10 @@ module('Unit | Connection | Native Audio', function(hooks) {
       assert.ok("pause event was fired");
     });
 
-    sound.play();
+    await sound.play();
     assert.equal(sound.audioElement().src.split('/').pop(),  'silence.mp3', "audio src attribute is set");
 
-    next(() => {
-      sound.stop();
-    });
+    sound.stop();
   });
 
   test("can play an mp3 twice in a row using a shared audio element", function(assert) {
