@@ -302,7 +302,7 @@ let Sound = BaseSound.extend({
     }
 
     this.debug('telling audio to play');
-    audio.play();
+    return audio.play().catch(e => this._onAudioError(e));
   },
 
   pause() {
