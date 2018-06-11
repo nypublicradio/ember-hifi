@@ -13,6 +13,7 @@ module.exports = function() {
       scenarios: [
         {
           name: 'ember-lts-2.16',
+          allowedToFail: true,
           npm: {
             devDependencies: {
               'ember-source': '~2.16.0'
