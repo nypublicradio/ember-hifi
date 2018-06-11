@@ -1,9 +1,14 @@
 version: 2
 
+defaults: &defaults
+  docker:
+    - image: circleci/node:8.7-browsers
+      environment:
+        JOBS: 2
+
 jobs:
   install:
-    docker:
-      - image: circleci/node:8.7
+    <<: *defaults
 
     steps:
       - checkout
@@ -12,29 +17,29 @@ jobs:
           key: node-deps-{{ checksum "yarn.lock" }}
       - run:
           name: Install node dependencies
-          command: yarn --pure-lockfile
+          command: |
+            if [ ! -d node_modules ]; then
+              yarn --pure-lockfile
+            fi
       - save_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
           paths:
-            - ./node_modules
+            - node_modules
 
       - restore_cache:
           key: bower-deps-{{ checksum "bower.json" }}
       - run:
           name: Install bower dependencies
           command: |
-            yarn add bower --pure-lockfile
-            ./node_modules/bower/bin/bower i
+            yarn global add bower
+            npx bower i
       - save_cache:
           key: bower-deps-{{ checksum "bower.json" }}
           paths:
-            - ./bower_components
+            - bower_components
 
   test:
-    docker:
-      - image: circleci/node:8.7-browsers
-        environment:
-          JOBS: 2
+    <<: *defaults
 
     steps:
       - checkout
@@ -47,21 +52,23 @@ jobs:
           command: yarn test
 
   deploy:
-    docker:
-      - image: circleci/node:8.7
-        environment:
-          JOBS: 2
+    <<: *defaults
+
     steps:
       - checkout
       - restore_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
       - restore_cache:
           key: bower-deps-{{ checksum "bower.json" }}
+      - add_ssh_keys:
+          fingerprints:
+            - "08:eb:03:31:44:a6:ba:ea:33:11:ef:36:7a:5e:15:22"
       - run:
           name: Deploy to GitHub Pages
           command: |
-            git checkout gh-pages; git checkout master
-            ./node_modules/ember-cli/bin/ember deploy production
+            git config --global user.email "deploy@circleci"
+            git config --global user.name "deploy"
+            npx ember deploy production
 
 workflows:
   version: 2
