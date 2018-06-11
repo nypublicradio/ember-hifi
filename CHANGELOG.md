@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.15.0 (June 11, 2018) ☀️
+- [IMPROVEMENT] Adds `pre-load` event to hifi service with successful strategy
+
 ### 1.14.1 (February 13, 2018) ❤️
 - [CHORE] Add some docs
 - [IMPROVEMENT] Adds `currentMetadata` computed property is updated synchronously with calls to `play`
