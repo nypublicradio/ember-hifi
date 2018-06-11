@@ -597,6 +597,7 @@ export default Service.extend(Evented, DebugLogging, {
     this.timeStart(options.debugName, "_findFirstPlayableSound");
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
+      this.trigger('pre-load', strategy);
       let Connection         = strategy.connection;
       let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess', 'options');
       let sound              = Connection.create(connectionOptions);
