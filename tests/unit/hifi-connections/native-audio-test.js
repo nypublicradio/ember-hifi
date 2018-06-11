@@ -1,6 +1,5 @@
 import $ from 'jquery';
-import { next } from '@ember/runloop';
-import { module, test, skip } from 'qunit';
+import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
 import SharedAudioAccess from 'dummy/utils/shared-audio-access';
