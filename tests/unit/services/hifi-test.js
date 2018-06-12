@@ -1002,3 +1002,42 @@ module('Unit | Service | hifi', function(hooks) {
     });
   });
 });
+
+module('Unit | Service | pre-load trigger', function(hooks) {
+  setupTest(hooks);
+
+  test("altering a sound's url during the pre-load event will not prevent the cache", function(assert) {
+    let done = assert.async();
+    let url = '/good/15000/1.mp3';
+    let service = this.owner.factoryFor('service:hifi').create({
+      options: {
+        emberHifi: {
+          debug: false,
+          connections: [{
+            name: 'DummyConnection',
+            config: {
+              testOption: 'DummyConnection'
+            }
+          }]
+        }
+      }
+    });
+    let cache = this.owner.lookup('service:hifi-cache');
+    let cacheSpy = this.spy(cache._cache, 'set');
+    let findSpy = this.spy(cache, 'find');
+
+    let urlSpy = this.spy(urls => urls.forEach((url, i) => urls[i] = `${url}?foo=bar`));
+
+    service.on('pre-load', urlSpy);
+
+    return service.play(url).then(() => {
+      service.pause();
+      service.play(url).then(() => {
+        assert.equal(cacheSpy.firstCall.args[0], `${url}?foo=bar`, 'cache lookup with expected value');
+        assert.deepEqual(findSpy.secondCall.args[0], [cacheSpy.firstCall.args[0]], 'lookup key is the same as the cached key');
+        assert.equal(urlSpy.callCount, 2, 'callback is called');
+        done();
+      });
+    });
+  });
+});
