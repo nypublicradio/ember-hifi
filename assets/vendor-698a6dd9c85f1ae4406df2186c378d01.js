@@ -5769,6 +5769,7 @@ Object.defineProperty(e,"__esModule",{value:!0}),e.default=Ember.Service.extend(
 n.registerOptionsForType("ember-hifi@hifi-connection",{instantiate:!1}),n.registerOptionsForType("hifi-connection",{instantiate:!1}),Ember.set(this,"alwaysUseSingleAudioElement",Ember.getWithDefault(this,"options.emberHifi.alwaysUseSingleAudioElement",!1)),Ember.set(this,"appEnvironment",Ember.getWithDefault(this,"options.environment","development")),Ember.set(this,"_connections",{}),Ember.set(this,"oneAtATime",t.default.create()),Ember.set(this,"volume",50),this._activateConnections(e),this.set("isReady",!0),this.get("poll").addPoll({interval:Ember.get(this,"pollInterval")||500,callback:Ember.run.bind(this,this._setCurrentPosition)}),this._super.apply(this,arguments)},availableConnections:function(){return Object.keys(this.get("_connections"))},load:function(e,t){var n=this,r=this._createAndUnlockAudio()
 t=Ember.assign({debugName:"load-"+Math.random().toString(36).replace(/[^a-z]+/g,"").substr(0,3),metadata:{}},t)
 var i=new Ember.RSVP.Promise(function(i,o){return n._resolveUrls(e).then(function(e){if(Ember.isEmpty(e))return o(new Error("[ember-hifi] URLs must be provided"))
+n.trigger("pre-load",e)
 var a=n.get("soundCache").find(e)
 if(a)return n.debug("ember-hifi","retreived sound from cache"),i({sound:a})
 var s=[]
@@ -5798,8 +5799,7 @@ return r.setup(n),r},_lookupConnection:function(e){var t=Ember.String.dasherize(
 return r||n},_resolveUrls:function(e){var t=this
 return e&&e.then&&this.debug("ember-hifi","#load passed URL promise"),Ember.RSVP.Promise.resolve(e).then(function(e){return e=function(e){return Ember.A(Ember.makeArray(e)).uniq().reject(function(e){return Ember.isEmpty(e)})}(e),t.debug("ember-hifi","given urls: "+e.join(", ")),e})},_findFirstPlayableSound:function(e,t){var r=this
 this.timeStart(t.debugName,"_findFirstPlayableSound")
-var i=n.default.start(e,function(e,t,n){r.trigger("pre-load",e)
-var i=e.connection,o=Ember.getProperties(e,"url","connectionName","sharedAudioAccess","options"),a=i.create(o)
+var i=n.default.start(e,function(e,t,n){var i=e.connection,o=Ember.getProperties(e,"url","connectionName","sharedAudioAccess","options"),a=i.create(o)
 r.debug("ember-hifi","TRYING: ["+e.connectionName+"] -> "+e.url),a.one("audio-load-error",function(t){e.error=t,n(e),r.debug("ember-hifi","FAILED: ["+e.connectionName+"] -> "+t+" ("+e.url+")")}),a.one("audio-ready",function(){t(a),r.debug("ember-hifi","SUCCESS: ["+e.connectionName+"] -> ("+e.url+")")})})
 return i.catch(function(e){var t=e.failures
 r.debug("ember-hifi","All promises failed:"),t.forEach(function(e){r.debug("ember-hifi",e.connectionName+": "+e.error)})}),i.finally(function(){return r.timeEnd(t.debugName,"_findFirstPlayableSound")}),i},_prepareMobileStrategies:function(e){var t=this._prepareStandardStrategies(e)
