@@ -152,6 +152,7 @@ export default Service.extend(Evented, DebugLogging, {
           return reject(new Error('[ember-hifi] URLs must be provided'));
         }
 
+        this.trigger('pre-load', urlsToTry);
         let sound = this.get('soundCache').find(urlsToTry);
         if (sound) {
           this.debug('ember-hifi', 'retreived sound from cache');
@@ -597,7 +598,6 @@ export default Service.extend(Evented, DebugLogging, {
     this.timeStart(options.debugName, "_findFirstPlayableSound");
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
-      this.trigger('pre-load', strategy);
       let Connection         = strategy.connection;
       let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess', 'options');
       let sound              = Connection.create(connectionOptions);
