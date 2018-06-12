@@ -1,5 +1,8 @@
 # ember-hifi Changelog
 
+### 1.15.1 (June 12, 2018)
+- [BUGFIX] moves `pre-load` event so it doesn't interfere with `soundCache` keys
+
 ### 1.15.0 (June 11, 2018) ☀️
 - [IMPROVEMENT] Adds `pre-load` event to hifi service with successful strategy
 
