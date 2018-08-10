@@ -5761,7 +5761,7 @@ e.default=Ember.Mixin.create({debugName:"ember-hifi",debugEnabled:Ember.computed
 if(e){var t=e.resolveRegistration("config:environment")||{}
 return Ember.getWithDefault(t,"emberHifi.debug",!1)}}),debug:function(){if(this.get("debugEnabled")){var e=void 0,t=void 0
 1===arguments.length?(e=this.get("debugName"),t=arguments[0]):2===arguments.length&&(e=arguments[0],t=arguments[1]),n.log(e,t)}},timeStart:function(){this.get("debugEnabled")&&n.timeStart.apply(n,arguments)},timeEnd:function(){this.get("debugEnabled")&&n.timeEnd.apply(n,arguments)}})}),define("ember-hifi/services/hifi-cache",["exports","ember-hifi/mixins/debug-logging"],function(e,t){"use strict"
-Object.defineProperty(e,"__esModule",{value:!0}),e.default=Ember.Service.extend(t.default,{debugName:"hifi-cache",_cache:Ember.Map.create(),reset:function(){this.set("_cache",Ember.Map.create())},find:function(e){e=Ember.makeArray(e)
+Object.defineProperty(e,"__esModule",{value:!0}),e.default=Ember.Service.extend(t.default,{debugName:"hifi-cache",init:function(){this._super.apply(this,arguments),this.set("_cache",new Map)},reset:function(){this.set("_cache",new Map)},find:function(e){e=Ember.makeArray(e)
 var t=this.get("_cache"),n=Ember.A(e).map(function(e){return e.url||e}),r=Ember.A(n).map(function(e){return t.get(e)}),i=Ember.A(r).compact()
 return i.length>0?this.debug("cache hit for "+i[0].get("url")):this.debug("cache miss for "+n.join(",")),i[0]},cache:function(e){var t=this.get("_cache")
 this.debug("caching sound with url: "+e.get("url")),t.set(e.get("url"),e)}})}),define("ember-hifi/services/hifi",["exports","ember-hifi/helpers/one-at-a-time","ember-hifi/utils/promise-race","ember-hifi/utils/shared-audio-access","ember-hifi/mixins/debug-logging"],function(e,t,n,r,i){"use strict"
