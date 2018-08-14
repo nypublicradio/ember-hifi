@@ -5647,7 +5647,21 @@ return{aliases:["ts"],keywords:t,contains:[{className:"meta",begin:/^\s*['"]use 
 return{aliases:["tao"],lexemes:/[a-zA-Z][a-zA-Z0-9_?]*/,keywords:t,contains:[e.C_LINE_COMMENT_MODE,e.C_BLOCK_COMMENT_MODE,n,{className:"string",begin:"'",end:"'",illegal:"\\n"},{className:"string",begin:"<<",end:">>"},i,r,{className:"number",begin:"[0-9]+#[0-9A-Z_]+(\\.[0-9-A-Z_]+)?#?([Ee][+-]?[0-9]+)?"},e.NUMBER_MODE]}}),e.registerLanguage("xquery",function(e){var t={begin:"{",end:"}"},n=[{begin:/\$[a-zA-Z0-9\-]+/},{className:"string",variants:[{begin:/"/,end:/"/,contains:[{begin:/""/,relevance:0}]},{begin:/'/,end:/'/,contains:[{begin:/''/,relevance:0}]}]},{className:"number",begin:"(\\b0[0-7_]+)|(\\b0x[0-9a-fA-F_]+)|(\\b[1-9][0-9_]*(\\.[0-9_]+)?)|[0_]\\b",relevance:0},{className:"comment",begin:"\\(:",end:":\\)",relevance:10,contains:[{className:"doctag",begin:"@\\w+"}]},{className:"meta",begin:"%\\w+"},t]
 return t.contains=n,{aliases:["xpath","xq"],case_insensitive:!1,lexemes:/[a-zA-Z\$][a-zA-Z0-9_:\-]*/,illegal:/(proc)|(abstract)|(extends)|(until)|(#)/,keywords:{keyword:"for let if while then else return where group by xquery encoding versionmodule namespace boundary-space preserve strip default collation base-uri orderingcopy-namespaces order declare import schema namespace function option in allowing emptyat tumbling window sliding window start when only end when previous next stable ascendingdescending empty greatest least some every satisfies switch case typeswitch try catch andor to union intersect instance of treat as castable cast map array delete insert intoreplace value rename copy modify update",literal:"false true xs:string xs:integer element item xs:date xs:datetime xs:float xs:double xs:decimal QName xs:anyURI xs:long xs:int xs:short xs:byte attribute"},contains:n}}),e.registerLanguage("zephir",function(e){var t={className:"string",contains:[e.BACKSLASH_ESCAPE],variants:[{begin:'b"',end:'"'},{begin:"b'",end:"'"},e.inherit(e.APOS_STRING_MODE,{illegal:null}),e.inherit(e.QUOTE_STRING_MODE,{illegal:null})]},n={variants:[e.BINARY_NUMBER_MODE,e.C_NUMBER_MODE]}
 return{aliases:["zep"],case_insensitive:!0,keywords:"and include_once list abstract global private echo interface as static endswitch array null if endwhile or const for endforeach self var let while isset public protected exit foreach throw elseif include __FILE__ empty require_once do xor return parent clone use __CLASS__ __LINE__ else break print eval new catch __METHOD__ case exception default die require __FUNCTION__ enddeclare final try switch continue endfor endif declare unset true false trait goto instanceof insteadof __DIR__ __NAMESPACE__ yield finally int uint long ulong char uchar double float bool boolean stringlikely unlikely",contains:[e.C_LINE_COMMENT_MODE,e.HASH_COMMENT_MODE,e.COMMENT("/\\*","\\*/",{contains:[{className:"doctag",begin:"@[A-Za-z]+"}]}),e.COMMENT("__halt_compiler.+?;",!1,{endsWithParent:!0,keywords:"__halt_compiler",lexemes:e.UNDERSCORE_IDENT_RE}),{className:"string",begin:"<<<['\"]?\\w+['\"]?$",end:"^\\w+;",contains:[e.BACKSLASH_ESCAPE]},{begin:/(::|->)+[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/},{className:"function",beginKeywords:"function",end:/[;{]/,excludeEnd:!0,illegal:"\\$|\\[|%",contains:[e.UNDERSCORE_TITLE_MODE,{className:"params",begin:"\\(",end:"\\)",contains:["self",e.C_BLOCK_COMMENT_MODE,t,n]}]},{className:"class",beginKeywords:"class interface",end:"{",excludeEnd:!0,illegal:/[:\(\$"]/,contains:[{beginKeywords:"extends implements"},e.UNDERSCORE_TITLE_MODE]},{beginKeywords:"namespace",end:";",illegal:/[\.']/,contains:[e.UNDERSCORE_TITLE_MODE]},{beginKeywords:"use",end:";",contains:[e.UNDERSCORE_TITLE_MODE]},{begin:"=>"},t,n]}}),e}),define("remarkable",[],function(){"use strict"
-return{default:Remarkable}}),createDeprecatedModule("ember/resolver"),createDeprecatedModule("resolver"),define("ember-hifi/helpers/one-at-a-time",["exports"],function(e){"use strict"
+return{default:Remarkable}}),createDeprecatedModule("ember/resolver"),createDeprecatedModule("resolver"),define("ember-copy/copy",["exports","ember-copy/copyable"],function(e,t){"use strict"
+Object.defineProperty(e,"__esModule",{value:!0}),e.default=function(e,r){if("object"!==(void 0===e?"undefined":n(e))||null===e)return e
+if(!Array.isArray(e)&&t.default.detect(e))return e.copy(r)
+return function e(r,i,o,a){if("object"!==(void 0===r?"undefined":n(r))||null===r)return r
+var s=void 0,l=void 0
+if(i&&(l=o.indexOf(r))>=0)return a[l]
+if(Array.isArray(r)){if(s=r.slice(),i)for(l=s.length;--l>=0;)s[l]=e(s[l],i,o,a)}else if(t.default.detect(r))s=r.copy(i,o,a)
+else if(r instanceof Date)s=new Date(r.getTime())
+else{s={}
+var c=void 0
+for(c in r)Object.prototype.hasOwnProperty.call(r,c)&&"__"!==c.substring(0,2)&&(s[c]=i?e(r[c],i,o,a):r[c])}i&&(o.push(r),a.push(s))
+return s}(e,r,r?[]:null,r?[]:null)}
+var n="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e}}),define("ember-copy/copyable",["exports"],function(e){"use strict"
+Object.defineProperty(e,"__esModule",{value:!0}),e.default=Ember.Mixin.create({copy:null})}),define("ember-copy/index",["exports","ember-copy/copy","ember-copy/copyable"],function(e,t,n){"use strict"
+Object.defineProperty(e,"__esModule",{value:!0}),Object.defineProperty(e,"copy",{enumerable:!0,get:function(){return t.default}}),Object.defineProperty(e,"Copyable",{enumerable:!0,get:function(){return n.default}})}),define("ember-hifi/helpers/one-at-a-time",["exports"],function(e){"use strict"
 Object.defineProperty(e,"__esModule",{value:!0}),e.default=Ember.Object.extend(Ember.Evented,{init:function(){this.set("sounds",Ember.A())},register:function(e){var t=this,n=this.get("sounds")
 e.on("audio-played",function(){return t.pauseAll(e)}),n.includes(e)||n.pushObject(e)},pauseAll:function(e){this.get("sounds").without(e).forEach(this._pauseSound)},_pauseSound:function(e){e.pause()}})}),define("ember-hifi/hifi-connections/base",["exports","ember-hifi/utils/mime-types","ember-hifi/mixins/debug-logging"],function(e,t,n){"use strict"
 Object.defineProperty(e,"__esModule",{value:!0})
@@ -5814,7 +5828,8 @@ a.canPlay(e)&&(o.push(t),r.push({connectionName:t,connection:a,url:e.url||e,opti
 if(this.get("isMobileDevice")){var r=function(){n.debug("triggering sound play from document touch"),e.play()}
 Ember.$(document).on("touchstart",r)
 var i=Ember.run.later(function(){n.debug("Looks like the mobile browser blocked an autoplay trying to play sound with url: "+e.get("url"))},2e3)
-e.one("audio-played",function(){Ember.$(document).off("touchstart",r),Ember.run.cancel(i)})}e.play(t)}})}),define("ember-hifi/utils/debug",["exports"],function(e){"use strict"
+e.one("audio-played",function(){Ember.$(document).off("touchstart",r),Ember.run.cancel(i)})}e.play(t)}})})
+define("ember-hifi/utils/debug",["exports"],function(e){"use strict"
 Object.defineProperty(e,"__esModule",{value:!0})
 var t=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n]
 r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),n=function(){function e(t){(function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")})(this,e),this.name=t,this.color=this._createColor(),this.padLength=25,this.timerStore=[]}return t(e,[{key:"log",value:function(e){if(window.console&&window.console.log){var t="color: "+this.color+"; font-weight: bold;",n=this.name.slice(0,this.padLength),r=Array(this.padLength+3-n.length).join(" ")
@@ -5837,13 +5852,12 @@ if(!a||!a.length)return!1
 t[e]=a
 for(var s=0;s<a.length;s++){var l=a[s]
 if(n[l]){var c=r.indexOf(i[n[l]].source),u=r.indexOf(o.source)
-if("application/octet-stream"!==n[l]&&c>u||c===u&&"application/"===n[l].substr(0,12))continue}n[l]=e}})}),define("ember-hifi/utils/promise-race",["exports"],function(e){"use strict"
-function t(e,t){return new Ember.RSVP.Promise(function(n,r){e(t,n,r)})}Object.defineProperty(e,"__esModule",{value:!0}),e.default={start:function(e,n){return new Ember.RSVP.Promise(function(r,i){var o=Ember.copy(e),a=[];(function e(s){s.then(function(e){r({success:e,failures:a})}).catch(function(r){r&&a.push(r)
-var s=o.shift()
-if(s)return e(t(n,s))
+if("application/octet-stream"!==n[l]&&c>u||c===u&&"application/"===n[l].substr(0,12))continue}n[l]=e}})}),define("ember-hifi/utils/promise-race",["exports","ember-copy"],function(e,t){"use strict"
+function n(e,t){return new Ember.RSVP.Promise(function(n,r){e(t,n,r)})}Object.defineProperty(e,"__esModule",{value:!0}),e.default={start:function(e,r){return new Ember.RSVP.Promise(function(i,o){var a=(0,t.copy)(e),s=[];(function e(t){t.then(function(e){i({success:e,failures:s})}).catch(function(t){t&&s.push(t)
+var i=a.shift()
+if(i)return e(n(r,i))
 var l=new Error("All given promises failed.")
-l.failures=a,i(l)})})(t(n,o.shift()))})}}})
-define("ember-hifi/utils/shared-audio-access",["exports","ember-hifi/mixins/debug-logging"],function(e,t){"use strict"
+l.failures=s,o(l)})})(n(r,a.shift()))})}}}),define("ember-hifi/utils/shared-audio-access",["exports","ember-hifi/mixins/debug-logging"],function(e,t){"use strict"
 Object.defineProperty(e,"__esModule",{value:!0})
 var n=Ember.Object.extend(t.default,{debugName:"sharedAudioAccess",unlock:function(e){var t=this.get("audioElement")
 return t||(this.debug("creating new audio element"),t=this._createElement(),this.set("audioElement",t),e&&(this.debug("telling blank audio element to play"),t.play())),this},requestControl:function(e){var t=this.get("owner")
