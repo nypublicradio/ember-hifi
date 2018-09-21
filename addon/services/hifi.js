@@ -198,7 +198,7 @@ export default Service.extend(Evented, DebugLogging, {
 
           return search;
         }
-      })
+      });
     });
 
     this.trigger('new-load-request', {loadPromise:promise, urlsOrPromise, options});
@@ -241,7 +241,7 @@ export default Service.extend(Evented, DebugLogging, {
     }
     // update the UI immediately while `.load` figures out which sound is playable
     this.set('isLoading', true);
-    this.set('currentMetadata', options.metadata)
+    this.set('currentMetadata', options.metadata);
 
     let load = this.load(urlsOrPromise, options);
 
