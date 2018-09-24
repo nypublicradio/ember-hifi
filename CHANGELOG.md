@@ -1,5 +1,10 @@
 # ember-hifi Changelog
 
+### 1.15.2 (September 24, 2018)
+- [CHORE] replace deprecated Ember.Copy
+- [CHORE] replace deprecated EmberMap
+- [CHORE] add missing semicolons [#52](https://github.com/nypublicradio/ember-hifi/pull/52)
+
 ### 1.15.1 (June 12, 2018)
 - [BUGFIX] moves `pre-load` event so it doesn't interfere with `soundCache` keys
 
