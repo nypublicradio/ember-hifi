@@ -16,7 +16,7 @@ module('Unit | Connection | Native Audio', function(hooks) {
     // The use of this singleton here really messes with testing, so we need to reset it
     SharedAudioAccess._reset();
 
-    sandbox = sinon.sandbox.create({
+    sandbox = sinon.createSandbox({
       useFakeServer: sinon.fakeServerWithClock
     });
     sandbox.server.respondWith(goodUrl, function (xhr) {

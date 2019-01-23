@@ -13,7 +13,7 @@ module('Unit | Connection | HLS', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
-    sandbox = sinon.sandbox.create({
+    sandbox = sinon.createSandbox({
       useFakeServer: sinon.fakeServerWithClock
     });
 
