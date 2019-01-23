@@ -33,7 +33,7 @@ module('Unit | Service | hifi integration test.js', function(hooks) {
   });
 
   test('playing a bad url fails', async function(assert) {
-    catchExpectedErrors(["Uncaught Error: All given promises failed."]);
+    catchExpectedErrors(["Error: All given promises failed."]);
 
     let service = this.owner.factoryFor('service:audio').create({});
     let failures, success = false;
@@ -51,7 +51,7 @@ module('Unit | Service | hifi integration test.js', function(hooks) {
   });
 
   test('playing a blank url fails', async function(assert) {
-    catchExpectedErrors(["Uncaught Error: [ember-hifi] URLs must be provided"]);
+    catchExpectedErrors(["Error: [ember-hifi] URLs must be provided"]);
     let service = this.owner.factoryFor('service:audio').create({});
     let failures, results;
 
