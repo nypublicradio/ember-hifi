@@ -34,7 +34,11 @@ jobs:
           key: node-deps-{{ checksum "yarn.lock" }}
       - run:
           name: Test
-          command: yarn test
+          environment:
+            CIRCLE_TEST_REPORTS: test-results
+          command: npx ember test -r xunit
+      - store_test_results:
+          path: test-results/
 
   deploy:
     <<: *defaults
