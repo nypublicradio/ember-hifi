@@ -23,6 +23,6 @@ module.exports = {
     ].filter(Boolean),
   },
   reporter: circleFolder ? 'xunit' : 'tap',
-  report_file: circleFolder ? cricleFolder + '/test.xml' : '',
+  report_file: circleFolder ? circleFolder + '/test.xml' : '',
   xunit_intermediate_output: true
 };
