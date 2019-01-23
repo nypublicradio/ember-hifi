@@ -21,8 +21,6 @@ import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
 import SharedAudioAccess from '../utils/shared-audio-access';
 import DebugLogging from '../mixins/debug-logging';
-import { bind } from '@ember/runloop';
-
 
 export default Service.extend(Evented, DebugLogging, {
   debugName: 'ember-hifi',

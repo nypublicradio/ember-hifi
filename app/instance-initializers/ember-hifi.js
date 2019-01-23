@@ -8,7 +8,7 @@ export function initialize(application) {
   ];
 
   const { emberHifi = {
-    debug: false,
+    debug: true,
   } } = config;
 
   if (emberHifi.connections) {

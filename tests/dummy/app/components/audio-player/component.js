@@ -1,6 +1,5 @@
 import { readOnly } from '@ember/object/computed';
 import Component from '@ember/component';
-import { computed } from '@ember/object';
 
 export default Component.extend({
   classNames: ['audio-player'],
