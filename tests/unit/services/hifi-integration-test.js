@@ -7,7 +7,8 @@ import { dummyHifi } from '../../../tests/helpers/hifi-integration-helpers';
 let originalOnError = window.onerror;
 function catchExpectedErrors(expectedErrors) {
   window.onerror = function(message) {
-    if (!expectedErrors.includes(message)) {
+    if (!expectedErrors.includes(message.replace(/(Uncaught\s)?Error:\s/, ""))) {
+      // some environments will throw Uncaught Error, some will throw Error
       originalOnError.apply(window, arguments);
     }
   }
@@ -33,7 +34,7 @@ module('Unit | Service | hifi integration test.js', function(hooks) {
   });
 
   test('playing a bad url fails', async function(assert) {
-    catchExpectedErrors(["Error: All given promises failed."]);
+    catchExpectedErrors(["All given promises failed."]);
 
     let service = this.owner.factoryFor('service:audio').create({});
     let failures, success = false;
@@ -51,7 +52,7 @@ module('Unit | Service | hifi integration test.js', function(hooks) {
   });
 
   test('playing a blank url fails', async function(assert) {
-    catchExpectedErrors(["Error: [ember-hifi] URLs must be provided"]);
+    catchExpectedErrors(["[ember-hifi] URLs must be provided"]);
     let service = this.owner.factoryFor('service:audio').create({});
     let failures, results;
 
