@@ -1,12 +1,13 @@
+import { readOnly } from '@ember/object/computed';
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 
 export default Component.extend({
   classNames: ['audio-player'],
   audioService: null,
-  currentItem: computed.readOnly('audioService.currentSound'),
-  isPlaying:  computed.readOnly('audioService.isPlaying'),
-  isLoading:  computed.readOnly('audioService.isLoading'),
+  currentItem: readOnly('audioService.currentSound'),
+  isPlaying:  readOnly('audioService.isPlaying'),
+  isLoading:  readOnly('audioService.isLoading'),
 
   actions: {
     toggle() {
