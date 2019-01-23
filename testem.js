@@ -1,3 +1,5 @@
+var circleFolder = process.env.CIRCLE_TEST_REPORTS;
+
 module.exports = {
   test_page: 'tests/index.html?hidepassed',
   disable_watching: true,
@@ -19,5 +21,8 @@ module.exports = {
       '--no-user-gesture-required',
       '--debug',
     ].filter(Boolean),
-  }
+  },
+  reporter: circleFolder ? 'xunit' : 'tap',
+  report_file: circleFolder ? cricleFolder + '/test.xml' : '',
+  xunit_intermediate_output: true
 };
