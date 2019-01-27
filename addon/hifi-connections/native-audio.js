@@ -221,9 +221,7 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioEmptied() {
-    if (this.get('isStream')) {
-      this.trigger('audio-paused', this);
-    }
+    this.trigger('audio-paused', this);
   },
 
   _onAudioPaused() {
