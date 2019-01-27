@@ -1,0 +1,7 @@
+{{#animated-container}}
+  <div class="sound-container loaded" data-title="Cached Sounds">
+    {{#animated-each loadedItems use=transition duration=250 as |item|}}
+      {{sound-display sound=item}}
+    {{/animated-each}}
+  </div>
+{{/animated-container}}

@@ -1,25 +1,39 @@
-<div class="site-chrome__nav">
-  <h1 class="site-chrome__title"><code>ember-hifi</code></h1>
-  
-  <ul class="site-chrome__links">
-    <li>
-      {{link-to "Basic Usage" "index"}}
-    </li>
-    <li>
-      {{link-to "Sound Objects" "sound-objects"}}
-    </li>
-    <li>
-      {{link-to "Hifi Service" "hifi-service"}}
-    </li>
-    <li>
-      {{link-to "Audio Connections" "audio-connections"}}
-    </li>
-    <li>
-      {{link-to "Advanced Usage" "advanced-usage"}}
-    </li>
-  </ul>
-</div>
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://github.com/nypublicradio/ember-hifi">
+        <strong>Ember Hifi</strong>
+      </a>
 
-<div class="site-chrome__body">
-  {{yield}}
-</div>
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        {{link-to "Visual Diagnostic" "diagnostic" class="navbar-item"}}
+
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            Documentation
+          </a>
+
+          <div class="navbar-dropdown">
+            {{link-to "Basic Usage" "index" class="navbar-item"}}
+            {{link-to "Sound Objects" "sound-objects" class="navbar-item"}}
+            {{link-to "Hifi Service" "hifi-service" class="navbar-item"}}
+            {{link-to "Audio Connections" "audio-connections" class="navbar-item"}}
+            {{link-to "Sound Objects" "sound-objects" class="navbar-item"}}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</nav>
+
+
+{{yield}}

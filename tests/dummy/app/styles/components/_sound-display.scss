@@ -1,0 +1,242 @@
+
+.sound-display {
+  overflow: hidden;
+  margin: 0.25rem 0;
+  color: $sound-text-color;
+
+  .tags {
+    flex-wrap: nowrap;
+  }
+}
+
+.sound-display {
+  background-color: $sound-background-color;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 5px 10px;
+
+  .tags .tag:last-child {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+
+  .sound-display-top-bar-remove-sound {
+    position: absolute;
+    top: 6px;
+    right: 2px;
+  }
+
+  .sound-display-top-bar-remove-sound:hover {
+    background-color: lighten($sound-background-color, 20);
+  }
+
+.sound-display-top-bar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80px;
+  padding: 10px;
+  font-size: 12px;
+  margin-bottom: 25px;
+}
+
+.sound-display-top-bar-current {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30px;
+  color: #000;
+  background-color: $sound-accent-color;
+  padding: 5px;
+  margin-left: -20px;
+  margin-right: -20px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.sound-display-top-bar-connection-name {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  color: #AAA;
+}
+
+.sound-display-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: $text-color-bright;
+  text-align: center;
+}
+
+.sound-display-title-url {
+  font-size: 14px;
+  justify-content: flex-start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: $text-color-normal;
+  text-align: center;
+}
+
+.sound-display-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.sound-control-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: space-around;
+}
+
+.sound-control-button-item {
+  display: flex;
+  padding: 10px;
+  color: $sound-accent-color;
+}
+
+.sound-display-control-position {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .progress {
+    margin: 5px 0;
+    height: auto;
+    position: relative;
+    background-clip: padding-box;
+    overflow: visible;
+    background-color: lighten($sound-background-color, 10);
+  }
+
+  .progress-track {
+    position: relative;
+  }
+
+  .progress-track-played {
+    height: 4px;
+    display: block;
+    background-color: $sound-accent-color;
+    transition: width ease-in-out 0.25s;
+  }
+
+  .progress-track-playhead {
+    position: absolute;
+    z-index: 10;
+    background-color: darken($sound-accent-color, 20);
+    // height: 15px;
+    width: 2px;
+    // border-radius: 10px;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    height: 100%;
+    transform: scale(1,1);
+    transition: opacity 200ms linear, transform 200ms;
+    &:hover {
+      background-color: $sound-accent-color;
+    }
+  }
+
+  &:hover {
+    .progress-track-playhead {
+      transform: scale(3,2);
+      cursor: grab;
+    }
+    .progress-track-playhead:active {
+      cursor: grabbing;
+    }
+  }
+
+  .progress.is-indeterminate {
+    overflow: hidden;
+    .progress-track {
+      background-color: transparent;
+      pointer-events: none;
+    }
+    .progress-track-playhead {
+      display: none;
+    }
+    .progress-track-played {
+      width: 100%;
+      background: linear-gradient(darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));
+    }
+  }
+
+  .progress.is-indeterminate.is-playing {
+    .progress-track {
+      background-color: darken($sound-accent-color, 20);
+      pointer-events: none;
+    }
+    .progress-track-played:before {
+      content: '';
+      z-index: 1;
+      position: absolute;
+      background: inherit;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      will-change: left, right;
+      animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+    }
+    .progress-track-played:after {
+      content: '';
+      z-index: 1;
+      position: absolute;
+      background: inherit;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      will-change: left, right;
+      animation: indeterminate-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+      animation-delay: 1.15s;
+    }
+  }
+}
+
+.sound-display-control-position-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+
+.sound-display.is-playing {
+
+}
+
+@keyframes indeterminate {
+  0% {
+    left: -35%;
+    right: 100%; }
+  60% {
+    left: 100%;
+    right: -90%; }
+  100% {
+    left: 100%;
+    right: -90%; } }
+
+@keyframes indeterminate-short {
+  0% {
+    left: -200%;
+    right: 100%; }
+  60% {
+    left: 107%;
+    right: -8%; }
+  100% {
+    left: 107%;
+    right: -8%; }
+}

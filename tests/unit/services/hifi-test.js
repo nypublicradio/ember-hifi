@@ -749,6 +749,7 @@ module('Unit | Service | hifi', function(hooks) {
   });
 
   test("current-sound-interrupted event gets fired when another sound starts playing while one is already playing", async function(assert) {
+    let done        = assert.async();
     let connections = ['NativeAudio'];
     let service     = this.owner.factoryFor('service:hifi').create({ options: chooseActiveConnections(...connections) });
     let s1url       = "/assets/silence.mp3";
@@ -758,6 +759,7 @@ module('Unit | Service | hifi', function(hooks) {
 
     service.on('current-sound-interrupted', (currentSound) => {
       assert.equal(currentSound, sound1, "current sound should be the one that got interrupted");
+      done();
     });
 
     let { sound: sound1 } = await service.load(s1url);

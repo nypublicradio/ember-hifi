@@ -1,0 +1,60 @@
+{{yield}}
+
+<div class="connection-display-title">
+  {{connection}}
+
+  <a href="#" class="connection-toggle {{if enabled 'is-enabled'}}" {{action (toggle "enabled" this (not enabled))}}>
+    {{#if enabled}}
+      <span class="icon">
+        {{fa-icon "toggle-on"}}
+      </span>
+    {{else}}
+      <span class="icon">
+        {{fa-icon "toggle-off"}}
+      </span>
+    {{/if}}
+  </a>
+</div>
+
+<div class="connection-display-info">
+  {{#if canUseConnection}}
+    {{#if (or connection.acceptMimeTypes connection.rejectMimeTypes)}}
+      {{#each connection.acceptMimeTypes as |type|}}
+        <span class="has-text-success">Accepts: {{type}}</span>
+      {{/each}}
+
+      {{#each connection.rejectMimeTypes as |type|}}
+        <span class="has-text-danger">Rejects: {{type}}</span>
+      {{/each}}
+    {{else}}
+        <span class="has-text-success">Accepts: All</span>
+    {{/if}}
+  {{else}}
+    Can Not Use
+  {{/if}}
+</div>
+{{!--
+{{#if item.canPlay}}
+  <span class="icon-success is-small">
+    {{fa-icon "thumbs-up"}}
+  </span>
+{{else}}
+  <span class="icon-success is-danger">
+    {{fa-icon "thumbs-down"}}
+  </span>
+{{/if}} --}}
+{{#animated-beacon name=connectionName}}
+  {{#if lastResultWasOurs}}
+    <div class="connection-attempt-result is-success">
+      Successfully created "{{lastResult.mimeType}}".
+    </div>
+  {{else if lastResultCouldHaveBeenOurs}}
+    <div class="connection-attempt-result is-skipped">
+      Could have created "{{lastResult.mimeType}}", but connection was not selected.
+    </div>
+  {{else if hasLastResult}}
+    <div class="connection-attempt-result is-failed">
+      Could not create "{{lastResult.mimeType}}"
+    </div>
+  {{/if}}
+{{/animated-beacon}}

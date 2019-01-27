@@ -1,0 +1,51 @@
+<div class="sound-display-top-bar">
+  <a class="sound-display-top-bar-remove-sound delete is-small" {{action "removeSound" this}}>
+  </a>
+  <span class="sound-display-top-bar-connection-name">
+    {{connectionName}} Sound
+  </span>
+
+  {{#if isCurrentSound}}
+    <span class="sound-display-top-bar-current">Current Sound</span>
+  {{/if}}
+</div>
+
+<div class="sound-display-title">
+  <div class="sound-display-title-given">
+    {{title}}
+  </div>
+  <div class="sound-display-title-url">
+    {{url}}
+  </div>
+</div>
+
+<div class="sound-display-controls">
+  {{sound-display/position sound=sound}}
+  <div class="sound-control-buttons">
+    <a class="sound-control-button-item">
+
+    </a>
+
+    <a class="sound-control-button-item" {{action "rewind" 5000}}>
+      {{fa-icon "backward"}}
+    </a>
+
+    <a class="sound-control-button-item" {{action "togglePause"}}>
+      {{#if sound.isPlaying}}
+        {{fa-icon "pause" size="2x"}}
+      {{else}}
+        {{fa-icon "play" size="2x"}}
+      {{/if}}
+    </a>
+
+    <a class="sound-control-button-item" {{action "fastForward" 5000}}>
+      {{fa-icon "forward"}}
+    </a>
+
+    <a class="sound-control-button-item"  {{action "stop"}}>
+      {{fa-icon "stop"}}
+    </a>
+  </div>
+</div>
+
+{{yield}}

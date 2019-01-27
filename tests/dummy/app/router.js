@@ -11,6 +11,7 @@ Router.map(function() {
   this.route('hifi-service');
   this.route('audio-connections');
   this.route('advanced-usage');
+  this.route('diagnostic');
 });
 
 export default Router;

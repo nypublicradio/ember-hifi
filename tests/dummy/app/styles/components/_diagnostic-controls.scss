@@ -1,0 +1,48 @@
+
+.test-sound + .test-sound  {
+  border-top: 1px solid #EEE;
+}
+
+.test-sound {
+  padding: 10px 0;
+}
+
+.test-sound-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: bold;
+
+  .tag {
+    float: right;
+  }
+}
+
+.test-sound-title-url {
+  font-size: 12px;
+}
+
+.test-sound-actions {
+  margin-top: 5px;
+}
+
+.visual-sound-diagnostic {
+
+}
+
+.diagnostic-controls {
+  padding: 0 25px;
+  margin: 25px 0;
+
+  @include media(">=tablet") {
+    border-left: 1px dashed $sound-background-color;
+    padding-left: 10px;;
+  }
+}
+
+
+
+.test-sound {
+
+}

@@ -22,6 +22,19 @@ import PromiseRace from '../utils/promise-race';
 import SharedAudioAccess from '../utils/shared-audio-access';
 import DebugLogging from '../mixins/debug-logging';
 
+const EVENT_MAP = [
+  {event: 'audio-played',               handler: '_relayPlayedEvent'},
+  {event: 'audio-paused',               handler: '_relayPausedEvent'},
+  {event: 'audio-ended',                handler: '_relayEndedEvent'},
+  {event: 'audio-duration-changed',     handler: '_relayDurationChangedEvent'},
+  {event: 'audio-position-changed',     handler: '_relayPositionChangedEvent'},
+  {event: 'audio-loaded',               handler: '_relayLoadedEvent'},
+  {event: 'audio-loading',              handler: '_relayLoadingEvent'},
+  {event: 'audio-position-will-change', handler: '_relayPositionWillChangeEvent'},
+  {event: 'audio-will-rewind',          handler: '_relayWillRewindEvent'},
+  {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'}
+]
+
 export default Service.extend(Evented, DebugLogging, {
   debugName: 'ember-hifi',
 
@@ -105,6 +118,7 @@ export default Service.extend(Evented, DebugLogging, {
 
     this.set('isReady', true);
 
+
    // Polls the current sound for position. We wanted to make it easy/flexible
    // for connection authors, and since we only play one sound at a time, we don't
    // need other non-active sounds telling us position info
@@ -126,7 +140,7 @@ export default Service.extend(Evented, DebugLogging, {
 
   availableConnections() {
     return Object.keys(this.get('_connections'));
-},
+  },
 
   /**
    * Given an array of URLS, return a sound ready for playing
@@ -405,20 +419,10 @@ export default Service.extend(Evented, DebugLogging, {
    */
 
   _registerEvents(sound) {
-    this._unregisterEvents(sound);
-
     let service = this;
-    sound.on('audio-played',               service,   service._relayPlayedEvent);
-    sound.on('audio-paused',               service,   service._relayPausedEvent);
-    sound.on('audio-ended',                service,   service._relayEndedEvent);
-    sound.on('audio-duration-changed',     service,   service._relayDurationChangedEvent);
-    sound.on('audio-position-changed',     service,   service._relayPositionChangedEvent);
-    sound.on('audio-loaded',               service,   service._relayLoadedEvent);
-    sound.on('audio-loading',              service,   service._relayLoadingEvent);
-
-    sound.on('audio-position-will-change', service,   service._relayPositionWillChangeEvent);
-    sound.on('audio-will-rewind',          service,   service._relayWillRewindEvent);
-    sound.on('audio-will-fast-forward',    service,   service._relayWillFastForwardEvent);
+    EVENT_MAP.forEach(item => {
+      sound.on(item.event, service, service[item.handler]);
+    });
   },
 
   /**
@@ -435,18 +439,13 @@ export default Service.extend(Evented, DebugLogging, {
     if (!sound) {
       return;
     }
-    let service = this;
-    sound.off('audio-played',               service,   service._relayPlayedEvent);
-    sound.off('audio-paused',               service,   service._relayPausedEvent);
-    sound.off('audio-ended',                service,   service._relayEndedEvent);
-    sound.off('audio-duration-changed',     service,   service._relayDurationChangedEvent);
-    sound.off('audio-position-changed',     service,   service._relayPositionChangedEvent);
-    sound.off('audio-loaded',               service,   service._relayLoadedEvent);
-    sound.off('audio-loading',              service,   service._relayLoadingEvent);
 
-    sound.off('audio-position-will-change', service,   service._relayPositionWillChangeEvent);
-    sound.off('audio-will-rewind',          service,   service._relayWillRewindEvent);
-    sound.off('audio-will-fast-forward',    service,   service._relayWillFastForwardEvent);
+    let service = this;
+    EVENT_MAP.forEach(item => {
+      // if (sound.has(item.event)) {
+        sound.off(item.event, service, service[item.handler]);
+      // }
+    });
   },
 
   /**
@@ -710,7 +709,8 @@ export default Service.extend(Evented, DebugLogging, {
         if (connection.canPlay(url)) {
           connectionSuccesses.push(name);
           strategies.push({
-            connectionName:  name,
+            connectionName:  connection.toString(),
+            connectionKey:   name,
             connection:      connection,
             url:             url.url || url,
             options:         config ? config.options : null
