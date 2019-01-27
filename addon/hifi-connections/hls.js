@@ -12,7 +12,7 @@ let ClassMethods = Mixin.create({
   },
 
   toString() {
-    return 'HLS.js';
+    return 'HLS';
   }
 });
 
@@ -43,6 +43,7 @@ let Sound = BaseSound.extend({
 
       hls.on(HLS.Events.LEVEL_LOADED, (e, data) => {
         this.debug(`level ${data.level} loaded`);
+        this.set('live', data.details.live)
         this._checkIfAudioIsReady();
       });
 
@@ -164,15 +165,22 @@ let Sound = BaseSound.extend({
   /* Public interface to sound */
 
   _audioDuration() {
-    return Infinity; // only streams
+    if (this.get('live')) {
+      return Infinity
+    }
+    else {
+      return this.get('video').duration * 1000;
+    }
   },
 
   _currentPosition() {
-    return this.get('video').currentTime;
+    return this.get('video').currentTime * 1000;
   },
 
   _setPosition(position) {
-    this.get('video').currentTime = position;
+    this.get('video').currentTime = (position / 1000);
+
+    return position;
   },
 
   _setVolume(volume) {
