@@ -134,6 +134,8 @@ export default Component.extend({
 Plays the sound
 - `pause()`
 Pauses the sound
+- `togglePause()`
+Toggles the play state of the sound
 - `fastForward(duration)`
 Moves the playhead of the sound forwards by duration (in ms)
 - `rewind(duration)`
@@ -146,8 +148,8 @@ Moves the playhead of the sound backwards by duration (in ms)
 - `isLoading` (boolean)
 - `isPlaying` (boolean)
 - `isStream` (boolean)
-- `canFastForward` (boolean)
-- `canRewind` (boolean)
+- `isFastForwardable` (boolean)
+- `isRewindable` (boolean)
 
 - `duration` (integer, in ms)
 - `percentLoaded` (integer, not always available)

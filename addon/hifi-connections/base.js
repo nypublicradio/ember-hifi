@@ -197,6 +197,16 @@ let Sound = EmberObject.extend(Evented, DebugLogging, {
     this._setPosition(newPosition);
   },
 
+
+  togglePause() {
+    if (this.isPlaying) {
+      this.pause();
+    }
+    else {
+      this.play();
+    }
+  },
+
   /* To be defined on the subclass */
   setup() {
     assert("[ember-hifi] #setup interface not implemented", false);
