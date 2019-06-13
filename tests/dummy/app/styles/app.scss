@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600');
-@import "bulma";
+// @import "bulma";
 
 @import "base";
 @import "diagnostic";
+@import "buttons";
 @import "site-chrome";
 
 // MEDIA QUERIES
@@ -14,6 +15,14 @@ $breakpoints: (
 );
 
 @import "vendor/include-media";
+
+$body-color: #FFF;
+$yellow: yellow;
+$danger: rgb(230, 59, 59);
+$white-ter: grey;
+$success: rgb(51, 212, 91);
+$dark: #333;
+$disabled: gray;
 
 $container-background-color: #FCFCFC;
 $container-border-color: #EEE;

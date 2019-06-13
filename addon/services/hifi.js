@@ -35,6 +35,12 @@ const EVENT_MAP = [
   {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'}
 ]
 
+/**
+* Logs some content in a pretty fromat
+  @class Hifi
+  @public
+*/
+
 export default Service.extend(Evented, DebugLogging, {
   debugName: 'ember-hifi',
 

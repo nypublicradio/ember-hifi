@@ -1,15 +1,11 @@
 'use strict';
 
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
-const path = require('path');
-const pathToBulma = path.dirname(require.resolve('bulma'));
 
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {
     // Add options here
-    sassOptions: {
-      includePaths: [pathToBulma]
-    },
+    sassOptions: {},
     snippetSearchPaths: ['app', 'tests/dummy/app', 'addon'],
   });
 

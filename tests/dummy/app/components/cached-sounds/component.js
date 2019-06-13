@@ -1,16 +1,11 @@
 import Component from '@ember/component';
 import layout from './template';
 import { inject as service } from '@ember/service';
-import { computed, observer } from '@ember/object';
-import move, { continuePrior } from 'ember-animated/motions/move';
-import opacity from 'ember-animated/motions/opacity';
+import { computed } from '@ember/object';
+import move from 'ember-animated/motions/move';
 import {easeOut, easeIn } from 'ember-animated/easings/cosine';
 import { parallel } from 'ember-animated';
 import scale from 'ember-animated/motions/scale';
-import { A, makeArray } from '@ember/array';
-import { get } from '@ember/object';
-import { task } from 'ember-concurrency';
-import adjustCSS from 'ember-animated/motions/adjust-css';
 export default Component.extend({
   layout,
 
@@ -34,6 +29,7 @@ export default Component.extend({
     return this.hifiCache._cacheArray; // animated each gets messed up unless you do this thing
   }),
 
+  //eslint-disable-next-line
   transition: function * (context) {
      let { keptSprites, removedSprites, insertedSprites, beacons } = context;
      keptSprites.forEach(sprite => {

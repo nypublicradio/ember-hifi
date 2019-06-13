@@ -1,11 +1,10 @@
-/* jshint node: true */
+/* eslint-env node */
+'use strict';
 
 module.exports = function(deployTarget) {
-  var ENV = {
-    build: {},
-    git: {
-      commitMessage: '[skip ci] Deployed %@'
-    }
+  let ENV = {
+    build: {}
+    // include other plugin configuration that applies to all deploy targets here
   };
 
   if (deployTarget === 'development') {

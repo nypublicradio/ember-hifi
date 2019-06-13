@@ -1,6 +1,6 @@
 <div class="progress {{if durationIsInfinity 'is-indeterminate' ''}} {{if sound.isPlaying 'is-playing' ''}}">
   <div class="progress-track js-progress-track">
-    <div class="progress-track-downloaded" style={{downloadedPercentage}}></div>
+    <div class="progress-track-downloaded" style={{downloadPercentageStyle}}></div>
     <div class="progress-track-played" style={{playedPercentageStyle}}></div>
   </div>
   {{component "sound-display/position/play-head" positionStyle=playHeadPositionStyle duration=duration

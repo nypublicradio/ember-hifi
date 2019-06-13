@@ -19,7 +19,7 @@ export default Component.extend({
     togglePause() {
       this.hifi.togglePause()
     },
-    stop(urls) {
+    stop() {
       this.hifi.stop()
     },
     fastForward(time) {

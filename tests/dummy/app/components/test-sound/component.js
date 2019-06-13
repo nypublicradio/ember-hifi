@@ -8,7 +8,7 @@ export default Component.extend({
   layout,
 
   hifi: inject(),
-  classNames: ['sound test-sound'],
+  classNames: ['sound', 'test-sound'],
 
   isLoaded: computed('sound', 'sound.isLoading', function() {
     return (this.sound && !this.sound.isLoading)
@@ -23,7 +23,7 @@ export default Component.extend({
   isStream: computed.reads('item.expectedValues.isStream'),
   duration: computed.reads('item.expectedValues.duration'),
 
-  playSound: task(function *(url) {
+  playSound: task(function *() {
     let { sound } = yield this.hifi.play(this.url, {
       metadata: {
         title: this.title,
@@ -32,7 +32,7 @@ export default Component.extend({
     });
   }),
 
-  loadSound: task(function *(url) {
+  loadSound: task(function *() {
     let { sound } = yield this.hifi.load(this.url, {
       metadata: {
         title: this.title,

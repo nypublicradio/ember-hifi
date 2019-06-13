@@ -1,27 +1,23 @@
 {{outlet}}
 
-
-<div class="container">
-  <div class="columns">
-    <div class="column is-three-quarters">
-
-      <div class="sound-container" data-title="Hifi Service">
-        {{service-display}}
-      </div>
-
-      <div class="sound-container" data-title="Hifi Connections">
-        <div class="service-display-connections">
-          {{#each connections as |connection|}}
-            {{connection-display connection=connection}}
-          {{/each}}
-        </div>
-      </div>
-
-      {{cached-sounds}}
+<div class="diagnostic">
+  <div class="diagnostic-display">
+    <div class="sound-container" data-title="Hifi Service">
+      {{service-display}}
     </div>
 
-    {{diagnostic-controls class="column" testSounds=testSounds}}
+    <div class="sound-container" data-title="Hifi Connections">
+      <div class="service-display-connections">
+        {{#each connections as |connection|}}
+          {{connection-display connection=connection}}
+        {{/each}}
+      </div>
+    </div>
+
+    {{cached-sounds}}
   </div>
+
+  {{diagnostic-controls class="diagnostic-controls" testSounds=testSounds}}
 
 
 </div>

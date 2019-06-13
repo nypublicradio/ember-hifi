@@ -3,6 +3,7 @@ import layout from './template';
 import { inject } from '@ember/service';
 import { computed } from '@ember/object';
 import { task } from 'ember-concurrency';
+import { get } from "@ember/object";
 
 export default Component.extend({
   layout,

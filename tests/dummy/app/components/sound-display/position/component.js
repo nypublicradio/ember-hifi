@@ -1,10 +1,8 @@
 import Component from '@ember/component';
 import layout from './template';
-import { set, get, computed, getProperties } from '@ember/object';
+import { get, computed } from '@ember/object';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
 import { htmlSafe } from '@ember/string';
-import { bool } from '@ember/object/computed';
-import { bind } from '@ember/runloop';
 import { throttle, next } from '@ember/runloop';
 
 export default Component.extend(RecognizerMixin, {
@@ -12,12 +10,12 @@ export default Component.extend(RecognizerMixin, {
   recognizers             : 'tap',
   dragAdjustment          : 0,
   classNames              : ['sound-display-control-position'],
-  downloadedPercentage    : computed('downloaded', function() {
-    let downloaded = get(this, 'downloaded');
+  downloadPercentageStyle : computed('sound.percentLoaded', function() {
+    let downloaded = get(this, 'sound.percentLoaded');
     return htmlSafe(`width: ${(downloaded) * 100}%;`);
   }),
 
-  playedPercentage        : computed('sound.position', 'sound.duration', function() {
+  playedPercentage        : computed('sound.{position,duration}', function() {
     if (this.sound && this.sound.duration !== Infinity) {
       let position = get(this, 'sound.position');
       let duration = get(this, 'sound.duration');
@@ -29,7 +27,9 @@ export default Component.extend(RecognizerMixin, {
   }),
 
   playedPercentageStyle: computed('playedPercentage', function() {
-    return htmlSafe(`width: ${(this.playedPercentage) * 100}%;`);
+    if (!this.get('sound.isStream')) {
+      return htmlSafe(`width: ${(this.playedPercentage) * 100}%;`);
+    }
   }),
 
   durationIsInfinity: computed('sound.duration', function() {
@@ -45,7 +45,6 @@ export default Component.extend(RecognizerMixin, {
   }),
 
   tap(e) {
-    console.log(e.originalEvent.gesture);
     const {
       center
     } = e.originalEvent.gesture;

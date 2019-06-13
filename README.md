@@ -94,8 +94,9 @@ System volume. Bind a range element to this property for a simple volume control
 ```javascript
 
 //component.js
+import { inject as service } from "@ember/service";
 export default Component.extend({
-  hifi: Ember.inject.service(),
+  hifi: service(),
 })
 
 //template.hbs

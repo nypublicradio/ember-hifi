@@ -14,7 +14,10 @@
     "api",
     "web"
   ],
-  "repository": "https://github.com/nypublicradio/ember-hifi/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nypublicradio/ember-hifi/"
+  },
   "license": "MIT",
   "author": "Jeff Keen, Brian Whitton",
   "directories": {
@@ -42,14 +45,17 @@
     "@ember/optional-features": "^0.7.0",
     "@fortawesome/ember-fontawesome": "^0.1.7",
     "broccoli-asset-rev": "3.0.0",
-    "bulma": "^0.7.1",
     "ember-animated": "^0.4.1",
     "ember-cli": "~3.7.1",
+    "ember-cli-addon-docs": "^0.6.2",
+    "ember-cli-addon-docs-esdoc": "^0.2.1",
     "ember-cli-dependency-checker": "^3.0.0",
-    "ember-cli-deploy": "^1.0.0",
-    "ember-cli-deploy-build": "^1.0.0",
-    "ember-cli-deploy-git": "^1.1.1",
+    "ember-cli-deploy": "^1.0.2",
+    "ember-cli-deploy-build": "^1.1.1",
+    "ember-cli-deploy-git": "^1.3.3",
+    "ember-cli-deploy-git-ci": "^1.0.1",
     "ember-cli-eslint": "5.1.0",
+    "ember-cli-favicon": "^2.0.0",
     "ember-cli-htmlbars": "^3.0.0",
     "ember-cli-htmlbars-inline-precompile": "^2.1.0",
     "ember-cli-inject-live-reload": "^2.0.1",
@@ -87,5 +93,6 @@
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
-  }
+  },
+  "homepage": "https://nypublicradio.github.io/ember-hifi"
 }

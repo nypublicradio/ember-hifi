@@ -1,4 +1,5 @@
 
+
 .sound-display {
   overflow: hidden;
   margin: 0.25rem 0;
@@ -14,9 +15,11 @@
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   border-radius: 8px;
   padding: 5px 10px;
+  position: relative;
+  height: auto;
 
   .tags .tag:last-child {
     width: 100%;
@@ -24,16 +27,27 @@
   }
 }
 
-
-  .sound-display-top-bar-remove-sound {
+  .sound-display-top-bar-actions {
     position: absolute;
     top: 6px;
     right: 2px;
+    display: flex;
+    flex-direction: row;
+
+    > button {
+      color: lighten($sound-background-color, 20);
+      &:hover {
+        color: #FFF;
+      }
+    }
+
+
+
+    > button + button {
+      margin: 0 5px;
+    }
   }
 
-  .sound-display-top-bar-remove-sound:hover {
-    background-color: lighten($sound-background-color, 20);
-  }
 
 .sound-display-top-bar {
   position: relative;
@@ -130,6 +144,17 @@
     display: block;
     background-color: $sound-accent-color;
     transition: width ease-in-out 0.25s;
+    position: relative;
+  }
+
+  .progress-track-downloaded {
+    height: 4px;
+    background-color: #40434b;
+    transition: width ease-in-out 0.25s;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top:0;
   }
 
   .progress-track-playhead {
@@ -148,6 +173,7 @@
     &:hover {
       background-color: $sound-accent-color;
     }
+    z-index: 5;
   }
 
   &:hover {
@@ -162,6 +188,10 @@
 
   .progress.is-indeterminate {
     overflow: hidden;
+
+    .progress-track-downloaded {
+      display: none;
+    }
     .progress-track {
       background-color: transparent;
       pointer-events: none;
@@ -170,8 +200,9 @@
       display: none;
     }
     .progress-track-played {
+      position: relative;
       width: 100%;
-      background: linear-gradient(darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));
+      background: transparent linear-gradient(darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));
     }
   }
 
@@ -179,12 +210,13 @@
     .progress-track {
       background-color: darken($sound-accent-color, 20);
       pointer-events: none;
+      z-index: 1;
     }
     .progress-track-played:before {
       content: '';
-      z-index: 1;
+      z-index: 5;
       position: absolute;
-      background: inherit;
+      background: linear-gradient(90deg, darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));;
       top: 0;
       left: 0;
       bottom: 0;
@@ -193,9 +225,9 @@
     }
     .progress-track-played:after {
       content: '';
-      z-index: 1;
+      z-index: 5;
       position: absolute;
-      background: inherit;
+      background: linear-gradient(90deg, darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));;
       top: 0;
       left: 0;
       bottom: 0;
@@ -211,6 +243,36 @@
   flex-direction: row;
   justify-content: space-between;
   font-size: 13px;
+}
+
+.sound-display-debug {
+  h3 {
+    text-transform: uppercase;
+    padding: 5px;
+    font-size: 11px;
+  }
+}
+
+.sound-display-debug-list {
+  display: grid;
+  grid-template: auto / 10em 1fr;
+  font-size: 11px;
+  dt {
+    grid-column: 1;
+    font-weight: bold;
+    background-color: lighten($sound-background-color, 2);
+  }
+
+  dd {
+    grid-column: 2;
+    background-color: lighten($sound-background-color, 4);
+  }
+
+  dt, dd {
+      margin: 0;
+      padding: .3em .5em;
+      border-top: 1px solid rgba(0,0,0,.1);
+  }
 }
 
 

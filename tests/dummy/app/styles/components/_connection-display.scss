@@ -20,16 +20,20 @@
   min-height: 150px;
 }
 
+.connection-display-title {
+  color: #FFF;
+}
+
 .connection-toggle {
-  float: right;
+  display: inline-block;
   .icon {
-    color: $danger;
+    color: $disabled;
   }
 }
 
 .connection-toggle.is-enabled {
   .icon {
-    color: $white-ter;
+    color: #FFF;
   }
 }
 

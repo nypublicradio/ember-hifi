@@ -1,13 +1,10 @@
 import Component from '@ember/component';
 import layout from './template';
 import { inject as service } from '@ember/service';
-import { computed, observer } from '@ember/object';
-import move, { continuePrior } from 'ember-animated/motions/move';
-import opacity from 'ember-animated/motions/opacity';
-import {easeOut, easeIn } from 'ember-animated/easings/cosine';
+import { computed } from '@ember/object';
+import move from 'ember-animated/motions/move';
 import { parallel } from 'ember-animated';
 import scale from 'ember-animated/motions/scale';
-import { A } from '@ember/array';
 import { task } from 'ember-concurrency';
 export default Component.extend({
   layout,
@@ -24,19 +21,19 @@ export default Component.extend({
     return this.testSounds.filter(item => !this.hifiCache.find(item.url))
   }),
 
-  loadAllTestSounds: task(function *(url) {
+  loadAllTestSounds: task(function *() {
     yield this.get('testSounds').forEach(item => {
       this.hifi.load(item.url);
     })
   }).drop(),
 
-  playAllTestSounds: task(function *(url) {
+  playAllTestSounds: task(function *() {
     yield this.get('testSounds').forEach(item => {
       this.hifi.play(item.url);
     })
   }).drop(),
 
-  playCustomSound: task(function *(url) {
+  playCustomSound: task(function *() {
     yield this.hifi.play(this.url, {
       metadata: {
         title: this.title
@@ -44,14 +41,20 @@ export default Component.extend({
     });
   }).drop(),
 
-  loadCustomSound: task(function *(url) {
-    yield this.hifi.load(this.url, {
-      metadata: {
-        title: this.title
-      }
-    });
+  loadCustomSound: task(function *() {
+    try {
+      yield this.hifi.load(this.url, {
+        metadata: {
+          title: this.title
+        }
+      });
+    }
+    catch(e) {
+      this.set('error', e);
+    }
   }).drop(),
 
+  //eslint-disable-next-line
   transition: function * (context) {
      let { keptSprites, sentSprites, receivedSprites } = context;
 

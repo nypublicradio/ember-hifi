@@ -1,33 +1,32 @@
 {{yield}}
 
-<div class="connection-display-title">
-  {{connection}}
-
-  <a href="#" class="connection-toggle {{if enabled 'is-enabled'}}" {{action (toggle "enabled" this (not enabled))}}>
+<div class="connection-display-title" {{action (toggle "enabled" this (not enabled))}}>
+  <div class="connection-toggle {{if enabled 'is-enabled'}}">
     {{#if enabled}}
       <span class="icon">
-        {{fa-icon "toggle-on"}}
+        {{fa-icon "check-square"}}
       </span>
     {{else}}
       <span class="icon">
-        {{fa-icon "toggle-off"}}
+        {{fa-icon "square"}}
       </span>
     {{/if}}
-  </a>
+  </div>
+  {{connection}}
 </div>
 
 <div class="connection-display-info">
   {{#if canUseConnection}}
     {{#if (or connection.acceptMimeTypes connection.rejectMimeTypes)}}
       {{#each connection.acceptMimeTypes as |type|}}
-        <span class="has-text-success">Accepts: {{type}}</span>
+        <span class="has-text-success">Accepts mimes: {{type}}</span>
       {{/each}}
 
       {{#each connection.rejectMimeTypes as |type|}}
-        <span class="has-text-danger">Rejects: {{type}}</span>
+        <span class="has-text-danger">Rejects mimes: {{type}}</span>
       {{/each}}
     {{else}}
-        <span class="has-text-success">Accepts: All</span>
+        <span class="has-text-success">Accepts mimes: All</span>
     {{/if}}
   {{else}}
     Can Not Use
@@ -46,15 +45,15 @@
 {{#animated-beacon name=connectionName}}
   {{#if lastResultWasOurs}}
     <div class="connection-attempt-result is-success">
-      Successfully created "{{lastResult.mimeType}}".
+      Successfully created "mime: {{lastResult.mimeType}}".
     </div>
   {{else if lastResultCouldHaveBeenOurs}}
     <div class="connection-attempt-result is-skipped">
-      Could have created "{{lastResult.mimeType}}", but connection was not selected.
+      Could have created "mime: {{lastResult.mimeType}}", but connection was not selected.
     </div>
   {{else if hasLastResult}}
     <div class="connection-attempt-result is-failed">
-      Could not create "{{lastResult.mimeType}}"
+      Could not create "mime: {{lastResult.mimeType}}"
     </div>
   {{/if}}
 {{/animated-beacon}}

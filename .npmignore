@@ -35,3 +35,4 @@ package.json.ember-try
 *.sw*
 
 yarn-error.log
+/config/addon-docs.js

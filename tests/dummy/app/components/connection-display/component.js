@@ -3,7 +3,7 @@ import layout from './template';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { getMimeType } from 'ember-hifi/utils/mime-types';
-import { get, set } from '@ember/object';
+import { get, set, getWithDefault } from '@ember/object';
 
 // var after = function (fn, after) {
 //   return function () {
@@ -22,6 +22,8 @@ export default Component.extend({
   classNameBindings:['lastResultWasOurs', 'lastResultCouldHaveBeenOurs'],
 
   enabled: true,
+
+  //eslint-disable-next-line
   lastResultWasOurs: computed('lastResult.connectionResult', 'lastResult.thisConnection', function() {
     return get(this, 'lastResult') && get(this, 'lastResult.connectionResult') === get(this, 'lastResult.thisConnection');
   }),
@@ -57,8 +59,8 @@ export default Component.extend({
       // TODO: change this event to provide the urls
       let urlsToTry = await this.hifi._resolveUrls(urlsOrPromise)
 
+      let strategies = [];
 
-      let strategies = []
       if (options.useConnections) {
         // If the consumer has specified a connection to prefer, use it
         let connectionNames  = options.useConnections;
@@ -75,19 +77,33 @@ export default Component.extend({
       let url = urlsToTry[0];
 
       let mimeType = typeof(url) === 'string' ?  getMimeType(url) : url.mimeType;
+
       let result = {
         url,
+        priority: strategies.indexOf(s => s.connectionName == this.connectionName),
         title: get(options, 'metadata.title'),
         canPlay: this.connection.canPlay(url),
         mimeType: mimeType,
         canPlayMimeType: this.connection.canPlayMimeType(mimeType),
-        canUseConnection: this.connection.canUseConnection(url)
+        canUseConnection: this.connection.canUseConnection(url),
+        connectionName: this.connectionName,
       }
 
       loadPromise.then(({sound}) => {
+
+        let results = getWithDefault(sound, 'metadata.debug', {})
+
         set(result, 'thisConnection',  this.connection.toString())
         set(result, 'connectionResult',  sound.connectionName)
         set(this, 'lastResult', result);
+
+        set(result, 'didPlay', this.connection.toString() === sound.connectionName);
+
+        set(sound, 'metadata.debug', results)
+
+        set(sound, 'metadata.strategies', strategies);
+
+        results[this.connection] = result;
       })
     })
   }
