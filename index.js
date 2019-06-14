@@ -7,6 +7,11 @@ module.exports = {
       alias: {
         'hls': 'hls.js/dist/hls.js'
       }
+    },
+    babel: {
+      plugins: [
+      
+      ]
     }
   },
   isDevelopingAddon: function() {

@@ -1,3 +1,4 @@
+import { reads } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from './template';
 import { inject } from '@ember/service';
@@ -14,17 +15,17 @@ export default Component.extend({
     return (this.sound && !this.sound.isLoading)
   }),
 
-  title: computed.reads('item.title'),
+  title: reads('item.title'),
 
-  isPlaying: computed.reads('sound.isPlaying'),
+  isPlaying: reads('sound.isPlaying'),
 
-  url: computed.reads('item.url'),
+  url: reads('item.url'),
 
-  isStream: computed.reads('item.expectedValues.isStream'),
-  duration: computed.reads('item.expectedValues.duration'),
+  isStream: reads('item.expectedValues.isStream'),
+  duration: reads('item.expectedValues.duration'),
 
   playSound: task(function *() {
-    let { sound } = yield this.hifi.play(this.url, {
+    yield this.hifi.play(this.url, {
       metadata: {
         title: this.title,
         expectedValues: this.item.expectedValues
@@ -33,7 +34,7 @@ export default Component.extend({
   }),
 
   loadSound: task(function *() {
-    let { sound } = yield this.hifi.load(this.url, {
+    yield this.hifi.load(this.url, {
       metadata: {
         title: this.title,
         expectedValues: this.item.expectedValues

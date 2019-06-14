@@ -47,7 +47,7 @@ export default Component.extend(RecognizerMixin, {
   tap(e) {
     const {
       center
-    } = e.originalEvent.gesture;
+    } = e.gesture;
     let rect = this.element.getBoundingClientRect();
     let positionPercentage = ((center.x - rect.x)/rect.width)
     let newPosition      = parseFloat(this.sound.duration * positionPercentage, 10);

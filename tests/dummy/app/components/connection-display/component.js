@@ -1,3 +1,4 @@
+import { bool } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from './template';
 import { inject as service } from '@ember/service';
@@ -27,8 +28,8 @@ export default Component.extend({
   lastResultWasOurs: computed('lastResult.connectionResult', 'lastResult.thisConnection', function() {
     return get(this, 'lastResult') && get(this, 'lastResult.connectionResult') === get(this, 'lastResult.thisConnection');
   }),
-  lastResultCouldHaveBeenOurs: computed.bool('lastResult.canPlay'),
-  hasLastResult: computed.bool('lastResult'),
+  lastResultCouldHaveBeenOurs: bool('lastResult.canPlay'),
+  hasLastResult: bool('lastResult'),
 
   init() {
     this.set('lastResult', null);
@@ -52,8 +53,6 @@ export default Component.extend({
   },
 
   _setupLoadRequestMonitor() {
-    this.set('friendlyNameLookup', {});
-
     this.hifi.on('new-load-request', async ({loadPromise, urlsOrPromise, options}) => {
 
       // TODO: change this event to provide the urls
@@ -80,7 +79,6 @@ export default Component.extend({
 
       let result = {
         url,
-        priority: strategies.indexOf(s => s.connectionName == this.connectionName),
         title: get(options, 'metadata.title'),
         canPlay: this.connection.canPlay(url),
         mimeType: mimeType,
@@ -90,7 +88,6 @@ export default Component.extend({
       }
 
       loadPromise.then(({sound}) => {
-
         let results = getWithDefault(sound, 'metadata.debug', {})
 
         set(result, 'thisConnection',  this.connection.toString())
@@ -100,7 +97,6 @@ export default Component.extend({
         set(result, 'didPlay', this.connection.toString() === sound.connectionName);
 
         set(sound, 'metadata.debug', results)
-
         set(sound, 'metadata.strategies', strategies);
 
         results[this.connection] = result;

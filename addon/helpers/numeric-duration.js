@@ -1,8 +1,7 @@
 import { helper } from '@ember/component/helper';
 
 export function numericDuration([duration]) {
-  var milliseconds = parseInt((duration % 1000) / 100),
-    seconds = parseInt((duration / 1000) % 60),
+  var seconds = parseInt((duration / 1000) % 60),
     minutes = parseInt((duration / (1000 * 60)) % 60),
     hours = parseInt((duration / (1000 * 60 * 60)) % 24);
 

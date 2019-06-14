@@ -1,22 +1,19 @@
 import Service from '@ember/service';
 import { A as emberArray, makeArray } from '@ember/array';
 import DebugLogging from '../mixins/debug-logging';
-import { computed } from '@ember/object';
 
 export default Service.extend(DebugLogging, {
   debugName: 'hifi-cache',
 
-  cachedCount: computed.reads('_cacheArray.length'),
+  cachedCount: 0,
 
   init() {
     this.set('_cache', {});
-    this.set('_cacheArray', emberArray());
     this._super(...arguments);
   },
 
   reset() {
     this.set('_cache', {});
-    this.set('_cacheArray', []);
   },
 
   find(urls) {
@@ -37,22 +34,25 @@ export default Service.extend(DebugLogging, {
   },
 
   remove(sound) {
+    if (this.isDestroyed) return;
+
     this.debug(`removing sound from cache with url: ${sound.get('url')}`);
 
     if (this._cache[sound.get('url')]) {
       delete this._cache[sound.get('url')]
-      this.set('_cacheArray', Object.values(this._cache));
-      this.notifyPropertyChange('_cacheArray');
+      this.set('cachedCount', Object.keys(this._cache).length);
       this.notifyPropertyChange('_cache');
     }
   },
 
   cache(sound) {
+    if (this.isDestroyed) return;
+
     this.debug(`caching sound with url: ${sound.get('url')}`);
+
     if (!this._cache[sound.get('url')]) {
       this._cache[sound.get('url')] = sound;
-      this.set('_cacheArray', Object.values(this._cache));
-      this.notifyPropertyChange('_cacheArray');
+      this.set('cachedCount', Object.keys(this._cache).length);
       this.notifyPropertyChange('_cache');
     }
   }

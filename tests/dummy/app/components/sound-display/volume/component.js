@@ -1,9 +1,7 @@
 import Component from '@ember/component';
 import layout from './template';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
-import Ember from 'ember';
 import { computed } from '@ember/object';
-import { htmlSafe } from '@ember/string';
 import { inject as service } from '@ember/service';
 import { next } from '@ember/runloop';
 export default Component.extend(RecognizerMixin, {
@@ -26,7 +24,7 @@ export default Component.extend(RecognizerMixin, {
   panEnd(e) {
     const {
       deltaX
-    } = e.originalEvent.gesture;
+    } = e.gesture;
 
     let width            = this.element.getBoundingClientRect().width;
     let change           = parseInt((deltaX / width) * 100, 10)
@@ -39,7 +37,7 @@ export default Component.extend(RecognizerMixin, {
   pan(e) {
     const {
       deltaX
-    } = e.originalEvent.gesture;
+    } = e.gesture;
 
     this.set('dragAdjustment', deltaX);
   },
@@ -47,7 +45,7 @@ export default Component.extend(RecognizerMixin, {
   tap(e) {
     const {
       center
-    } = e.originalEvent.gesture;
+    } = e.gesture;
     let rect             = this.element.getBoundingClientRect();
     let volumePercentage = ((center.x - rect.x)/rect.width) * 100;
     let newVolume        = Math.max(Math.min(volumePercentage, 100), 0);

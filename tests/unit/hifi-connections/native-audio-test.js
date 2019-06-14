@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
@@ -64,7 +63,9 @@ module('Unit | Connection | Native Audio', function(hooks) {
       done();
     });
 
-    sound.on('audio-load-error', done);
+    sound.on('audio-load-error', function(e) {
+      console.error(e); //eslint-disable-line
+    });
 
     sound.on('audio-ready', function() {
       sound.play();
@@ -130,7 +131,9 @@ module('Unit | Connection | Native Audio', function(hooks) {
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
     assert.equal(sound.audioElement(), sharedAudioAccess.get('audioElement'), "internal audio tag is shared audio tag");
 
-    $(sound.audioElement()).trigger('ended');
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('ended', true, false);
+    sound.audioElement().dispatchEvent(event);
     sound.play();
 
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
@@ -145,7 +148,9 @@ module('Unit | Connection | Native Audio', function(hooks) {
 
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
-    $(sound.audioElement()).trigger('ended');
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('ended', true, false);
+    sound.audioElement().dispatchEvent(event);
 
     sound.play();
 

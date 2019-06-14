@@ -1,7 +1,7 @@
 {{yield}}
 
-<div class="connection-display-title" {{action (toggle "enabled" this (not enabled))}}>
-  <div class="connection-toggle {{if enabled 'is-enabled'}}">
+<a href="#" class="connection-display-title" {{action (toggle "enabled" this (not enabled))}}>
+  <div class="connection-toggle {{if enabled "is-enabled"}}">
     {{#if enabled}}
       <span class="icon">
         {{fa-icon "check-square"}}
@@ -13,7 +13,7 @@
     {{/if}}
   </div>
   {{connection}}
-</div>
+</a>
 
 <div class="connection-display-info">
   {{#if canUseConnection}}
@@ -26,22 +26,13 @@
         <span class="has-text-danger">Rejects mimes: {{type}}</span>
       {{/each}}
     {{else}}
-        <span class="has-text-success">Accepts mimes: All</span>
+      <span class="has-text-success">Accepts mimes: All</span>
     {{/if}}
   {{else}}
-    Can Not Use
+    Can Not Use In This Browser
   {{/if}}
 </div>
-{{!--
-{{#if item.canPlay}}
-  <span class="icon-success is-small">
-    {{fa-icon "thumbs-up"}}
-  </span>
-{{else}}
-  <span class="icon-success is-danger">
-    {{fa-icon "thumbs-down"}}
-  </span>
-{{/if}} --}}
+
 {{#animated-beacon name=connectionName}}
   {{#if lastResultWasOurs}}
     <div class="connection-attempt-result is-success">

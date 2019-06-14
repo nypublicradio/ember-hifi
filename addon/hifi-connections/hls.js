@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 import HLS from 'hls';
@@ -57,7 +56,7 @@ let Sound = BaseSound.extend({
   },
 
   _setupPlayerEvents(video) {
-    $(video).on('playing',         () => {
+    video.addEventListener('playing',         () => {
       if (this.get('loaded')) {
         this.trigger('audio-played', this);
       }
@@ -66,11 +65,11 @@ let Sound = BaseSound.extend({
       }
     });
 
-    $(video).on('pause',           ()  => this.trigger('audio-paused', this));
-    $(video).on('durationchange',  ()  => this.trigger('audio-duration-changed', this));
-    $(video).on('seeked',          ()  => this.trigger('audio-position-changed', this));
-    $(video).on('progress',        ()  => this.trigger('audio-loading'));
-    $(video).on('error',           (e) => this._onVideoError(e));
+    video.addEventListener('pause',           ()  => this.trigger('audio-paused', this));
+    video.addEventListener('durationchange',  ()  => this.trigger('audio-duration-changed', this));
+    video.addEventListener('seeked',          ()  => this.trigger('audio-position-changed', this));
+    video.addEventListener('progress',        ()  => this.trigger('audio-loading'));
+    video.addEventListener('error',           (e) => this._onVideoError(e));
   },
 
   _checkIfAudioIsReady() {

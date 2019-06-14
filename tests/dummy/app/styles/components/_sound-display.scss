@@ -119,6 +119,11 @@
   display: flex;
   padding: 10px;
   color: $sound-accent-color;
+  outline: 0;
+
+  &:active, &:focus {
+    outline: 0;
+  }
 }
 
 .sound-display-control-position {
@@ -145,6 +150,7 @@
     background-color: $sound-accent-color;
     transition: width ease-in-out 0.25s;
     position: relative;
+    z-index: 2;
   }
 
   .progress-track-downloaded {
@@ -246,6 +252,10 @@
 }
 
 .sound-display-debug {
+  border-top: 1px solid lighten($sound-background-color, 20);
+  background-color: lighten($sound-background-color, 2);
+  padding: 5px 10px;
+  margin: 0 -10px;
   h3 {
     text-transform: uppercase;
     padding: 5px;
@@ -260,12 +270,10 @@
   dt {
     grid-column: 1;
     font-weight: bold;
-    background-color: lighten($sound-background-color, 2);
   }
 
   dd {
     grid-column: 2;
-    background-color: lighten($sound-background-color, 4);
   }
 
   dt, dd {

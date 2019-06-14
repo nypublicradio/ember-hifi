@@ -18,18 +18,26 @@ export default Component.extend({
   },
 
   dormantItems: computed('testSounds', 'hifiCache.cachedCount', function() {
-    return this.testSounds.filter(item => !this.hifiCache.find(item.url))
+    return this.testSounds.filter(item => !this.hifiCache._cache[item.url])
   }),
 
   loadAllTestSounds: task(function *() {
     yield this.get('testSounds').forEach(item => {
-      this.hifi.load(item.url);
+      this.hifi.load(item.url, {
+        metadata: {
+          title: item.title
+        }
+      });
     })
   }).drop(),
 
   playAllTestSounds: task(function *() {
     yield this.get('testSounds').forEach(item => {
-      this.hifi.play(item.url);
+      this.hifi.play(item.url, {
+        metadata: {
+          title: item.title
+        }
+      });
     })
   }).drop(),
 

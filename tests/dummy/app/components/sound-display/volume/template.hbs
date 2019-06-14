@@ -1,5 +1,5 @@
 {{yield}}
 
 {{#each numOfNotches as |item time|}}
-  <span class="volume-notch {{if (lte time activeNotches) 'active'}}"></span>
+  <span class="volume-notch {{if (lte time activeNotches) "active"}}"></span>
 {{/each}}

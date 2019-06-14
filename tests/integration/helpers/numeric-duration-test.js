@@ -8,10 +8,10 @@ module('Integration | Helper | numeric-duration', function(hooks) {
 
   // Replace this with your real tests.
   test('it renders', async function(assert) {
-    this.set('inputValue', '1234');
+    this.set('inputValue', '100000');
 
     await render(hbs`{{numeric-duration inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.dom(this.element).hasText('01:40');
   });
 });

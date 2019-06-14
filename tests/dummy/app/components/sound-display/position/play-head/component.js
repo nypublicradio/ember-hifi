@@ -1,7 +1,7 @@
+import { alias } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from './template';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
-import { computed } from '@ember/object';
 
 export default Component.extend(RecognizerMixin, {
   layout,
@@ -11,12 +11,12 @@ export default Component.extend(RecognizerMixin, {
   attributeBindings: ['style'],
 
   onPan: function() {},
-  style: computed.alias('positionStyle'),
+  style: alias('positionStyle'),
 
   panEnd(e) {
     const {
       deltaX
-    } = e.originalEvent.gesture;
+    } = e.gesture;
 
     this.onPanEnd(deltaX);
   },
@@ -24,7 +24,7 @@ export default Component.extend(RecognizerMixin, {
   pan(e) {
     const {
       deltaX
-    } = e.originalEvent.gesture;
+    } = e.gesture;
 
     this.onPan(deltaX);
   }

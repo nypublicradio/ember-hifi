@@ -1,6 +1,5 @@
 import { or, readOnly, equal, reads, alias } from '@ember/object/computed';
 import { later, cancel, bind } from '@ember/runloop';
-import $ from 'jquery';
 import { isEmpty } from '@ember/utils';
 import { assign } from '@ember/polyfills';
 import { getOwner } from '@ember/application';
@@ -34,12 +33,6 @@ const EVENT_MAP = [
   {event: 'audio-will-rewind',          handler: '_relayWillRewindEvent'},
   {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'}
 ]
-
-/**
-* Logs some content in a pretty fromat
-  @class Hifi
-  @public
-*/
 
 export default Service.extend(Evented, DebugLogging, {
   debugName: 'ember-hifi',
@@ -602,6 +595,7 @@ export default Service.extend(Evented, DebugLogging, {
 
     let promise = PromiseRace.start(strategies, (strategy, returnSuccess, markAsFailure) => {
       let Connection         = strategy.connection;
+
       let connectionOptions  = getProperties(strategy, 'url', 'connectionName', 'sharedAudioAccess', 'options');
       let sound              = Connection.create(connectionOptions);
       this.debug('ember-hifi', `TRYING: [${strategy.connectionName}] -> ${strategy.url}`);
@@ -661,8 +655,8 @@ export default Service.extend(Evented, DebugLogging, {
     let strategies = this._prepareStandardStrategies(urlsToTry);
     this.debug("modifying standard strategy for to work best on mobile");
 
-    let nativeStrategies  = emberArray(strategies).filter(s => (s.connectionName === 'NativeAudio'));
-    let otherStrategies   = emberArray(strategies).reject(s => (s.connectionName === 'NativeAudio'));
+    let nativeStrategies  = emberArray(strategies).filter(s => (s.connectionKey === 'NativeAudio'));
+    let otherStrategies   = emberArray(strategies).reject(s => (s.connectionKey === 'NativeAudio'));
     let orderedStrategies = nativeStrategies.concat(otherStrategies);
 
     return orderedStrategies;
@@ -762,14 +756,14 @@ export default Service.extend(Evented, DebugLogging, {
         sound.play();
       };
 
-      $(document).on('touchstart', touchPlay);
+      document.addEventListener('touchstart', touchPlay);
 
       let blockCheck = later(() => {
         this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
       }, 2000);
 
       sound.one('audio-played', () => {
-        $(document).off('touchstart', touchPlay);
+        document.removeEventListener('touchstart', touchPlay);
         cancel(blockCheck);
       });
     }

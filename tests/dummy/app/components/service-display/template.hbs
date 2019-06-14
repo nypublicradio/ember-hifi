@@ -1,5 +1,4 @@
 <div class="service-display-current-sound">
-
   <p class="service-display-current-sound-title">
     {{currentSound.metadata.title}}
   </p>
@@ -13,12 +12,11 @@
 
 <div class="service-display-controls">
   <div class="service-display-buttons">
-
-    <a class="service-display-button-item" {{action "rewind" 5000}}>
+    <a href="#" class="service-display-button-item" {{action "rewind" 5000}}>
       {{fa-icon "backward" size="2x"}}
     </a>
 
-    <a class="service-display-button-item" {{action "togglePause"}}>
+    <a href="#" class="service-display-button-item" {{action "togglePause"}}>
       {{#if (and currentSound currentSound.isPlaying)}}
         {{fa-icon "pause" size="2x"}}
       {{else}}
@@ -26,19 +24,16 @@
       {{/if}}
     </a>
 
-    <a class="service-display-button-item" {{action "fastFoward" 5000}}>
+    <a href="#" class="service-display-button-item" {{action "fastFoward" 5000}}>
       {{fa-icon "forward" size="2x"}}
     </a>
 
-    <a class="service-display-button-item" {{action "stop"}}>
+    <a href="#" class="service-display-button-item" {{action "stop"}}>
       {{fa-icon "stop" size="2x"}}
     </a>
   </div>
   <div class="service-display-volume">
-
     {{input type="range" value=hifi.volume min=0 max=100}}
-
-    {{!-- {{sound-display/volume sound=currentSound}} --}}
   </div>
 
 </div>

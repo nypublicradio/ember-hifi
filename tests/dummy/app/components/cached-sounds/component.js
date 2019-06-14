@@ -3,7 +3,7 @@ import layout from './template';
 import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import move from 'ember-animated/motions/move';
-import {easeOut, easeIn } from 'ember-animated/easings/cosine';
+import { easeOut, easeIn } from 'ember-animated/easings/cosine';
 import { parallel } from 'ember-animated';
 import scale from 'ember-animated/motions/scale';
 export default Component.extend({
@@ -26,7 +26,7 @@ export default Component.extend({
   }),
 
   loadedItems: computed('hifiCache.cachedCount', function() {
-    return this.hifiCache._cacheArray; // animated each gets messed up unless you do this thing
+    return Object.values(this.hifiCache._cache); // animated each gets messed up unless you do this thing
   }),
 
   //eslint-disable-next-line

@@ -1,3 +1,4 @@
+import { reads } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from './template';
 import { inject as service } from '@ember/service';
@@ -7,13 +8,13 @@ export default Component.extend({
   hifi: service(),
   hifiCache: service(),
   classNames: ['service-display'],
-  cachedCount: computed.reads('hifiCache.cachedCount'),
+  cachedCount: reads('hifiCache.cachedCount'),
 
   connections: computed("hifi._connections", function() {
     return Object.values(this.hifi._connections);
   }),
 
-  currentSound: computed.reads('hifi.currentSound'),
+  currentSound: reads('hifi.currentSound'),
 
   actions: {
     togglePause() {

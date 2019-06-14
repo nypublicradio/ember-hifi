@@ -489,7 +489,7 @@ module('Unit | Service | hifi', function(hooks) {
     let strategies = findAudioSpy.firstCall.args[0];
     let actualOrder = [];
     strategies.forEach(strategy => {
-      actualOrder.push(`${strategy.connectionName}:${strategy.url}`);
+      actualOrder.push(`${strategy.connectionKey}:${strategy.url}`);
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Breadth-first strategy should have been used");
@@ -528,7 +528,7 @@ module('Unit | Service | hifi', function(hooks) {
     let actualOrder = [];
     let strategies = findAudioSpy.firstCall.args[0];
     strategies.forEach(strategy => {
-      actualOrder.push(`${strategy.connectionName}:${strategy.url}`);
+      actualOrder.push(`${strategy.connectionKey}:${strategy.url}`);
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Native audio should have been prioritized first");
@@ -566,7 +566,7 @@ module('Unit | Service | hifi', function(hooks) {
     let strategies = findAudioSpy.firstCall.args[0];
 
     findAudioSpy.firstCall.args[0].forEach(strategy => {
-      actualOrder.push(`${strategy.connectionName}:${strategy.url}`);
+      actualOrder.push(`${strategy.connectionKey}:${strategy.url}`);
     });
 
     assert.deepEqual(actualOrder, correctOrder, "Custom strategy should have been used");
@@ -709,10 +709,12 @@ module('Unit | Service | hifi', function(hooks) {
     });
 
     await service.play(s1url);
+
     service.one('current-sound-changed', (currentSound, previousSound) => {
       assert.equal(previousSound.get('url'), "/assets/silence.mp3", "previous sound should be this sound");
       assert.equal(currentSound.get('url'), "/assets/silence2.mp3");
     });
+
     await service.play(s2url)
   });
 
@@ -733,6 +735,8 @@ module('Unit | Service | hifi', function(hooks) {
   });
 
   test("current-sound-interrupted event gets fired when a new `play` request happens while a sound is playing", async function(assert) {
+    let done        = assert.async()
+    assert.expect(1);
     let connections = ['NativeAudio'];
     let service     = this.owner.factoryFor('service:hifi').create({ options: chooseActiveConnections(...connections) });
     let s1url       = "/assets/silence.mp3";
@@ -742,14 +746,15 @@ module('Unit | Service | hifi', function(hooks) {
 
     service.on('current-sound-interrupted', (currentSound) => {
       assert.equal(currentSound.get('url'), s1url, "current sound should be reported as interrupted");
+      done();
     });
-
     await service.play(s1url);
     await service.play(s2url)
   });
 
   test("current-sound-interrupted event gets fired when another sound starts playing while one is already playing", async function(assert) {
     let done        = assert.async();
+    assert.expect(1);
     let connections = ['NativeAudio'];
     let service     = this.owner.factoryFor('service:hifi').create({ options: chooseActiveConnections(...connections) });
     let s1url       = "/assets/silence.mp3";
@@ -762,10 +767,8 @@ module('Unit | Service | hifi', function(hooks) {
       done();
     });
 
-    let { sound: sound1 } = await service.load(s1url);
-    let { sound: sound2 } = await service.load(s2url);
-    sound1.play();
-    sound2.play();
+    let { sound: sound1 } = await service.play(s1url);
+    await service.play(s2url);
   });
 
   test("current-sound-interrupted event does not fire when position gets changed", async function(assert) {
@@ -901,7 +904,7 @@ module('Unit | Service | pre-load trigger', function(hooks) {
       }
     });
     let cache = this.owner.lookup('service:hifi-cache');
-    let cacheSpy = this.spy(cache._cache, 'set');
+    let cacheSpy = this.spy(cache, 'cache');
     let findSpy = this.spy(cache, 'find');
 
     let urlSpy = this.spy(urls => urls.forEach((url, i) => urls[i] = `${url}?foo=bar`));
@@ -911,8 +914,8 @@ module('Unit | Service | pre-load trigger', function(hooks) {
     await service.play(url);
     service.pause();
     await service.play(url)
-    assert.equal(cacheSpy.firstCall.args[0], `${url}?foo=bar`, 'cache lookup with expected value');
-    assert.deepEqual(findSpy.secondCall.args[0], [cacheSpy.firstCall.args[0]], 'lookup key is the same as the cached key');
+    assert.equal(cacheSpy.firstCall.args[0].get('url'), `${url}?foo=bar`, 'cache lookup with expected value');
+    assert.deepEqual(findSpy.secondCall.args[0], [cacheSpy.firstCall.args[0].get('url')], 'lookup key is the same as the cached key');
     assert.equal(urlSpy.callCount, 2, 'callback is called');
   });
 });

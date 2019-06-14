@@ -1,4 +1,6 @@
 import Controller from '@ember/controller';
+/* TODO: check expected values visually to make sure expected input in browser X = expected output */
+
 const AAC_STREAM = {
   title: 'AAC Stream',
   url: 'https://fm939.wnyc.org/wnycfm.aac',
@@ -30,7 +32,7 @@ const MP3_ON_DEMAND = {
 };
 
 const STREAM_WITHOUT_EXTENSION = {
-  title: 'Stream without extension',
+  title: 'WQXR Stream (no extension)',
   url: 'https://stream.wqxr.org/wqxr',
   expectedValues: {
     url: 'https://stream.wqxr.org/wqxr',
@@ -45,7 +47,7 @@ const STREAM_WITHOUT_EXTENSION = {
 };
 
 const HLS_FIXED_LENGTH = {
-  title: "HLS Fixed Length",
+  title: "HLS On Demand",
   url: 'https://cdn.rasset.ie/manifest/audio/2018/0917/20180917_rteradio1-ryantubridy-theryantub_cl10935275_10937556_261_/manifest.m3u8',
   expectedValues: {
     duration: Infinity,
@@ -59,11 +61,25 @@ const HLS_FIXED_LENGTH = {
 }
 
 const HLS_LIVE_STREAM = {
-  title: "KUTX HLS Live Stream",
+  title: "KUTX HLS Stream",
   url: "https://kut-hls.streamguys1.com/kut2/playlist.m3u8",
   expectedValues: {
     duration: Infinity,
     connectionName: "HLS",
+    hasPlayed: false,
+    isStream: true,
+    isFastForwardable: false,
+    isRewindable: false,
+    position: 0
+  }
+}
+
+const KOOP_STREAM = {
+  title: "KOOP AAC Stream",
+  url: "http://streaming.koop.org:8534/;stream.aac",
+  expectedValues: {
+    duration: Infinity,
+    connectionName: "NativeAudio",
     hasPlayed: false,
     isStream: true,
     isFastForwardable: false,
@@ -83,7 +99,8 @@ export default Controller.extend({
       STREAM_WITHOUT_EXTENSION,
       MP3_ON_DEMAND,
       HLS_FIXED_LENGTH,
-      HLS_LIVE_STREAM
+      HLS_LIVE_STREAM,
+      KOOP_STREAM
     ]);
 
     this._super(...arguments);

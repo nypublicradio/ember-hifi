@@ -1,10 +1,10 @@
 <div class="sound-display-top-bar">
   <div class="sound-display-top-bar-actions">
-    <button class="sound-display-top-bar-show-debug is-small" {{action (toggle "showDebugInfo" this)}}>
+    <button type="button" class="sound-display-top-bar-show-debug is-small" {{action (toggle "showDebugInfo" this)}}>
       {{fa-icon "info-circle"}}
     </button>
 
-    <button class="sound-display-top-bar-remove-sound is-small" {{action "removeSound" this}}>
+    <button type="button" class="sound-display-top-bar-remove-sound is-small" {{action "removeSound" this}}>
       {{fa-icon "times-circle"}}
     </button>
   </div>
@@ -34,38 +34,34 @@
 
     </a>
 
-    <a class="sound-control-button-item" {{action "rewind" 5000}}>
-      {{fa-icon "backward"}}
-    </a>
+    {{#if isRewindable}}
+      <button type="button" class="sound-control-button-item" {{action "rewind" 5000}}>
+        {{fa-icon "backward"}}
+      </button>
+    {{/if}}
 
-    <a class="sound-control-button-item" {{action "togglePause"}}>
+    <button type="button" class="sound-control-button-item" {{action "togglePause"}}>
       {{#if sound.isPlaying}}
         {{fa-icon "pause" size="2x"}}
       {{else}}
         {{fa-icon "play" size="2x"}}
       {{/if}}
-    </a>
+    </button>
 
-    <a class="sound-control-button-item" {{action "fastForward" 5000}}>
-      {{fa-icon "forward"}}
-    </a>
+    {{#if isFastForwardable}}
+      <button type="button" class="sound-control-button-item" {{action "fastForward" 5000}}>
+        {{fa-icon "forward"}}
+      </button>
+    {{/if}}
 
-    <a class="sound-control-button-item"  {{action "stop"}}>
+    <button type="button" class="sound-control-button-item"  {{action "stop"}}>
       {{fa-icon "stop"}}
-    </a>
+    </button>
   </div>
 </div>
 
 {{#animated-if showDebugInfo}}
   <div class="sound-display-debug">
-{{!--
-    <h3>Creation Info</h3>
-    <ol>
-      {{#each sound.metadata.strategies as |strategy|}}
-        <li>{{strategy.connectionName}}</li>
-      {{/each}}
-    </ol> --}}
-
     <h3>Properties</h3>
     <dl class="sound-display-debug-list">
       <dt>isLoading</dt>

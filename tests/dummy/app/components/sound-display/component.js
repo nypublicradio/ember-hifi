@@ -1,9 +1,9 @@
+import { reads, equal } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from './template';
 import { inject } from '@ember/service';
 import { computed } from '@ember/object';
 import { task } from 'ember-concurrency';
-import { get } from "@ember/object";
 
 export default Component.extend({
   layout,
@@ -16,14 +16,16 @@ export default Component.extend({
     return (this.sound && !this.sound.isLoading)
   }),
 
-  isPlaying: computed.reads('sound.isPlaying'),
-  isStream: computed.reads('sound.isStream'),
-  title: computed.reads('sound.metadata.title'),
-  url: computed.reads('sound.url'),
-  duration: computed.reads('sound.duration'),
-  position: computed.reads('sound.position'),
-  connectionName: computed.reads('sound.connectionName'),
-  durationIsInfinity: computed.equal('duration', Infinity),
+  isPlaying: reads('sound.isPlaying'),
+  isStream: reads('sound.isStream'),
+  isFastForwardable: reads('sound.isFastForwardable'),
+  isRewindable: reads('sound.isRewindable'),
+  title: reads('sound.metadata.title'),
+  url: reads('sound.url'),
+  duration: reads('sound.duration'),
+  position: reads('sound.position'),
+  connectionName: reads('sound.connectionName'),
+  durationIsInfinity: equal('duration', Infinity),
 
   isCurrentSound: computed('hifi.currentSound', function() {
     return (this.hifi.currentSound && this.hifi.currentSound.url === this.sound.url);
@@ -38,12 +40,12 @@ export default Component.extend({
     }
   },
 
-  playSound: task(function *(url) {
+  playSound: task(function *() {
     let { sound } = yield this.hifi.play(this.url);
     this.set('sound', sound);
   }),
 
-  loadSound: task(function *(url) {
+  loadSound: task(function *() {
     let { sound } = yield this.hifi.load(this.url);
     this.set('sound', sound);
   }),
@@ -65,6 +67,10 @@ export default Component.extend({
 
     async play() {
       this.sound.play();
+    },
+
+    async stop() {
+      this.sound.stop();
     },
 
     async pause() {
