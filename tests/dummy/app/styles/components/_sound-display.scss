@@ -11,6 +11,7 @@
 }
 
 .sound-display {
+  flex-basis: 100%;
   background-color: $sound-background-color;
 
   display: flex;
@@ -40,8 +41,6 @@
         color: #FFF;
       }
     }
-
-
 
     > button + button {
       margin: 0 5px;
@@ -123,6 +122,26 @@
 
   &:active, &:focus {
     outline: 0;
+  }
+}
+
+.sound-control-debug-toggle {
+  margin: -5px -10px;
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+  color: $sound-accent-color;
+  padding: 2px 0;
+  background-color: #000;
+  text-decoration: none;
+
+  > span {
+    font-size: 11px;
+    display: none;
+  }
+  > svg {
+
   }
 }
 
@@ -251,8 +270,17 @@
   font-size: 13px;
 }
 
+
 .sound-display-debug {
-  border-top: 1px solid lighten($sound-background-color, 20);
+  display: none;
+}
+
+.show-debug-info .sound-display-debug {
+  display: block;
+}
+
+
+.sound-display-debug {
   background-color: lighten($sound-background-color, 2);
   padding: 5px 10px;
   margin: 0 -10px;
@@ -261,6 +289,61 @@
     padding: 5px;
     font-size: 11px;
   }
+}
+
+.sound-display-debug h3 {
+  margin-top: 10px;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.sound-display-debug-events {
+  display: block;
+}
+
+.sound-display-debug-strategy {
+  font-size: 12px;
+  padding: 0 5px;
+  margin: 0;
+  list-style-type: none;
+
+  li.is-success {
+    color: $success;
+  }
+
+  li.is-failure {
+    color: $danger;
+  }
+
+  li.not-attempted {
+
+  }
+
+  li.is-ineligible {
+    color: $disabled;
+  }
+}
+
+.debug-event-tag {
+  display: inline-block;
+  font-size: 11px;
+  border: 1px solid lighten($sound-background-color, 20);
+  white-space: nowrap;
+  margin: 2px;
+  padding: 2px;
+  color: #FFF;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.debug-event-tag .debug-event-count {
+  border-right: 1px solid lighten($sound-background-color, 20);
+  margin-right: 2px;
+	color: $sound-accent-color;
+  display: inline-block;
+  text-align: center;
+	padding: 0 5px;
 }
 
 .sound-display-debug-list {

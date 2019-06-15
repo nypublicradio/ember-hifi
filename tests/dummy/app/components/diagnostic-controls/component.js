@@ -35,7 +35,10 @@ export default Component.extend({
     yield this.get('testSounds').forEach(item => {
       this.hifi.play(item.url, {
         metadata: {
-          title: item.title
+          title: item.title,
+          debug: {
+
+          }
         }
       });
     })
@@ -44,7 +47,10 @@ export default Component.extend({
   playCustomSound: task(function *() {
     yield this.hifi.play(this.url, {
       metadata: {
-        title: this.title
+        title: this.title,
+        debug: {
+
+        }
       }
     });
   }).drop(),

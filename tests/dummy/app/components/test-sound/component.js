@@ -21,14 +21,16 @@ export default Component.extend({
 
   url: reads('item.url'),
 
-  isStream: reads('item.expectedValues.isStream'),
-  duration: reads('item.expectedValues.duration'),
+  isStream: reads('item.debug.expectedValues.isStream'),
+  duration: reads('item.debug.expectedValues.duration'),
 
   playSound: task(function *() {
     yield this.hifi.play(this.url, {
       metadata: {
         title: this.title,
-        expectedValues: this.item.expectedValues
+        debug: {
+          expectedValues: this.item.expectedValues
+        }
       }
     });
   }),
@@ -37,7 +39,9 @@ export default Component.extend({
     yield this.hifi.load(this.url, {
       metadata: {
         title: this.title,
-        expectedValues: this.item.expectedValues
+        debug: {
+          expectedValues: this.item.expectedValues
+        }
       }
     });
   }),

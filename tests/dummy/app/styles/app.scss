@@ -1,11 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600');
 // @import "bulma";
-
-@import "base";
-@import "diagnostic";
-@import "buttons";
-@import "site-chrome";
-
+@import "vendor/include-media";
 // MEDIA QUERIES
 $breakpoints: (
   'phone': 599px,
@@ -14,7 +9,12 @@ $breakpoints: (
   'big-desktop': 1800px
 );
 
-@import "vendor/include-media";
+
+@import "base";
+@import "diagnostic";
+@import "buttons";
+@import "site-chrome";
+
 
 $body-color: #FFF;
 $yellow: yellow;
@@ -41,3 +41,7 @@ $text-color-bright: #EEE;
 @import "components/connection-display";
 @import "components/sound-display";
 @import "components/diagnostic-controls";
+
+html {
+  --brand-primary: #1b202b;
+}

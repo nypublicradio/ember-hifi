@@ -58,7 +58,6 @@ let Sound = BaseSound.extend({
     switch(eventName) {
       case 'loadeddata':
         var audio = this.audioElement();
-
         // Firefox doesn't fire a 'canplay' event until after you call *play* on
         // the audio, but it does fire 'loadeddata' when it's ready
         if (audio.readyState >= HAVE_CURRENT_DATA) {

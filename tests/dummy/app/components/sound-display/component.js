@@ -10,7 +10,7 @@ export default Component.extend({
   hifi: inject(),
   hifiCache: inject(),
   classNames: ['sound', 'sound-display', 'is-loaded'],
-  classNameBindings: ['isCurrentSound', 'isPlaying'],
+  classNameBindings: ['isCurrentSound', 'isPlaying', 'showDebugInfo'],
   attributeBindings:['connectionName:data-connection-name'],
   isLoaded: computed('sound', 'sound.isLoading', function() {
     return (this.sound && !this.sound.isLoading)

@@ -6,15 +6,6 @@ import { computed } from '@ember/object';
 import { getMimeType } from 'ember-hifi/utils/mime-types';
 import { get, set, getWithDefault } from '@ember/object';
 
-// var after = function (fn, after) {
-//   return function () {
-//     var result = fn.apply(this, arguments);
-//     after.call(this, result);
-//     return result;
-//   };
-// };
-
-
 export default Component.extend({
   layout,
   hifi: service(),
@@ -53,8 +44,10 @@ export default Component.extend({
   },
 
   _setupLoadRequestMonitor() {
-    this.hifi.on('new-load-request', async ({loadPromise, urlsOrPromise, options}) => {
+    // Intercept load requests and push the results into the created sound. This powers the "strategy"
+    // area of the debug information in the sound diagnostic
 
+    this.hifi.on('new-load-request', async ({loadPromise, urlsOrPromise, options}) => {
       // TODO: change this event to provide the urls
       let urlsToTry = await this.hifi._resolveUrls(urlsOrPromise)
 
@@ -84,22 +77,36 @@ export default Component.extend({
         mimeType: mimeType,
         canPlayMimeType: this.connection.canPlayMimeType(mimeType),
         canUseConnection: this.connection.canUseConnection(url),
-        connectionName: this.connectionName,
+        connectionName: this.connection.toString(),
       }
 
       loadPromise.then(({sound}) => {
-        let results = getWithDefault(sound, 'metadata.debug', {})
+        let results = getWithDefault(sound, 'metadata.debug.results', [])
 
         set(result, 'thisConnection',  this.connection.toString())
         set(result, 'connectionResult',  sound.connectionName)
         set(this, 'lastResult', result);
-
         set(result, 'didPlay', this.connection.toString() === sound.connectionName);
+        results.push(result);
 
-        set(sound, 'metadata.debug', results)
-        set(sound, 'metadata.strategies', strategies);
+        let sortedResults = results.sort(result => {
+          return strategies.indexOf(s => s.connectionName === result.connectionName)
+        }).reverse();
 
-        results[this.connection] = result;
+        let triedToPlay = true
+        let debugResults = sortedResults.map(result => {
+          result.triedToPlay = triedToPlay
+
+          if (result.didPlay) {
+            triedToPlay = false
+          }
+
+          return result
+        });
+
+        set(sound, 'metadata.debug.results', debugResults)
+        set(sound, 'metadata.debug.strategies', strategies);
+
       })
     })
   }

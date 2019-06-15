@@ -15,36 +15,22 @@
   {{connection}}
 </a>
 
-<div class="connection-display-info">
-  {{#if canUseConnection}}
-    {{#if (or connection.acceptMimeTypes connection.rejectMimeTypes)}}
-      {{#each connection.acceptMimeTypes as |type|}}
-        <span class="has-text-success">Accepts mimes: {{type}}</span>
-      {{/each}}
-
-      {{#each connection.rejectMimeTypes as |type|}}
-        <span class="has-text-danger">Rejects mimes: {{type}}</span>
-      {{/each}}
-    {{else}}
-      <span class="has-text-success">Accepts mimes: All</span>
-    {{/if}}
-  {{else}}
-    Can Not Use In This Browser
-  {{/if}}
-</div>
-
 {{#animated-beacon name=connectionName}}
-  {{#if lastResultWasOurs}}
-    <div class="connection-attempt-result is-success">
-      Successfully created "mime: {{lastResult.mimeType}}".
-    </div>
-  {{else if lastResultCouldHaveBeenOurs}}
-    <div class="connection-attempt-result is-skipped">
-      Could have created "mime: {{lastResult.mimeType}}", but connection was not selected.
-    </div>
-  {{else if hasLastResult}}
-    <div class="connection-attempt-result is-failed">
-      Could not create "mime: {{lastResult.mimeType}}"
-    </div>
-  {{/if}}
+  <div class="connection-display-info">
+    {{#if canUseConnection}}
+      {{#if (or connection.acceptMimeTypes connection.rejectMimeTypes)}}
+        {{#each connection.acceptMimeTypes as |type|}}
+          <span class="has-text-success">Accepts mimes: {{type}}</span>
+        {{/each}}
+
+        {{#each connection.rejectMimeTypes as |type|}}
+          <span class="has-text-danger">Rejects mimes: {{type}}</span>
+        {{/each}}
+      {{else}}
+        <span class="has-text-success">Accepts mimes: All</span>
+      {{/if}}
+    {{else}}
+      Can Not Use In This Browser
+    {{/if}}
+  </div>
 {{/animated-beacon}}

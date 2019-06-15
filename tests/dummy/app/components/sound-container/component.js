@@ -5,7 +5,6 @@ import { computed } from '@ember/object';
 import move, { /* continuePrior */ } from 'ember-animated/motions/move';
 import { parallel } from 'ember-animated';
 import scale from 'ember-animated/motions/scale';
-import { task } from 'ember-concurrency';
 export default Component.extend({
   layout,
 
@@ -35,18 +34,6 @@ export default Component.extend({
 
   dormantItems: computed('testSounds', 'hifiCache.cachedCount', function() {
     return this.testSounds.filter(item => !this.hifiCache.find(item.url))
-  }),
-
-  loadAllTestSounds: task(function *() {
-    yield this.get('testSounds').forEach(item => {
-      this.hifi.load(item.url);
-    })
-  }),
-
-  playAllTestSounds: task(function *() {
-    yield this.get('testSounds').forEach(item => {
-      this.hifi.play(item.url);
-    })
   }),
 
   //eslint-disable-next-line

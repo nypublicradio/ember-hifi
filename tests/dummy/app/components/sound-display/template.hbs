@@ -1,9 +1,5 @@
 <div class="sound-display-top-bar">
   <div class="sound-display-top-bar-actions">
-    <button type="button" class="sound-display-top-bar-show-debug is-small" {{action (toggle "showDebugInfo" this)}}>
-      {{fa-icon "info-circle"}}
-    </button>
-
     <button type="button" class="sound-display-top-bar-remove-sound is-small" {{action "removeSound" this}}>
       {{fa-icon "times-circle"}}
     </button>
@@ -60,40 +56,75 @@
   </div>
 </div>
 
-{{#animated-if showDebugInfo}}
-  <div class="sound-display-debug">
-    <h3>Properties</h3>
-    <dl class="sound-display-debug-list">
-      <dt>isLoading</dt>
-      <dd>{{sound.isLoading}}</dd>
 
-      <dt>isPlaying</dt>
-      <dd>{{sound.isPlaying}}</dd>
+<div class="sound-display-debug">
+  <h3>Events</h3>
+  {{event-display class="sound-display-debug-events" object=sound}}
 
-      <dt>isErrored</dt>
-      <dd>{{sound.isErrored}}</dd>
+  <h3>Properties</h3>
+  <dl class="sound-display-debug-list">
+    <dt>isLoading</dt>
+    <dd>{{sound.isLoading}}</dd>
 
-      <dt>hasPlayed</dt>
-      <dd>{{sound.hasPlayed}}</dd>
+    <dt>isPlaying</dt>
+    <dd>{{sound.isPlaying}}</dd>
 
-      <dt>duration</dt>
-      <dd>{{sound.duration}}</dd>
+    <dt>isErrored</dt>
+    <dd>{{sound.isErrored}}</dd>
 
-      <dt>isStream</dt>
-      <dd>{{sound.isStream}}</dd>
+    <dt>hasPlayed</dt>
+    <dd>{{sound.hasPlayed}}</dd>
 
-      <dt>isRewindable</dt>
-      <dd>{{sound.isRewindable}}</dd>
+    <dt>duration</dt>
+    <dd>{{sound.duration}}</dd>
 
-      <dt>isFastForwardable</dt>
-      <dd>{{sound.isFastForwardable}}</dd>
+    <dt>isStream</dt>
+    <dd>{{sound.isStream}}</dd>
 
-      <dt>percentLoaded</dt>
-      <dd>{{sound.percentLoaded}}</dd>
+    <dt>isRewindable</dt>
+    <dd>{{sound.isRewindable}}</dd>
 
-    </dl>
-  </div>
-{{/animated-if}}
+    <dt>isFastForwardable</dt>
+    <dd>{{sound.isFastForwardable}}</dd>
 
+    <dt>percentLoaded</dt>
+    <dd>{{sound.percentLoaded}}</dd>
+  </dl>
+
+  <h3>Strategy</h3>
+
+  <ul class="sound-display-debug-strategy">
+    {{#each sound.metadata.debug.results as |item|}}
+        {{#if item.didPlay}}
+          <li class="is-success">
+            {{fa-icon "check-square"}} {{item.connectionName}} succeeded
+          </li>
+        {{else if (and item.canPlay (not item.triedToPlay))}}
+          <li class="not-attempted">
+            {{fa-icon "square"}} {{item.connectionName}} was not attemped
+          </li>
+        {{else if (and item.canPlay item.triedToPlay)}}
+          <li class="is-failure">
+            {{fa-icon "skull"}} {{item.connectionName}} attempted and failed
+          </li>
+        {{else if (not item.canPlay)}}
+          <li class="is-ineligible">
+            {{fa-icon "times"}} {{item.connectionName}} ineligible, not attempted
+          </li>
+        {{/if}}
+    {{/each}}
+  </ul>
+</div>
+
+
+<a href="#" class="sound-control-debug-toggle" {{action (toggle "showDebugInfo" this)}}>
+  {{#if showDebugInfo}}
+    <span>Hide Debug</span>
+    {{fa-icon "angle-up"}}
+  {{else}}
+    <span>Show Debug</span>
+    {{fa-icon "angle-down"}}
+  {{/if}}
+</a>
 
 {{yield}}

@@ -4,6 +4,8 @@ import { get, computed } from '@ember/object';
 import RecognizerMixin from 'ember-gestures/mixins/recognizers';
 import { htmlSafe } from '@ember/string';
 import { throttle, next } from '@ember/runloop';
+import { inject as service } from "@ember/service";
+
 
 export default Component.extend(RecognizerMixin, {
   layout,
@@ -14,6 +16,8 @@ export default Component.extend(RecognizerMixin, {
     let downloaded = get(this, 'sound.percentLoaded');
     return htmlSafe(`width: ${(downloaded) * 100}%;`);
   }),
+
+  hifi: service(),
 
   playedPercentage        : computed('sound.{position,duration}', function() {
     if (this.sound && this.sound.duration !== Infinity) {
@@ -48,13 +52,16 @@ export default Component.extend(RecognizerMixin, {
     const {
       center
     } = e.gesture;
-    let rect = this.element.getBoundingClientRect();
-    let positionPercentage = ((center.x - rect.x)/rect.width)
-    let newPosition      = parseFloat(this.sound.duration * positionPercentage, 10);
-    next(() => {
-      this.set('sound.position', newPosition);
-      this.set('dragAdjustment', 0);
-    })
+
+    if (this.sound.isFastForwardable && this.sound.isRewindable) {
+      let rect = this.element.getBoundingClientRect();
+      let positionPercentage = ((center.x - rect.x)/rect.width)
+      let newPosition      = parseFloat(this.sound.duration * positionPercentage, 10);
+      next(() => {
+        this.set('sound.position', newPosition);
+        this.set('dragAdjustment', 0);
+      })
+    }
   },
 
   actions: {

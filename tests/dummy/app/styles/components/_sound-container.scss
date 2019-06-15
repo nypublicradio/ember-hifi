@@ -7,8 +7,7 @@
 
   border: 1px dotted $container-border-color;
   background-color: $container-background-color;
-  min-height: 150px;
-
+  min-height: 100px;
   &:after {
     content: attr(data-title);
     font-size: 10px;
@@ -25,17 +24,20 @@
 }
 
 .sound-container.loaded  {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto;
-  grid-column-gap: 15px;
-  grid-row-gap: 15px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-right: -10px;
 
-  @include media(">=phone") {
-    grid-template-columns: 1fr 1fr;
+  @include media(">phone") {
+    > div {
+      max-width: calc(50% - 10px);
+      margin-right: 10px;
+    }
   }
 
   @include media(">=tablet") {
-    grid-template-columns: 1fr 1fr 1fr;
+    // grid-template-columns: 1fr 1fr 1fr;
   }
 }
