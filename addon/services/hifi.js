@@ -20,8 +20,9 @@ import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
 import SharedAudioAccess from '../utils/shared-audio-access';
 import DebugLogging from '../mixins/debug-logging';
+import { task, timeout } from 'ember-concurrency';
 
-const EVENT_MAP = [
+export const EVENT_MAP = [
   {event: 'audio-played',               handler: '_relayPlayedEvent'},
   {event: 'audio-paused',               handler: '_relayPausedEvent'},
   {event: 'audio-ended',                handler: '_relayEndedEvent'},
@@ -117,17 +118,21 @@ export default Service.extend(Evented, DebugLogging, {
 
     this.set('isReady', true);
 
-
-   // Polls the current sound for position. We wanted to make it easy/flexible
-   // for connection authors, and since we only play one sound at a time, we don't
-   // need other non-active sounds telling us position info
-    this.get('poll').addPoll({
-      interval: get(this, 'pollInterval') || 500,
-      callback: bind(this, this._setCurrentPosition)
-    });
+    this.pollForPosition.perform();
 
     this._super(...arguments);
   },
+
+  pollForPosition: task(function * () {
+    // Polls the current sound for position. We wanted to make it easy/flexible
+    // for connection authors, and since we only play one sound at a time, we don't
+    // need other non-active sounds telling us position info
+
+    while(true) {
+      yield this._setCurrentPosition();
+      yield timeout(this.pollInterval);
+    }
+  }),
 
   /**
    * Returns the list of activated and available connections

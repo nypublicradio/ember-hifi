@@ -36,7 +36,6 @@
     "@fortawesome/free-solid-svg-icons": "^5.6.3",
     "ember-auto-import": "^1.2.19",
     "ember-cli-babel": "^7.7.3",
-    "ember-poll": "^1.4.0",
     "hls.js": "^0.12.2",
     "howler": "^2.0.5"
   },
