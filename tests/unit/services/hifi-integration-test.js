@@ -3,11 +3,13 @@ import { later } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { dummyHifi } from '../../../tests/helpers/hifi-integration-helpers';
+import Ember from 'ember';
 
-let originalOnError = window.onerror;
+let originalOnError = Ember.onerror;
 function catchExpectedErrors(expectedErrors) {
-  window.onerror = function(message) {
-    if (!expectedErrors.includes(message)) {
+  Ember.onerror = function(error) {
+    if (!expectedErrors.includes(error.message.replace(/(Uncaught\s)?Error:\s/, ""))) {
+      // some environments will throw Uncaught Error, some will throw Error
       originalOnError.apply(window, arguments);
     }
   }
@@ -33,7 +35,7 @@ module('Unit | Service | hifi integration test.js', function(hooks) {
   });
 
   test('playing a bad url fails', async function(assert) {
-    catchExpectedErrors(["Uncaught Error: All given promises failed."]);
+    catchExpectedErrors(["All given promises failed."]);
 
     let service = this.owner.factoryFor('service:audio').create({});
     let failures, success = false;
@@ -47,11 +49,10 @@ module('Unit | Service | hifi integration test.js', function(hooks) {
     }
 
     assert.equal(success, false, "should not be successful")
-    window.onerror = originalOnError;
   });
 
   test('playing a blank url fails', async function(assert) {
-    catchExpectedErrors(["Uncaught Error: [ember-hifi] URLs must be provided"]);
+    catchExpectedErrors(["[ember-hifi] URLs must be provided"]);
     let service = this.owner.factoryFor('service:audio').create({});
     let failures, results;
 

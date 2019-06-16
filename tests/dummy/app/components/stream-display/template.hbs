@@ -3,14 +3,14 @@
   {{#each stream.mountPoints as |mount|}}
   {{#if mount}}
   <li>
-    <button class="{{if (contains stream.badMounts mount) 'is-error'}}" {{action 'listen' mount}}>
+    <button class="{{if (contains stream.badMounts mount) "is-error"}}" {{action "listen" mount}}>
       Listen using {{mount}}
     </button>
   </li>
   {{/if}}
   {{/each}}
   <li>
-    <button {{action 'tryAll' stream}}>
+    <button {{action "tryAll" stream}}>
       Try All
     </button>
   </li>

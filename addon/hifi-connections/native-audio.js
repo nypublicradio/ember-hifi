@@ -1,6 +1,5 @@
 import { A } from '@ember/array';
 import { run } from '@ember/runloop';
-import $ from 'jquery';
 import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 
@@ -37,12 +36,12 @@ let Sound = BaseSound.extend({
 
   _registerEvents(audio) {
     AUDIO_EVENTS.forEach(eventName => {
-      $(audio).on(eventName, e => run(() => this._handleAudioEvent(eventName, e)));
+      audio.addEventListener(eventName, e => run(() => this._handleAudioEvent(eventName, e)));
     });
   },
 
   _unregisterEvents(audio) {
-    AUDIO_EVENTS.forEach(eventName => $(audio).off(eventName));
+    AUDIO_EVENTS.forEach(eventName => audio.removeEventListener(eventName));
   },
 
   _handleAudioEvent(eventName, e) {
@@ -59,7 +58,6 @@ let Sound = BaseSound.extend({
     switch(eventName) {
       case 'loadeddata':
         var audio = this.audioElement();
-
         // Firefox doesn't fire a 'canplay' event until after you call *play* on
         // the audio, but it does fire 'loadeddata' when it's ready
         if (audio.readyState >= HAVE_CURRENT_DATA) {
@@ -212,7 +210,7 @@ let Sound = BaseSound.extend({
         message = 'Audio source format is not supported.';
         break;
       default:
-        message = 'unknown error.';
+        message = error.message;
         break;
     }
 
@@ -221,9 +219,7 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioEmptied() {
-    if (this.get('isStream')) {
-      this.trigger('audio-paused', this);
-    }
+    this.trigger('audio-paused', this);
   },
 
   _onAudioPaused() {
