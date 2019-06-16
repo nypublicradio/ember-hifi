@@ -1,10 +1,7 @@
 
 
 .service-display {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-content: center;
+
   // width: 100%;
   background-color: $sound-background-color;
   border-radius: 8px;
@@ -12,6 +9,13 @@
   color: #DDD;
   min-height: 100px;
   overflow:hidden;
+}
+
+.service-display-sound-and-controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
 }
 
 .service-display-current-sound {

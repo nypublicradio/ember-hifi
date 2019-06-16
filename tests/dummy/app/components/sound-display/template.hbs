@@ -57,12 +57,12 @@
 </div>
 
 
-<div class="sound-display-debug">
+<div class="diagnostic-debug">
   <h3>Events</h3>
-  {{event-display class="sound-display-debug-events" object=sound}}
+  {{event-display class="diagnostic-debug-events" sound=sound}}
 
   <h3>Properties</h3>
-  <dl class="sound-display-debug-list">
+  <dl class="diagnostic-debug-list">
     <dt>isLoading</dt>
     <dd>{{sound.isLoading}}</dd>
 
@@ -77,6 +77,9 @@
 
     <dt>duration</dt>
     <dd>{{sound.duration}}</dd>
+
+    <dt>position</dt>
+    <dd>{{sound.position}}</dd>
 
     <dt>isStream</dt>
     <dd>{{sound.isStream}}</dd>
@@ -93,7 +96,7 @@
 
   <h3>Strategy</h3>
 
-  <ul class="sound-display-debug-strategy">
+  <ul class="diagnostic-debug-strategy">
     {{#each sound.metadata.debug.results as |item|}}
         {{#if item.didPlay}}
           <li class="is-success">
@@ -117,7 +120,7 @@
 </div>
 
 
-<a href="#" class="sound-control-debug-toggle" {{action (toggle "showDebugInfo" this)}}>
+<a href="#" class="diagnostic-debug-toggle" {{action (toggle "showDebugInfo" this)}}>
   {{#if showDebugInfo}}
     <span>Hide Debug</span>
     {{fa-icon "angle-up"}}

@@ -34,6 +34,9 @@ export default Component.extend(RecognizerMixin, {
     if (!this.get('sound.isStream')) {
       return htmlSafe(`width: ${(this.playedPercentage) * 100}%;`);
     }
+    else {
+      return htmlSafe(`width: auto;`);
+    }
   }),
 
   durationIsInfinity: computed('sound.duration', function() {

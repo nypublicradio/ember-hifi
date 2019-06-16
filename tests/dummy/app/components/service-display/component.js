@@ -8,6 +8,7 @@ export default Component.extend({
   hifi: service(),
   hifiCache: service(),
   classNames: ['service-display'],
+  classNameBindings: ['showDebugInfo'],
   cachedCount: reads('hifiCache.cachedCount'),
 
   connections: computed("hifi._connections", function() {

@@ -1,5 +1,5 @@
 import { or, readOnly, equal, reads, alias } from '@ember/object/computed';
-import { later, cancel, bind } from '@ember/runloop';
+import { later, cancel } from '@ember/runloop';
 import { isEmpty } from '@ember/utils';
 import { assign } from '@ember/polyfills';
 import { getOwner } from '@ember/application';
@@ -33,6 +33,13 @@ export const EVENT_MAP = [
   {event: 'audio-position-will-change', handler: '_relayPositionWillChangeEvent'},
   {event: 'audio-will-rewind',          handler: '_relayWillRewindEvent'},
   {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'}
+]
+
+export const SERVICE_EVENT_MAP = [
+  {event: 'current-sound-changed' },
+  {event: 'current-sound-interrupted' },
+  {event: 'new-load-request' },
+  {event: 'pre-load' }
 ]
 
 export default Service.extend(Evented, DebugLogging, {

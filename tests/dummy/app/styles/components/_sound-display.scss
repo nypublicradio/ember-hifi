@@ -125,7 +125,7 @@
   }
 }
 
-.sound-control-debug-toggle {
+.diagnostic-debug-toggle {
   margin: -5px -10px;
   display: block;
   text-align: center;
@@ -133,7 +133,7 @@
   margin-top: 10px;
   color: $sound-accent-color;
   padding: 2px 0;
-  background-color: #000;
+  background-color: $sound-background-color;
   text-decoration: none;
 
   > span {
@@ -271,16 +271,16 @@
 }
 
 
-.sound-display-debug {
+.diagnostic-debug {
   display: none;
 }
 
-.show-debug-info .sound-display-debug {
+.show-debug-info .diagnostic-debug {
   display: block;
 }
 
 
-.sound-display-debug {
+.diagnostic-debug {
   background-color: lighten($sound-background-color, 2);
   padding: 5px 10px;
   margin: 0 -10px;
@@ -291,18 +291,18 @@
   }
 }
 
-.sound-display-debug h3 {
+.diagnostic-debug h3 {
   margin-top: 10px;
   &:first-child {
     margin-top: 0;
   }
 }
 
-.sound-display-debug-events {
+.diagnostic-debug-events {
   display: block;
 }
 
-.sound-display-debug-strategy {
+.diagnostic-debug-strategy {
   font-size: 12px;
   padding: 0 5px;
   margin: 0;
@@ -326,27 +326,30 @@
 }
 
 .debug-event-tag {
+  background-color: lighten($sound-background-color, 20);
   display: inline-block;
   font-size: 11px;
-  border: 1px solid lighten($sound-background-color, 20);
   white-space: nowrap;
   margin: 2px;
-  padding: 2px;
+  padding: 3px;
   color: #FFF;
   text-decoration: none;
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 .debug-event-tag .debug-event-count {
-  border-right: 1px solid lighten($sound-background-color, 20);
-  margin-right: 2px;
+  border-right: 1px solid #333;
 	color: $sound-accent-color;
   display: inline-block;
   text-align: center;
 	padding: 0 5px;
 }
 
-.sound-display-debug-list {
+.debug-event-tag .debug-event-name {
+  padding: 0 3px;
+}
+
+.diagnostic-debug-list {
   display: grid;
   grid-template: auto / 10em 1fr;
   font-size: 11px;
