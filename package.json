@@ -32,6 +32,8 @@
     "ember-poll": "^1.4.0",
     "hls.js": "^0.8.8",
     "howler": "^2.0.5"
+    "howler": "^2.0.5",
+    "ember-copy": "^1.0.0"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
@@ -52,7 +54,6 @@
     "ember-cli-sri": "^2.1.0",
     "ember-cli-uglify": "^2.0.0",
     "ember-code-snippet": "^2.0.0",
-    "ember-copy": "^1.0.0",
     "ember-disable-prototype-extensions": "^1.1.2",
     "ember-export-application-global": "^2.0.0",
     "ember-load-initializers": "^1.0.0",
