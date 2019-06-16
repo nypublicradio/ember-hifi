@@ -6,6 +6,7 @@ var mergeTrees = require('broccoli-merge-trees');
 
 module.exports = {
   name: 'ember-hifi',
+
   included(app, parentAddon) {
     this._super.included.apply(this, arguments);
     var target = parentAddon || app;
@@ -14,32 +15,59 @@ module.exports = {
       target = target.app;
     }
 
-    target.import({
-      development: 'vendor/third-party/howler.js',
-      production: 'vendor/third-party/howler.min.js'
-    });
+    this.getHifiConnections();
 
-    target.import({
-      development: 'vendor/third-party/hls.js',
-      production: 'vendor/third-party/hls.min.js'
-    });
+    if (this.hifiConnections.includes('Howler')) {
+      target.import({
+        development: 'vendor/third-party/howler.js',
+        production: 'vendor/third-party/howler.min.js'
+      });
 
-    target.import('vendor/howler.js');
-    target.import('vendor/hls.js');
+      target.import('vendor/howler.js');
+    }
+
+    if (this.hifiConnections.includes('HLS')) {
+      target.import({
+        development: 'vendor/third-party/hls.js',
+        production: 'vendor/third-party/hls.min.js'
+      });
+
+      target.import('vendor/hls.js');
+    }
   },
 
   treeForVendor(vendorTree) {
-    var howlerTree = new Funnel(path.dirname(require.resolve('howler')), {
-      files: ['howler.js', 'howler.min.js'],
-      destDir: 'third-party'
-    });
+    var trees = [];
 
-    var hlsTree = new Funnel(path.dirname(require.resolve('hls.js')), {
-      files: ['hls.js', 'hls.min.js', 'hls.js.map'],
-      destDir: 'third-party'
-    });
+    this.getHifiConnections();
 
-    return mergeTrees([vendorTree, howlerTree, hlsTree]);
+    if (vendorTree) {
+      trees.push(vendorTree);
+    }
+
+    if (this.hifiConnections.includes('Howler')) {
+      trees.push(new Funnel(path.dirname(require.resolve('howler')), {
+        files: ['howler.js', 'howler.min.js'],
+        destDir: 'third-party'
+      }));
+    }
+
+    if (this.hifiConnections.includes('HLS')) {
+      trees.push(new Funnel(path.dirname(require.resolve('hls.js')), {
+        files: ['hls.js', 'hls.min.js', 'hls.js.map'],
+        destDir: 'third-party'
+      }));
+    }
+
+    return mergeTrees(trees);
+  },
+
+  getHifiConnections: function() {
+    if (this.hifiConnections) {
+      return;
+    }
+
+    this.hifiConnections = this.project.config(process.env.EMBER_ENV).emberHifi.connections.map((connection) => connection.name);
   },
 
   isDevelopingAddon: function() {
