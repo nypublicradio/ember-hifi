@@ -7,7 +7,7 @@
       {{currentSound.url}}
     </p>
     {{#if currentSound}}
-    {{sound-display/position sound=currentSound class="service-display-current-sound-position"}}
+      {{sound-display/position sound=currentSound class="service-display-current-sound-position"}}
     {{/if}}
   </div>
 
@@ -19,9 +19,9 @@
 
       <a href="#" class="service-display-button-item" {{action "togglePause"}}>
         {{#if (and currentSound currentSound.isPlaying)}}
-        {{fa-icon "pause" size="2x"}}
+          {{fa-icon "pause" size="2x"}}
         {{else}}
-        {{fa-icon "play" size="2x"}}
+          {{fa-icon "play" size="2x"}}
         {{/if}}
       </a>
 

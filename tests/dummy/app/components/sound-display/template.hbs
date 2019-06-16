@@ -98,27 +98,26 @@
 
   <ul class="diagnostic-debug-strategy">
     {{#each sound.metadata.debug.results as |item|}}
-        {{#if item.didPlay}}
-          <li class="is-success">
-            {{fa-icon "check-square"}} {{item.connectionName}} succeeded
-          </li>
-        {{else if (and item.canPlay (not item.triedToPlay))}}
-          <li class="not-attempted">
-            {{fa-icon "square"}} {{item.connectionName}} was not attemped
-          </li>
-        {{else if (and item.canPlay item.triedToPlay)}}
-          <li class="is-failure">
-            {{fa-icon "skull"}} {{item.connectionName}} attempted and failed
-          </li>
-        {{else if (not item.canPlay)}}
-          <li class="is-ineligible">
-            {{fa-icon "times"}} {{item.connectionName}} ineligible, not attempted
-          </li>
-        {{/if}}
+      {{#if item.didPlay}}
+        <li class="is-success">
+          {{fa-icon "check-square"}} {{item.connectionName}} succeeded
+        </li>
+      {{else if (and item.canPlay (not item.triedToPlay))}}
+        <li class="not-attempted">
+          {{fa-icon "square"}} {{item.connectionName}} was not attemped
+        </li>
+      {{else if (and item.canPlay item.triedToPlay)}}
+        <li class="is-failure">
+          {{fa-icon "skull"}} {{item.connectionName}} attempted and failed
+        </li>
+      {{else if (not item.canPlay)}}
+        <li class="is-ineligible">
+          {{fa-icon "times"}} {{item.connectionName}} ineligible, not attempted
+        </li>
+      {{/if}}
     {{/each}}
   </ul>
 </div>
-
 
 <a href="#" class="diagnostic-debug-toggle" {{action (toggle "showDebugInfo" this)}}>
   {{#if showDebugInfo}}
