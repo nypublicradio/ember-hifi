@@ -1,4 +1,3 @@
-import EmberMap from '@ember/map';
 import Service from '@ember/service';
 import { A as emberArray, makeArray } from '@ember/array';
 import DebugLogging from '../mixins/debug-logging';
@@ -6,10 +5,13 @@ import DebugLogging from '../mixins/debug-logging';
 export default Service.extend(DebugLogging, {
   debugName: 'hifi-cache',
 
-  _cache: EmberMap.create(),
+  init() {
+    this._super(...arguments);
+    this.set('_cache', new Map());
+  },
 
   reset() {
-    this.set('_cache', EmberMap.create());
+    this.set('_cache', new Map());
   },
 
   find(urls) {

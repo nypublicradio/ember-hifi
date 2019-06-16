@@ -1,22 +1,92 @@
-machine:
-  node:
-    version: 7.10.0
-  post:
-    - npm rebuild node-sass
-dependencies:
-  override:
-    - yarn global add bower
-    - bower install
-    - yarn --pure-lockfile
+version: 2
 
-test:
-  override:
-    - yarn test:
-        timeout: 1200
+defaults: &defaults
+  docker:
+    - image: circleci/node:8.7-browsers
+      environment:
+        JOBS: 2
 
-deployment:
-  docs:
-    branch: master
-    commands:
-      - git checkout gh-pages; git checkout master
-      - ./node_modules/ember-cli/bin/ember deploy production
+jobs:
+  install:
+    <<: *defaults
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: node-deps-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install node dependencies
+          command: |
+            if [ ! -d node_modules ]; then
+              yarn --pure-lockfile
+            fi
+      - save_cache:
+          key: node-deps-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+
+      - restore_cache:
+          key: bower-deps-{{ checksum "bower.json" }}
+      - run:
+          name: Install bower dependencies
+          command: |
+            yarn global add bower
+            npx bower i
+      - save_cache:
+          key: bower-deps-{{ checksum "bower.json" }}
+          paths:
+            - bower_components
+
+  test:
+    <<: *defaults
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: node-deps-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          key: bower-deps-{{ checksum "bower.json" }}
+      - run:
+          name: Test
+          command: yarn test
+
+  deploy:
+    <<: *defaults
+
+    steps:
+      - checkout
+      - restore_cache:
+          key: node-deps-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          key: bower-deps-{{ checksum "bower.json" }}
+      - add_ssh_keys:
+          fingerprints:
+            - "08:eb:03:31:44:a6:ba:ea:33:11:ef:36:7a:5e:15:22"
+      - run:
+          name: Deploy to GitHub Pages
+          command: |
+            git config --global user.email "deploy@circleci"
+            git config --global user.name "deploy"
+            npx ember deploy production
+
+workflows:
+  version: 2
+  install-test-deploy:
+    jobs:
+      - install:
+          filters:
+            tags:
+              only: /.*/
+      - test:
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - install
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master

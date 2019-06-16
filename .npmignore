@@ -7,8 +7,8 @@
 .bowerrc
 .editorconfig
 .ember-cli
-.gitignore
 .eslintrc.js
+.gitignore
 .watchmanconfig
 .travis.yml
 bower.json
@@ -19,3 +19,9 @@ testem.js
 .node_modules.ember-try/
 bower.json.ember-try
 package.json.ember-try
+
+.DS_Store
+.*~
+*.sw*
+
+yarn-error.log

@@ -1,6 +1,21 @@
 # ember-hifi Changelog
 
-### 1.14.0 (December 13, 2017)
+### 1.15.2 (September 24, 2018)
+- [CHORE] replace deprecated Ember.Copy
+- [CHORE] replace deprecated EmberMap
+- [CHORE] add missing semicolons [#52](https://github.com/nypublicradio/ember-hifi/pull/52)
+
+### 1.15.1 (June 12, 2018)
+- [BUGFIX] moves `pre-load` event so it doesn't interfere with `soundCache` keys
+
+### 1.15.0 (June 11, 2018) ☀️
+- [IMPROVEMENT] Adds `pre-load` event to hifi service with successful strategy
+
+### 1.14.1 (February 13, 2018) ❤️
+- [CHORE] Add some docs
+- [IMPROVEMENT] Adds `currentMetadata` computed property is updated synchronously with calls to `play`
+
+### 1.14.0 (December 13, 2017) 🕎
 - [IMPROVEMENT] Upgrade to ember 2.17
 
 ### 1.13.0 (October 30, 2017) 🎃

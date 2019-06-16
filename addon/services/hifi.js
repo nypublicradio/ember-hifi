@@ -21,7 +21,7 @@ import RSVP from 'rsvp';
 import PromiseRace from '../utils/promise-race';
 import SharedAudioAccess from '../utils/shared-audio-access';
 import DebugLogging from '../mixins/debug-logging';
-import { bind } from 'ember-runloop';
+import { bind } from '@ember/runloop';
 
 
 export default Service.extend(Evented, DebugLogging, {
@@ -39,6 +39,12 @@ export default Service.extend(Evented, DebugLogging, {
   useSharedAudioAccess: or('isMobileDevice', 'alwaysUseSingleAudioElement'),
 
   currentSound:      null,
+  currentMetadata:   computed('currentSound.metadata', {
+    get() {
+      return this.get('currentSound.metadata');
+    },
+    set: (k, v) => v
+  }),
   isPlaying:         readOnly('currentSound.isPlaying'),
   isLoading:         computed('currentSound.isLoading', {
     get() {
@@ -122,7 +128,7 @@ export default Service.extend(Evented, DebugLogging, {
 
   availableConnections() {
     return Object.keys(this.get('_connections'));
-  },
+},
 
   /**
    * Given an array of URLS, return a sound ready for playing
@@ -146,6 +152,7 @@ export default Service.extend(Evented, DebugLogging, {
           return reject(new Error('[ember-hifi] URLs must be provided'));
         }
 
+        this.trigger('pre-load', urlsToTry);
         let sound = this.get('soundCache').find(urlsToTry);
         if (sound) {
           this.debug('ember-hifi', 'retreived sound from cache');
@@ -181,16 +188,16 @@ export default Service.extend(Evented, DebugLogging, {
 
           let search = this._findFirstPlayableSound(strategies, options);
           search.then(results  => resolve({sound: results.success, failures: results.failures}));
+          search.catch(e => {
+            // reset the UI since trying to play that sound failed
+            this.set('isLoading', false);
+            let err = new Error(`[ember-hifi] URL Promise failed because: ${e.message}`);
+            err.failures = e.failures;
+            reject(err);
+          });
 
           return search;
         }
-      })
-      .catch(e => {
-        // reset the UI since trying to play that sound failed
-        this.set('isLoading', false);
-        let err = new Error(`[ember-hifi] URL Promise failed because: ${e.message}`);
-        err.failures = e.failures;
-        reject(err);
       });
     });
 
@@ -227,13 +234,14 @@ export default Service.extend(Evented, DebugLogging, {
    * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
    */
 
-  play(urlsOrPromise, options) {
+  play(urlsOrPromise, options = {}) {
     if (this.get('isPlaying')) {
       this.trigger('current-sound-interrupted', get(this, 'currentSound'));
       this.pause();
     }
     // update the UI immediately while `.load` figures out which sound is playable
     this.set('isLoading', true);
+    this.set('currentMetadata', options.metadata);
 
     let load = this.load(urlsOrPromise, options);
 

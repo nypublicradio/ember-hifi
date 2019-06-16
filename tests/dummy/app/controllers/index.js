@@ -1,9 +1,19 @@
-import Controller from 'ember-controller';
+import Controller from '@ember/controller';
 
 // BEGIN-SNIPPET basic-audio
-const stream = {
-  name: 'WNYC FM',
+const wnyc = {
+  name: 'WNYC',
   url: 'https://fm939.wnyc.org/wnycfm.aac',
+};
+
+const wqxr = {
+  name: 'WQXR',
+  url: 'https://stream.wqxr.org/wqxr.aac'
+};
+
+const q2 = {
+  name: 'Q2',
+  url: 'https://q2stream.wqxr.org/q2-web.aac'
 };
 
 const story = {
@@ -34,7 +44,9 @@ const moreStories = [{
 
 
 export default Controller.extend({
-  stream,
+  wnyc,
+  wqxr,
+  q2,
   story,
   streamWithoutExtension,
   moreStories,

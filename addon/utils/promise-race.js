@@ -1,4 +1,4 @@
-import { copy } from '@ember/object/internals';
+import { copy } from 'ember-copy';
 import RSVP from 'rsvp';
 /**
  * Given an array of params, this will go through the list one-by-one and call your
