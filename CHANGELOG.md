@@ -1,5 +1,11 @@
 # ember-hifi Changelog
 
+### 1.16 (June 16, 2019)
+- [IMPROVEMENT] Add togglePause method to hifi service
+- [IMPROVEMENT] Add the long overdue change from @gmurphey to the build process [#43]
+- [BUGFIX] Fix duration calculation for HLS streams, fixing [#55]
+- [BUGFIX] Move ember copy to dependencies [#54]
+
 ### 1.15.2 (September 24, 2018)
 - [CHORE] replace deprecated Ember.Copy
 - [CHORE] replace deprecated EmberMap

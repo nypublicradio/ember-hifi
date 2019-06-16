@@ -1,8 +1,8 @@
 'use strict';
 
 var path = require('path');
-var Funnel = require('broccoli-funnel');
-var mergeTrees = require('broccoli-merge-trees');
+var Funnel = require('broccoli-funnel'); //eslint-disable-line
+var mergeTrees = require('broccoli-merge-trees'); //eslint-disable-line
 
 module.exports = {
   name: 'ember-hifi',
