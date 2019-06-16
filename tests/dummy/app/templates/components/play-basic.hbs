@@ -1,10 +1,4 @@
-{{#unless useLoading}}
-  {{! BEGIN-SNIPPET play1 }}
-  <button {{action (if hifi.isPlaying "pause" "play") stream.url}}>
-    {{if hifi.isPlaying "Pause" "Play"}} {{stream.name}}
-  </button>
-  {{! END-SNIPPET }}
-{{else}}
+{{#if useLoading}}
   {{! BEGIN-SNIPPET play2 }}
   <button disabled={{hifi.isLoading}} {{action (if hifi.isPlaying "pause" "play") stream.url}}>
     {{#if hifi.isLoading}}
@@ -14,4 +8,10 @@
     {{/if}}
   </button>
   {{! END-SNIPPET }}
-{{/unless}}
+{{else}}
+  {{! BEGIN-SNIPPET play1 }}
+  <button {{action (if hifi.isPlaying "pause" "play") stream.url}}>
+    {{if hifi.isPlaying "Pause" "Play"}} {{stream.name}}
+  </button>
+  {{! END-SNIPPET }}
+{{/if}}

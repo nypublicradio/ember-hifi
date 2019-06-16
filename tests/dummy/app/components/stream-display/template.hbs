@@ -1,13 +1,13 @@
 <h3>{{stream.title}}</h3>
 <ul>
   {{#each stream.mountPoints as |mount|}}
-  {{#if mount}}
-  <li>
-    <button class="{{if (contains stream.badMounts mount) "is-error"}}" {{action "listen" mount}}>
-      Listen using {{mount}}
-    </button>
-  </li>
-  {{/if}}
+    {{#if mount}}
+      <li>
+        <button class={{if (contains stream.badMounts mount) "is-error"}} {{action "listen" mount}}>
+          Listen using {{mount}}
+        </button>
+      </li>
+    {{/if}}
   {{/each}}
   <li>
     <button {{action "tryAll" stream}}>

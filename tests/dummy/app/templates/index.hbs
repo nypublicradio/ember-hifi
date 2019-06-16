@@ -1,5 +1,5 @@
 <h2 class="heading--main">Basic Usage</h2>
-{{md-text text="
+{{markdown-to-html markdown="
 `ember-hifi` provides an easy way to manage audio in your ember app with reliable states, useful events, direct controls and a nice API to interact directly with playing and paused sounds.
 
 **A note before we begin:** Don't try to model your audio. Consider audio a piece of metadata to your other models, like a story or a stream. Let `ember-hifi` do the modelling for you!
@@ -9,7 +9,7 @@ Keeping that in mind, let's say you've got some POJOs that look like the followi
 
 {{code-snippet name="basic-audio.js"}}
 
-{{md-text text="
+{{markdown-to-html markdown="
 Let's listen to WNYC FM using that stream mount point. At a minimum, you'll want a way to start and stop the audio.
 
 First, set up a couple actions to integrate with `ember-hifi`.
@@ -17,7 +17,7 @@ First, set up a couple actions to integrate with `ember-hifi`.
 
 {{code-snippet name="play1.js"}}
 
-{{md-text text="
+{{markdown-to-html markdown="
 `ember-hifi` provides a `play` method that accepts any of the following as the first argument:
 * a String
 * an Array of strings
@@ -32,7 +32,7 @@ Now make a button wired up to your actions:
 
 {{play-basic stream=wnyc}}
 
-{{md-text text="
+{{markdown-to-html markdown="
 As you can see, `hifi` provides a helpful `isPlaying` attribute you can use to help manage your UI state. But you might have also noticed a slight delay between clicking play and actually hearing some audio from your speakers.
 
 This delay is caused by the network request to start buffering audio. The `isPlaying` attribute updates in time, but the UI is still in the \"paused\" state until the sound actually starts playing. It's accurate, but `hifi` also exposes an `isLoading` attribute you can use for finer grained UI.
@@ -42,7 +42,7 @@ This delay is caused by the network request to start buffering audio. The `isPla
 
 {{play-basic stream=wqxr useLoading=true}}
 
-{{md-text text="
+{{markdown-to-html markdown="
 But hold up: those buttons play different audio sources, yet they are tied to each other's state. If you click \"Play WNYC\", the \"Play WQXR\" button's UI will change in sync. We can't have that!
 
 The reason this is happening is because each button is reading off of `hifi`'s `isLoading` and `isPlaying` states without regard to whether or not `hifi` is loading that button's specific audio. Those attributes refer to the global, single state of the `hifi` service. As long as a button ties its UI to `hifi`'s state uncondtionally, you'll have this problem.
