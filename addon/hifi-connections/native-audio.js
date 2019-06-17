@@ -34,7 +34,7 @@ let Sound = BaseSound.extend({
 
     if (Ember.testing) {
       console.warn('setting audio element volume to zero for testing, to get around autoplay restrictions'); // eslint-disable-line
-      audio.volume = 0;
+      audio.muted = true;
     }
 
     audio.load();
@@ -347,8 +347,9 @@ let Sound = BaseSound.extend({
     return (parser1.href === parser2.href);
   },
 
-  willDestroy() {
+  teardown() {
     let audio = this.requestControl();
+    this.trigger('_will_destroy');
     this._unregisterEvents(audio);
   }
 });

@@ -429,6 +429,11 @@ export default Service.extend(Evented, DebugLogging, {
     EVENT_MAP.forEach(item => {
       sound.on(item.event, service, service[item.handler]);
     });
+
+    // Internal event for cleanup
+    sound.on('_will_destroy', () => {
+      this._unregisterEvents(sound);
+    })
   },
 
   /**
@@ -763,7 +768,7 @@ export default Service.extend(Evented, DebugLogging, {
         sound.play();
       };
 
-      document.addEventListener('touchstart', touchPlay);
+      document.addEventListener('touchstart', touchPlay, { passive: true });
 
       let blockCheck = later(() => {
         this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
