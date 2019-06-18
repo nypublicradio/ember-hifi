@@ -1,10 +1,8 @@
-import sinon from 'sinon';
-
-function setupHLSSpies(hls) {
+function setupHLSSpies(hls, sandbox) {
   return {
-    recoverSpy  : sinon.spy(hls, 'recoverMediaError'),
-    switchSpy   : sinon.spy(hls, 'swapAudioCodec'),
-    destroySpy  : sinon.spy(hls, 'destroy')
+    recoverSpy  : sandbox.spy(hls, 'recoverMediaError'),
+    switchSpy   : sandbox.spy(hls, 'swapAudioCodec'),
+    destroySpy  : sandbox.spy(hls, 'destroy')
   };
 }
 

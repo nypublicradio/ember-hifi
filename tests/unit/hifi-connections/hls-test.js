@@ -1,7 +1,7 @@
 import { A } from '@ember/array';
 import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
-import { module, skip/*, test*/ } from 'qunit';
+import { module, test } from 'qunit';
 import HLSConnection from 'ember-hifi/hifi-connections/hls';
 import { setupHLSSpies, throwMediaError } from '../../helpers/hls-test-helpers';
 
@@ -30,7 +30,7 @@ module('Unit | Connection | HLS', function(hooks) {
     sandbox.restore();
   });
 
-  skip("HLS connection should say it can play files with m3u8 extension", function(assert) {
+  test("HLS connection should say it can play files with m3u8 extension", function(assert) {
     let goodUrls = A([
       "http://example.org/test.m3u8",
       "http://example.org/test.m3u8?query_params",
@@ -54,7 +54,7 @@ module('Unit | Connection | HLS', function(hooks) {
     });
   });
 
-  skip("HLS connection should report playability of file objects", function(assert) {
+  test("HLS connection should report playability of file objects", function(assert) {
     let goodFiles = A([
       {url: "http://example.org/test.m3u8", mimeType: "application/vnd.apple.mpegurl"},
     ]);
@@ -76,12 +76,12 @@ module('Unit | Connection | HLS', function(hooks) {
     });
   });
 
-  skip("On first media error stream will attempt a retry", function(assert) {
+  test("On first media error stream will attempt a retry", function(assert) {
     let sound = this.owner.factoryFor('ember-hifi@hifi-connection:hls').create({url: goodUrl, timeout: false});
 
     let {
       destroySpy, switchSpy, recoverSpy
-    } = setupHLSSpies(sound.get('hls'));
+    } = setupHLSSpies(sound.get('hls'), sandbox);
 
     throwMediaError(sound);
 
@@ -90,12 +90,12 @@ module('Unit | Connection | HLS', function(hooks) {
     assert.equal(destroySpy.callCount, 0, "should not destroy");
   });
 
-  skip("On second media error stream will try switching codecs", function(assert) {
+  test("On second media error stream will try switching codecs", function(assert) {
     let sound = this.owner.factoryFor('ember-hifi@hifi-connection:hls').create({url: goodUrl, timeout: false});
 
     let {
       destroySpy, switchSpy, recoverSpy
-    } = setupHLSSpies(sound.get('hls'));
+    } = setupHLSSpies(sound.get('hls'), sandbox);
 
     throwMediaError(sound);
     throwMediaError(sound);
@@ -105,17 +105,19 @@ module('Unit | Connection | HLS', function(hooks) {
     assert.equal(destroySpy.callCount, 0, "should not destroy");
   });
 
-  skip("On third media error we will give up", function(assert) {
+  test("On third media error we will give up", function(assert) {
+    let done = assert.async();
     let sound           = this.owner.factoryFor('ember-hifi@hifi-connection:hls').create({url: goodUrl, timeout: false});
     let loadErrorFired  = false;
 
     sound.on('audio-load-error', function() {
       loadErrorFired = true;
+      done();
     });
 
     let {
       destroySpy, switchSpy, recoverSpy
-    } = setupHLSSpies(sound.get('hls'));
+    } = setupHLSSpies(sound.get('hls'), sandbox);
 
     throwMediaError(sound);
     throwMediaError(sound);
@@ -127,18 +129,16 @@ module('Unit | Connection | HLS', function(hooks) {
     assert.ok(loadErrorFired, "should have triggered audio load error");
   });
 
-  // TODO: make this work
-  skip("If we 404, we give up", function(assert) {
-    assert.expect(3);
-    let sound           = this.subject({url: badUrl});
-    let { destroySpy }  = setupHLSSpies(sound.get('hls'));
-    // let giveUpSpy = sinon.spy(sound, '_giveUpAndDie');
+  test("If we 404, we give up", function(assert) {
+    assert.expect(2);
+    let done = assert.async();
+    let sound  = this.owner.factoryFor('ember-hifi@hifi-connection:hls').create({url: badUrl, timeout: false});
 
     sound.on('audio-load-error', function() {
       assert.ok(true, "should have triggered audio load error");
+      done();
     });
 
     assert.ok(sound);
-    assert.equal(destroySpy.callCount, 1, "should destroy");
   });
 });
