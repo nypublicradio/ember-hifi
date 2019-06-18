@@ -36,7 +36,7 @@ jobs:
           name: Test
           environment:
             CIRCLE_TEST_REPORTS: test-results
-          command: npx ember test -r xunit
+          command: npx ember test
       - store_test_results:
           path: test-results/
 

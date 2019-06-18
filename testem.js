@@ -1,6 +1,11 @@
+const circle = process.env.CIRCLE_TEST_RESULTS;
+
 module.exports = {
   test_page: 'tests/index.html?hidepassed',
   disable_watching: true,
+  reporter: circle ? 'xunit' : 'tap',
+  report_file: circle ? `${circle}/test.xml` : null,
+  xunit_intermediate_output: true,
   launch_in_ci: [
     'Chrome'
   ],
