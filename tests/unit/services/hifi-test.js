@@ -20,7 +20,7 @@ let hifiConnections, options, sandbox;
 module('Unit | Service | hifi', function(hooks) {
   setupTest(hooks);
   hooks.beforeEach(function() {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
     // All hifi connections. Use chooseActiveConnections to set order and activation
     hifiConnections = [
       {
