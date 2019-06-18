@@ -3,7 +3,7 @@ import { next, later } from '@ember/runloop';
 import { A } from '@ember/array';
 import Service from '@ember/service';
 import { set, get } from '@ember/object';
-import { module } from 'qunit';
+import { module /*, skip */ } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import test from 'ember-sinon-qunit/test-support/test';
 import sinon from 'sinon';
@@ -604,7 +604,6 @@ module('Unit | Service | hifi', function(hooks) {
   });
 
   test("individual native audio sounds keep track of their own state", async function(assert) {
-    let done = assert.async();
     let connections = ['NativeAudio'];
     let service     = this.owner.factoryFor('service:hifi').create({
       options: chooseActiveConnections(...connections),
@@ -618,18 +617,17 @@ module('Unit | Service | hifi', function(hooks) {
     sound1.set('position', 2000);
     assert.equal(sound2._currentPosition(), 0, "second sound should have its own position");
 
-    sound2.play();
+    await sound2.play();
     sound2.set('position', 1000);
 
     assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
     assert.equal(sound2._currentPosition(), 1000, "second sound should still have its own position");
 
-    sound1.play();
+    await sound1.play();
     assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
     sound2.set('position', 9000);
-    sound2.play();
+    await sound2.play();
     assert.equal(sound2._currentPosition(), 9000, "second sound should still have its own position");
-    sound2.one('audio-played', done);
   });
 
   test("sound can play on native audio using shared element one after the other", async function(assert) {
@@ -790,6 +788,7 @@ module('Unit | Service | hifi', function(hooks) {
   });
 
   test("new-load-request gets fired on new load and play requests", async function(assert) {
+    let done = assert.async();
     let connections = ['NativeAudio'];
     let service     = this.owner.factoryFor('service:hifi').create({ options: chooseActiveConnections(...connections) });
     let s1url       = "/assets/silence.mp3";
@@ -797,17 +796,21 @@ module('Unit | Service | hifi', function(hooks) {
 
     assert.expect(4);
 
-    service.one('new-load-request', ({urlsOrPromise, options}) => {
-      assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
-      assert.equal(options.metadata.id, 1, "metadata id should be equale");
+    let count = 0;
+    service.on('new-load-request', ({urlsOrPromise, options}) => {
+      if (count == 0) {
+        assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+        assert.equal(options.metadata.id, 1, "metadata id should be equale");
+        count = count + 1;
+      }
+      else if (count === 1) {
+        assert.equal(urlsOrPromise, s2url, "url should equal url passed in");
+        assert.equal(options.metadata.id, undefined, "metadata id should be undefined");
+        done();
+      }
     });
 
     await service.play(s1url, {metadata: {id: 1}});
-    service.one('new-load-request', ({urlsOrPromise, options}) => {
-      assert.equal(urlsOrPromise, s2url, "url should equal url passed in");
-      assert.equal(options.metadata.id, undefined, "metadata id should be undefined");
-    });
-
     await service.load(s2url);
   });
 
@@ -816,31 +819,39 @@ module('Unit | Service | hifi', function(hooks) {
     let service     = this.owner.factoryFor('service:hifi').create({ options: chooseActiveConnections(...connections) });
     let s1url       = "/assets/silence.mp3";
 
+    let done = assert.async();
+
     assert.expect(4);
 
-    service.one('new-load-request', ({urlsOrPromise, options}) => {
-      assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
-      assert.equal(options.metadata.id, 1, "metadata id should be equale");
+    let count = 0;
+    service.on('new-load-request', ({urlsOrPromise, options}) => {
+      if (count == 0) {
+        assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+        assert.equal(options.metadata.id, 1, "metadata id should be equale");
+        count = count + 1;
+      }
+      else if (count === 1) {
+        assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
+        assert.equal(options.metadata.id, 2, "metadata id should be 2");
+        done();
+      }
     });
 
     await service.load(s1url, {metadata: {id: 1}});
-    service.one('new-load-request', ({urlsOrPromise, options}) => {
-      assert.equal(urlsOrPromise, s1url, "url should equal url passed in");
-      assert.equal(options.metadata.id, 2, "metadata id should be 2");
-    });
-
     await service.load(s1url, {metadata: {id: 2}});
   });
 
   test("audio-position-will-change gets fired on position changes", async function(assert) {
+    let done = assert.async();
     let service     = this.owner.factoryFor('service:hifi').create({ options: activateDummyConnection() });
     let s1url       = "/good/15000/test";
 
     assert.expect(2);
 
-    service.one('audio-position-will-change', (sound, {currentPosition, newPosition}) => {
+    service.on('audio-position-will-change', (sound, {currentPosition, newPosition}) => {
       assert.equal(currentPosition, 0, "current position should be zero");
       assert.equal(newPosition, 5000, "new position should be 5000");
+      done();
     });
 
     await service.play(s1url);
@@ -850,21 +861,24 @@ module('Unit | Service | hifi', function(hooks) {
   test("audio-will-rewind gets fired on rewind", async function(assert) {
     let service     = this.owner.factoryFor('service:hifi').create({ options: activateDummyConnection() });
     let s1url       = "/good/15000/test2";
+    let done        = assert.async();
+    let count       = 0;
 
-    assert.expect(4);
-
-    service.one('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
-      assert.equal(currentPosition, 5000, "current position should be 5000");
-      assert.equal(newPosition, 4000, "new position should be 4000");
+    service.on('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
+      if (count === 0) {
+        assert.equal(currentPosition, 5000, "current position should be 5000");
+        assert.equal(newPosition, 4000, "new position should be 4000");
+        count = count + 1;
+      }
+      else if (count === 1) {
+        assert.equal(currentPosition, 4000, "current position should be 4000");
+        assert.equal(newPosition, 0, "new position should be 0");
+        done();
+      }
     });
 
     await service.play(s1url, {position: 5000});
     service.rewind(1000);
-
-    service.on('audio-will-rewind', (sound, {currentPosition, newPosition}) => {
-      assert.equal(currentPosition, 4000, "current position should be 4000");
-      assert.equal(newPosition, 0, "new position should be 0");
-    });
 
     service.rewind(6000);
   });
@@ -872,12 +886,14 @@ module('Unit | Service | hifi', function(hooks) {
   test("audio-will-fast-forward gets fired on fast forward", async function(assert) {
     let service     = this.owner.factoryFor('service:hifi').create({ options: activateDummyConnection() });
     let s1url       = "/good/15000/1.mp3";
+    let done        = assert.async();
 
     assert.expect(2);
 
     service.on('audio-will-fast-forward', (sound, {currentPosition, newPosition}) => {
       assert.equal(currentPosition, 5000, "current position should be 5000");
       assert.equal(newPosition, 6000, "new position should be 6000");
+      done();
     });
 
     await service.play(s1url, {position: 5000});
