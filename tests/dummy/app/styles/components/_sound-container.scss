@@ -1,0 +1,43 @@
+
+
+.sound-container {
+  position: relative;
+  padding: 30px 10px 20px;
+  margin-bottom: 15px;
+
+  border: 1px dotted $container-border-color;
+  background-color: $container-background-color;
+  min-height: 100px;
+  &:after {
+    content: attr(data-title);
+    font-size: 10px;
+    text-transform: uppercase;
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0em;
+    margin-top: calc(height);
+    background-color: $container-label-color;
+    color:#333;
+    padding: 0.25em 0.5em;
+  }
+}
+
+.sound-container.loaded  {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-right: -10px;
+
+  @include media(">phone") {
+    > div {
+      max-width: calc(50% - 10px);
+      margin-right: 10px;
+    }
+  }
+
+  @include media(">=tablet") {
+    // grid-template-columns: 1fr 1fr 1fr;
+  }
+}

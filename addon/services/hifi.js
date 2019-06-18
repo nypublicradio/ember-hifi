@@ -5,8 +5,9 @@ import { assign } from '@ember/polyfills';
 import { getOwner } from '@ember/application';
 import Evented from '@ember/object/evented';
 import Service, { inject as service } from '@ember/service';
-import { bind } from "@ember/runloop";
 import { assert } from '@ember/debug';
+import { bind } from "@ember/runloop";
+
 import {
   set,
   get,
@@ -44,7 +45,6 @@ export const SERVICE_EVENT_MAP = [
 
 export default Service.extend(Evented, DebugLogging, {
   debugName: 'ember-hifi',
-
   poll:              service(),
   soundCache:        service('hifi-cache'),
   isMobileDevice:    computed({
@@ -125,13 +125,13 @@ export default Service.extend(Evented, DebugLogging, {
 
     this.set('isReady', true);
 
-   // Polls the current sound for position. We wanted to make it easy/flexible
-   // for connection authors, and since we only play one sound at a time, we don't
-   // need other non-active sounds telling us position info
-    this.get('poll').addPoll({
-      interval: get(this, 'pollInterval') || 500,
-      callback: bind(this, this._setCurrentPosition)
-    });
+    // Polls the current sound for position. We wanted to make it easy/flexible
+    // for connection authors, and since we only play one sound at a time, we don't
+    // need other non-active sounds telling us position info
+     this.get('poll').addPoll({
+       interval: get(this, 'pollInterval') || 500,
+       callback: bind(this, this._setCurrentPosition)
+     });
 
     this._super(...arguments);
   },

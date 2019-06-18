@@ -11,6 +11,7 @@ import DebugLogging from '../mixins/debug-logging';
 let ClassMethods = Mixin.create({
   setup(config) {
     this.config = config;
+    this.debugEnabled = config.debugEnabled;
   },
 
   canPlay(url) {
@@ -20,6 +21,7 @@ let ClassMethods = Mixin.create({
     }
     if (typeof url === 'string') {
       let mimeType = getMimeType(url);
+
       if (!mimeType) {
         /* eslint-disable no-console */
         console.warn(`Could not determine mime type for ${url}`);
