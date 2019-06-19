@@ -2,7 +2,7 @@ version: 2
 
 defaults: &defaults
   docker:
-    - image: circleci/node:8.7-browsers
+    - image: circleci/node:8.10-browsers
       environment:
         JOBS: 2
 
@@ -25,19 +25,6 @@ jobs:
           key: node-deps-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-
-      - restore_cache:
-          key: bower-deps-{{ checksum "bower.json" }}
-      - run:
-          name: Install bower dependencies
-          command: |
-            yarn global add bower
-            npx bower i
-      - save_cache:
-          key: bower-deps-{{ checksum "bower.json" }}
-          paths:
-            - bower_components
-
   test:
     <<: *defaults
 
@@ -45,11 +32,13 @@ jobs:
       - checkout
       - restore_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          key: bower-deps-{{ checksum "bower.json" }}
       - run:
           name: Test
-          command: yarn test
+          environment:
+            CIRCLE_TEST_REPORTS: test-results
+          command: npx ember test
+      - store_test_results:
+          path: test-results/
 
   deploy:
     <<: *defaults
@@ -58,8 +47,6 @@ jobs:
       - checkout
       - restore_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          key: bower-deps-{{ checksum "bower.json" }}
       - add_ssh_keys:
           fingerprints:
             - "08:eb:03:31:44:a6:ba:ea:33:11:ef:36:7a:5e:15:22"

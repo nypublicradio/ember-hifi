@@ -1,9 +1,8 @@
 import { A } from '@ember/array';
 import { run } from '@ember/runloop';
-import $ from 'jquery';
 import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
-
+import Ember from 'ember';
 // These are the events we're watching for
 const AUDIO_EVENTS = ['loadstart', 'durationchange', 'loadedmetadata', 'loadeddata', 'progress', 'canplay', 'canplaythrough', 'error', 'playing', 'pause', 'ended', 'emptied'];
 
@@ -32,17 +31,23 @@ let Sound = BaseSound.extend({
 
     audio.src = this.get('url');
     this._registerEvents(audio);
+
+    if (Ember.testing) {
+      console.warn('setting audio element volume to zero for testing, to get around autoplay restrictions'); // eslint-disable-line
+      audio.muted = true;
+    }
+
     audio.load();
   },
 
   _registerEvents(audio) {
     AUDIO_EVENTS.forEach(eventName => {
-      $(audio).on(eventName, e => run(() => this._handleAudioEvent(eventName, e)));
+      audio.addEventListener(eventName, e => run(() => this._handleAudioEvent(eventName, e)));
     });
   },
 
   _unregisterEvents(audio) {
-    AUDIO_EVENTS.forEach(eventName => $(audio).off(eventName));
+    AUDIO_EVENTS.forEach(eventName => audio.removeEventListener(eventName));
   },
 
   _handleAudioEvent(eventName, e) {
@@ -59,7 +64,6 @@ let Sound = BaseSound.extend({
     switch(eventName) {
       case 'loadeddata':
         var audio = this.audioElement();
-
         // Firefox doesn't fire a 'canplay' event until after you call *play* on
         // the audio, but it does fire 'loadeddata' when it's ready
         if (audio.readyState >= HAVE_CURRENT_DATA) {
@@ -212,7 +216,7 @@ let Sound = BaseSound.extend({
         message = 'Audio source format is not supported.';
         break;
       default:
-        message = 'unknown error.';
+        message = error.message;
         break;
     }
 
@@ -221,9 +225,7 @@ let Sound = BaseSound.extend({
   },
 
   _onAudioEmptied() {
-    if (this.get('isStream')) {
-      this.trigger('audio-paused', this);
-    }
+    this.trigger('audio-paused', this);
   },
 
   _onAudioPaused() {
@@ -345,8 +347,9 @@ let Sound = BaseSound.extend({
     return (parser1.href === parser2.href);
   },
 
-  willDestroy() {
+  teardown() {
     let audio = this.requestControl();
+    this.trigger('_will_destroy');
     this._unregisterEvents(audio);
   }
 });

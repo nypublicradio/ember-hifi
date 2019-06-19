@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
@@ -16,7 +15,7 @@ module('Unit | Connection | Native Audio', function(hooks) {
     // The use of this singleton here really messes with testing, so we need to reset it
     SharedAudioAccess._reset();
 
-    sandbox = sinon.sandbox.create({
+    sandbox = sinon.createSandbox({
       useFakeServer: sinon.fakeServerWithClock
     });
     sandbox.server.respondWith(goodUrl, function (xhr) {
@@ -54,21 +53,12 @@ module('Unit | Connection | Native Audio', function(hooks) {
     assert.equal(sound.audioElement().testFlag, testFlag, "should have used passed audio element");
   });
 
-  test("If not passed a shared audio element on initialize, use our internal one", function(assert) {
-    assert.expect(1);
-    let done = assert.async();
-    let sound = this.owner.factoryFor('ember-hifi@hifi-connection:native-audio').create({url: "/assets/silence.mp3", timeout: false});
+  test("If not passed a shared audio element on initialize, use our internal one", async function(assert) {
+    let createElementSpy = sinon.spy(document, 'createElement');
+    let sound = this.owner.factoryFor('ember-hifi@hifi-connection:native-audio').create({url: "/assets/silence.mp3", timeout: false, volume: 0});
+    await sound.play();
 
-    sound.on('audio-played', function() {
-      assert.ok("audio played with internal element");
-      done();
-    });
-
-    sound.on('audio-load-error', done);
-
-    sound.on('audio-ready', function() {
-      sound.play();
-    });
+    assert.ok(createElementSpy.withArgs('audio').calledOnce, "createElementSpy was called");
   });
 
   test("If it's a stream, we stop on pause", async function(assert) {
@@ -130,7 +120,9 @@ module('Unit | Connection | Native Audio', function(hooks) {
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
     assert.equal(sound.audioElement(), sharedAudioAccess.get('audioElement'), "internal audio tag is shared audio tag");
 
-    $(sound.audioElement()).trigger('ended');
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('ended', true, false);
+    sound.audioElement().dispatchEvent(event);
     sound.play();
 
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
@@ -145,7 +137,9 @@ module('Unit | Connection | Native Audio', function(hooks) {
 
     assert.equal(sound.audioElement().src, goodUrl, "audio src attribute is set");
 
-    $(sound.audioElement()).trigger('ended');
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('ended', true, false);
+    sound.audioElement().dispatchEvent(event);
 
     sound.play();
 

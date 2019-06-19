@@ -94,8 +94,9 @@ System volume. Bind a range element to this property for a simple volume control
 ```javascript
 
 //component.js
+import { inject as service } from "@ember/service";
 export default Component.extend({
-  hifi: Ember.inject.service(),
+  hifi: service(),
 })
 
 //template.hbs
@@ -173,6 +174,7 @@ The `hifi` service and the `sound` objects are extended with [Ember.Evented](htt
 - `current-sound-changed` (currentSound, previousSound) - triggered when the current sound changes. On initial play, previousSound will be undefined.
 - `current-sound-interrupted` (currentSound, previousSound) - triggered when a sound has been playing and a new one takes its place by being played, pausing the first one
 - `new-load-request` ({loadPromise, urlsOrPromise, options}) - triggered whenever `.load` or `.play` is called.
+- `pre-load` ({loadPromise, urlsOrPromise, options}) - triggered whenever `.load` or `.play` is called.
 
 ## Details
 
