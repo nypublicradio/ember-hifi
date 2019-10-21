@@ -7,8 +7,8 @@ export default class Debug {
   }
 
   /**
-  * Logs some content in a pretty fromat
-  * @param  {string} content - Content to log
+  * Logs some content in a pretty format
+  * @param {string} content - Content to log
   */
 
   log(content) {
@@ -28,9 +28,12 @@ export default class Debug {
     }
   }
 
+
+  /**
+
   /**
   * Ends a console timer with a given name
-  * @param  {string} name - Name of the timer
+  * @param {string} name - Name of the timer
   */
   timeEnd(name) {
     const start = Date.now();
@@ -51,7 +54,7 @@ export default class Debug {
 
   /**
   * Start a console timer with a given name
-  * @param  {string} name - Name of the timer
+  * @param {string} name - Name of the timer
   */
   time(name) {
     this.timerStore.push({ start: Date.now(), name });

@@ -15,6 +15,14 @@ let ClassMethods = Mixin.create({
   }
 });
 
+
+/**
+* This class connects with HLS.js to create sounds.
+*
+* @class HLS
+* @extends BaseSound
+* @constructor
+*/
 let Sound = BaseSound.extend({
   loaded: false,
   mediaRecoveryAttempts: 0,

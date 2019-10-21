@@ -8,6 +8,15 @@ import EmberObject, { computed } from '@ember/object';
 import { getMimeType } from 'ember-hifi/utils/mime-types';
 import DebugLogging from '../mixins/debug-logging';
 
+
+
+/**
+* This is the base sound object from which other sound objects are derived. 
+*
+* @class BaseSound
+* @constructor
+*/
+
 let ClassMethods = Mixin.create({
   setup(config) {
     this.config = config;

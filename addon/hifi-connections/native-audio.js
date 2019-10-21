@@ -25,6 +25,13 @@ let ClassMethods = Mixin.create({
   }
 });
 
+/**
+* This class connects with the native audio element to create sounds.
+*
+* @class NativeAudio
+* @extends BaseSound
+* @constructor
+*/
 let Sound = BaseSound.extend({
   setup() {
     let audio = this.requestControl();

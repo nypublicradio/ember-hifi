@@ -10,10 +10,11 @@ import RSVP from 'rsvp';
  * Your callback should do what it needs to do and if that thing is good, pass it to
  * returnSuccess. If that thing is bad call markAsFailure
  *
+ * @class PromiseRace
  * @method start
  * @param {Array} params
  * @param {Function} callback(nextParam, returnSuccess, markAsFailure)
- * @returns {Promise  {result, failures} }
+ * @return {Promise  {result, failures} }
  */
 
 function start(params, callback) {
