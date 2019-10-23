@@ -3,6 +3,8 @@
 ## The easy way to play audio in your ember app
 
 ![Download count all time](https://img.shields.io/npm/dt/ember-hifi.svg) [![npm version](https://img.shields.io/npm/v/ember-hifi.svg?style=flat-square)](https://www.npmjs.com/package/ember-hifi) [![CircleCI](https://img.shields.io/circleci/project/github/nypublicradio/ember-hifi/master.svg?style=flat-square)](https://circleci.com/gh/nypublicradio/ember-hifi/tree/master) [![Ember Observer Score](http://emberobserver.com/badges/ember-hifi.svg)](http://emberobserver.com/addons/ember-hifi)
+[![Maintainability](https://api.codeclimate.com/v1/badges/24a53d2c7a91e15d7200/maintainability)](https://codeclimate.com/github/nypublicradio/ember-hifi/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/24a53d2c7a91e15d7200/test_coverage)](https://codeclimate.com/github/nypublicradio/ember-hifi/test_coverage)
 
 This addon exposes a `hifi` service which produces `Sound` objects which represent a playable piece of audio.
 
