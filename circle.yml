@@ -4,6 +4,7 @@ defaults: &defaults
   docker:
     - image: circleci/node:8.10-browsers
       environment:
+        COVERAGE: true
         JOBS: 2
 
 jobs:
@@ -46,7 +47,6 @@ jobs:
           name: Test
           environment:
             CIRCLE_TEST_REPORTS: test-results
-            COVERAGE: true
           command: npx ember test
       - run:
           name: Upload CodeClimate test results
