@@ -46,6 +46,7 @@ jobs:
           name: Test
           environment:
             CIRCLE_TEST_REPORTS: test-results
+            COVERAGE: true
           command: npx ember test
       - run:
           name: Upload CodeClimate test results
