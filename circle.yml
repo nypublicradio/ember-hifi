@@ -4,6 +4,7 @@ defaults: &defaults
   docker:
     - image: circleci/node:8.10-browsers
       environment:
+        COVERAGE: true
         JOBS: 2
 
 jobs:
@@ -21,10 +22,17 @@ jobs:
             if [ ! -d node_modules ]; then
               yarn --pure-lockfile
             fi
+      - run:
+          name: Install CodeClimate
+          command: |
+            mkdir -p ../codeclimate
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ../codeclimate/cc-test-reporter
+            chmod +x ../codeclimate/cc-test-reporter
       - save_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
+            - ../codeclimate
   test:
     <<: *defaults
 
@@ -33,10 +41,16 @@ jobs:
       - restore_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
       - run:
+          name: Set up CodeClimate
+          command: ../codeclimate/cc-test-reporter before-build
+      - run:
           name: Test
           environment:
             CIRCLE_TEST_REPORTS: test-results
           command: npx ember test
+      - run:
+          name: Upload CodeClimate test results
+          command: ../codeclimate/cc-test-reporter after-build --exit-code $?
       - store_test_results:
           path: test-results/
 

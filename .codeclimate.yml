@@ -1,0 +1,13 @@
+exclude_patterns:
+  - "config/"
+  - "coverage/"
+  - "mirage/"
+  - "public/"
+  - "tests/"
+  - "vendor/"
+  - "**/node_modules/"
+  - "package.json"
+  - "ember-cli-build.js"
+  - "fastboot.js"
+  - "testem.js"
+  - "README.md"
