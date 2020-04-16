@@ -3,7 +3,10 @@
 
 module.exports = function(deployTarget) {
   let ENV = {
-    build: {}
+    build: {},
+    git: {
+      repo: 'git@github.com:nypublicradio/ember-hifi.git'
+    }
     // include other plugin configuration that applies to all deploy targets here
   };
 
