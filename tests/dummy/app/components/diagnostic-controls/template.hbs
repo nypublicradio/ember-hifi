@@ -1,0 +1,39 @@
+<div class="diagnostic-dj">
+  <div class="field">
+    <div class="control">
+      {{input type="text" class="input" placeholder="url" value=url}}
+    </div>
+  </div>
+  <div class="field">
+    <div class="control">
+      {{input type="text" class="input" placeholder="title" value=title}}
+    </div>
+  </div>
+  <div class="field">
+    <div class="control">
+      <button href="#" class="button is-medium is-outline is-dark {{if loadCustomSound.isRunning "is-loading"}}" {{action (perform loadCustomSound)}}>Load</button>
+      <button href="#" class="button is-medium is-info {{if playCustomSound.isRunning "is-loading"}}" {{action (perform playCustomSound)}}>Play</button>
+    </div>
+  </div>
+
+  <div class="errors">
+    {{error}}
+  </div>
+</div>
+
+{{#if (not (is-empty dormantItems))}}
+  <hr>
+  <h3>Test Sounds</h3>
+  {{#animated-container}}
+    {{#animated-each dormantItems use=transition duration=250 as |item|}}
+      {{test-sound item=item}}
+    {{/animated-each}}
+  {{/animated-container}}
+
+  <hr>
+
+  <div class="test-sound-control">
+    <a href="#" class="button is-small is-outline {{if loadAllTestSounds.isRunning "is-loading"}}" {{action (perform loadAllTestSounds)}}>Load All</a>
+    <a href="#" class="button is-small is-outline {{if playAllTestSounds.isRunning "is-loading"}}" {{action (perform playAllTestSounds)}}>Play All</a>
+  </div>
+{{/if}}

@@ -2,6 +2,13 @@ import Service from '@ember/service';
 import { A as emberArray, makeArray } from '@ember/array';
 import DebugLogging from '../mixins/debug-logging';
 
+/**
+* This class caches sound objects based on urls. You shouldn't have to interact with this class.
+*
+* @class hifi-cache
+* @constructor
+*/
+
 export default Service.extend(DebugLogging, {
   debugName: 'hifi-cache',
 
@@ -16,6 +23,12 @@ export default Service.extend(DebugLogging, {
     this.set('_cache', {});
   },
 
+  /**
+   * find - finds sounds in the cache by urls
+   *
+   * @param {string} urls
+   * @return {Sound}
+   */
   find(urls) {
     urls = makeArray(urls);
     let cache = this.get('_cache');
@@ -33,6 +46,11 @@ export default Service.extend(DebugLogging, {
     return foundSounds[0];
   },
 
+  /**
+   * remove - removes a sound from the cache
+   *
+   * @param {Sound} sound
+   */
   remove(sound) {
     if (this.isDestroyed) return;
 
@@ -45,6 +63,11 @@ export default Service.extend(DebugLogging, {
     }
   },
 
+  /**
+   * cache - caches the sound by the url
+   *
+   * @param  {Sound} sound
+   */
   cache(sound) {
     if (this.isDestroyed) return;
 

@@ -5,8 +5,9 @@ import { assign } from '@ember/polyfills';
 import { getOwner } from '@ember/application';
 import Evented from '@ember/object/evented';
 import Service, { inject as service } from '@ember/service';
-import { bind } from "@ember/runloop";
 import { assert } from '@ember/debug';
+import { bind } from "@ember/runloop";
+
 import {
   set,
   get,
@@ -42,9 +43,16 @@ export const SERVICE_EVENT_MAP = [
   {event: 'pre-load' }
 ]
 
+
+/**
+* This is the hifi service class.
+*
+* @class hifi
+* @constructor
+*/
+
 export default Service.extend(Evented, DebugLogging, {
   debugName: 'ember-hifi',
-
   poll:              service(),
   soundCache:        service('hifi-cache'),
   isMobileDevice:    computed({
@@ -105,8 +113,6 @@ export default Service.extend(Evented, DebugLogging, {
    * configuration. This config is injected into the Service as `options`.
    *
    * @method init
-   * @param {Void}
-   * @return {Void}
    */
 
   init() {
@@ -125,13 +131,13 @@ export default Service.extend(Evented, DebugLogging, {
 
     this.set('isReady', true);
 
-   // Polls the current sound for position. We wanted to make it easy/flexible
-   // for connection authors, and since we only play one sound at a time, we don't
-   // need other non-active sounds telling us position info
-    this.get('poll').addPoll({
-      interval: get(this, 'pollInterval') || 500,
-      callback: bind(this, this._setCurrentPosition)
-    });
+    // Polls the current sound for position. We wanted to make it easy/flexible
+    // for connection authors, and since we only play one sound at a time, we don't
+    // need other non-active sounds telling us position info
+     this.get('poll').addPoll({
+       interval: get(this, 'pollInterval') || 500,
+       callback: bind(this, this._setCurrentPosition)
+     });
 
     this._super(...arguments);
   },
@@ -140,8 +146,6 @@ export default Service.extend(Evented, DebugLogging, {
    * Returns the list of activated and available connections
    *
    * @method availableConnections
-   * @param {Void}
-   * @return {Array}
    */
 
   availableConnections() {
@@ -152,8 +156,10 @@ export default Service.extend(Evented, DebugLogging, {
    * Given an array of URLS, return a sound ready for playing
    *
    * @method load
-   * @param {Array} urls
-   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
+   * @async
+   * @param urlsOrPromise [..{Promise|String}]
+   * Provide an array of urls to try, or a promise that will resolve to an array of urls
+   * @return {Sound} A sound that's ready to be played, or an error
    */
 
   load(urlsOrPromise, options) {
@@ -248,8 +254,10 @@ export default Service.extend(Evented, DebugLogging, {
    * Given an array of URLs, return a sound and play it.
    *
    * @method play
-   * @param {Array} urls
-   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error
+   * @async
+   * @param urlsOrPromise [..{Promise|String}]
+   * Provide an array of urls to try, or a promise that will resolve to an array of urls
+   * @return {Sound} A sound that's playing, or an error
    */
 
   play(urlsOrPromise, options = {}) {
@@ -280,8 +288,6 @@ export default Service.extend(Evented, DebugLogging, {
    * Pauses the current sound
    *
    * @method pause
-   * @param {Void}
-   * @returns {Void}
    */
 
   pause() {
@@ -290,11 +296,9 @@ export default Service.extend(Evented, DebugLogging, {
   },
 
   /**
-   * Pauses the current sound
+   * Stops the current sound
    *
-   * @method pause
-   * @param {Void}
-   * @returns {Void}
+   * @method stop
    */
 
   stop() {
@@ -305,9 +309,7 @@ export default Service.extend(Evented, DebugLogging, {
   /**
    * Toggles play/pause state of the current sound
    *
-   * @method pause
-   * @param {Void}
-   * @returns {Void}
+   * @method togglePause
    */
 
   togglePause() {
@@ -326,9 +328,7 @@ export default Service.extend(Evented, DebugLogging, {
    * Toggles mute state. Sets volume to zero on mute, resets volume to the last level it was before mute, unless
    * unless the last level was zero, in which case it sets it to the default volume
    *
-   * @method pause
-   * @param {Void}
-   * @returns {Void}
+   * @method toggleMute
    */
 
   toggleMute() {
@@ -345,7 +345,6 @@ export default Service.extend(Evented, DebugLogging, {
    *
    * @method fastForward
    * @param {Integer} duration in ms
-   * @returns {Void}
    */
 
   fastForward(duration) {
@@ -358,7 +357,6 @@ export default Service.extend(Evented, DebugLogging, {
    *
    * @method rewind
    * @param {Integer} duration in ms
-   * @returns {Void}
    */
 
   rewind(duration) {
@@ -372,8 +370,7 @@ export default Service.extend(Evented, DebugLogging, {
    * and set the new current sound to the system volume
    *
    * @method setCurrentSound
-   * @param {sound}
-   * @returns {void}
+   * @param {Sound} sound
    */
 
   setCurrentSound(sound) {
@@ -396,9 +393,7 @@ export default Service.extend(Evented, DebugLogging, {
    * to deal with timers. The service runs the show.
    *
    * @method _setCurrentSoundForPosition
-   * @param {Void}
    * @private
-   * @return {Void}
    */
 
   _setCurrentPosition() {
@@ -421,7 +416,6 @@ export default Service.extend(Evented, DebugLogging, {
    * @method _registerEvents
    * @param {Object} sound
    * @private
-   * @return {Void}
    */
 
   _registerEvents(sound) {
@@ -443,7 +437,6 @@ export default Service.extend(Evented, DebugLogging, {
    * @method _unregisterEvents
    * @param {Object} sound
    * @private
-   * @return {Void}
    */
 
   _unregisterEvents(sound) {
@@ -453,9 +446,9 @@ export default Service.extend(Evented, DebugLogging, {
 
     let service = this;
     EVENT_MAP.forEach(item => {
-      // if (sound.has(item.event)) {
+      if (sound.has(item.event)) {
         sound.off(item.event, service, service[item.handler]);
-      // }
+      }
     });
   },
 
@@ -465,7 +458,6 @@ export default Service.extend(Evented, DebugLogging, {
    * @method relayEvent
    * @param {String, Object} eventName, sound
    * @private
-   * @return {Void}
    */
 
   _relayEvent(eventName, sound, info = {}) {
@@ -550,7 +542,7 @@ export default Service.extend(Evented, DebugLogging, {
    * connections over the addon's connections.
    *
    * @method _lookupConnection
-   * @param {String} connectionName
+   * @param {string} connectionName
    * @private
    * @return {Connection} a local connection or a connection from the addon
    */
@@ -573,7 +565,7 @@ export default Service.extend(Evented, DebugLogging, {
    * @method _resolveUrls
    * @param {Array or String or Promise} urlOrPromise
    * @private
-   * @returns {Promise.<urls>} a promise resolving to a cleaned up array of URLS
+   * @return {Promise.<urls>} a promise resolving to a cleaned up array of URLS
    */
 
   _resolveUrls(urlsOrPromise) {
@@ -599,7 +591,7 @@ export default Service.extend(Evented, DebugLogging, {
    * @method _findFirstPlayableSound
    * @param {Array} urlsToTry
    * @private
-   * @returns {Promise.<Sound|error>} A sound that's ready to be played, or an error with a failures property
+   * @return {Promise.<Sound|error>} A sound that's ready to be played, or an error with a failures property
    */
 
   _findFirstPlayableSound(strategies, options) {
@@ -740,8 +732,7 @@ export default Service.extend(Evented, DebugLogging, {
    *
    * @method _createAndUnlockAudio
    * @private
-   * @param {Void}
-   * @returns {element} an audio element
+   * @return {element} an audio element
    */
 
    _createAndUnlockAudio() {
@@ -756,9 +747,8 @@ export default Service.extend(Evented, DebugLogging, {
   /**
    * Attempts to play the sound after a load, which in certain cases can fail on mobile
    * @method _attemptToPlaySoundOnMobile
-   * @param {sound}
+   * @param {Sound} sound
    * @private
-   * @returns {void}
    */
 
   _attemptToPlaySound(sound, options) {

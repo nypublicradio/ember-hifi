@@ -11,6 +11,15 @@ let ClassMethods = Mixin.create({
   }
 });
 
+
+/**
+* This class connects with Howler to create sounds.
+*
+* @class Howler
+* @constructor
+* @extensionfor Base
+
+*/
 let Sound = BaseSound.extend({
   setup() {
     let urls = makeArray(this.get('url'));

@@ -214,16 +214,16 @@ export function getMimeType(url) {
   if (!url || typeof url !== 'string') {
     return false;
   }
-  
+
   let extension = url
     .toLowerCase()
     .split('.').pop()
     .split('?').shift()
     .split('#').shift();
-  
+
   if (!extension) {
     return false;
   }
-  
+
   return TYPES[extension] || false;
 }

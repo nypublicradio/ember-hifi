@@ -15,6 +15,14 @@ let ClassMethods = Mixin.create({
   }
 });
 
+
+/**
+* This class connects with HLS.js to create sounds.
+*
+* @class HLS
+* @extends BaseSound
+* @constructor
+*/
 let Sound = BaseSound.extend({
   loaded: false,
   mediaRecoveryAttempts: 0,
@@ -187,6 +195,10 @@ let Sound = BaseSound.extend({
   },
 
   play() {
+    if (!this.get('video').src) {
+      this.setup(); // the stream was stopped before
+    }
+
     this.get('video').play();
 
     if (this.get('loadStopped')) {
@@ -196,13 +208,14 @@ let Sound = BaseSound.extend({
   },
 
   pause() {
-    this.stop(); // We always want to stop the stream so it doesn't continue to download
-  },
-
-  stop() {
     this.get('video').pause();
     this.get('hls').stopLoad();
     this.set('loadStopped', true);
+  },
+
+  stop() {
+    this.pause();
+    this.get('video').removeAttribute('src')
   },
 
   teardown() {

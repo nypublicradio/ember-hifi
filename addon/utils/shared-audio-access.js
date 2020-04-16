@@ -1,6 +1,24 @@
 import EmberObject from '@ember/object';
 import DebugLogging from '../mixins/debug-logging';
 
+/***
+* @class SharedAudioAccess
+* @constructor
+*/
+
+
+/**
+
+ * This class handles sharing a single audio element between multiple sounds.
+ * A desktop browser can generally handle multiple <audio> elements, but mobile
+ * browsers require some extra consideration. Using a single element and switching
+ * out the src allows us to play a piece of audio seamlessly without requiring
+ * an extra click by the user to get around strict autoplay restrictions
+ *
+ * @class SharedAudioAccess
+ */
+
+
 const SharedAudioAccess = EmberObject.extend(DebugLogging, {
   debugName: 'sharedAudioAccess',
 

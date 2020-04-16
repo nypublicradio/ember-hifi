@@ -1,0 +1,26 @@
+{{#animated-container}}
+  <div class="sound-container dormant" data-title="Test Sounds">
+    <div class="sound-container-section">
+      <div class="sound-container-section-controls">
+
+      </div>
+    </div>
+
+    <div class="sound-container-section">
+      <div class="sound-container-section-title">
+        Test Sounds
+      </div>
+      <div class="sound-container-section-controls">
+        <a href="#" class="button is-small is-outline {{if loadAllTestSounds.isRunning "is-loading"}}" {{action (perform loadAllTestSounds)}}>Load All</a>
+        <a href="#" class="button is-small is-outline {{if playAllTestSounds.isRunning "is-loading"}}" {{action (perform playAllTestSounds)}}>Play All</a>
+      </div>
+
+      {{#animated-container}}
+        {{#animated-each dormantItems use=transition duration=250 as |item|}}
+          {{test-sound item=item}}
+        {{/animated-each}}
+      {{/animated-container}}
+    </div>
+  </div>
+
+{{/animated-container}}

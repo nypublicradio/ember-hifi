@@ -1,0 +1,58 @@
+.diagnostic {
+  display: flex;
+  flex-direction: row;
+
+  @include media("<=phone") {
+    flex-direction: column;
+  }
+}
+
+.diagnostic-display {
+  padding: 10px;
+  width: 75%;
+
+  @include media("<=phone") {
+    width: 100%;
+  }
+}
+
+.diagnostic-controls {
+  width: 25%;
+
+  @include media("<=phone") {
+    width: 100%;
+  }
+}
+
+.diagnostic-controls hr {
+  border-top: 1px solid #CCC;
+  margin: 20px 0;
+}
+
+.diagnostic-dj .input {
+  padding: 5px;
+  border: 1px solid #CCC;
+  margin-bottom: 5px;
+}
+
+.diagnostic-controls .button {
+  padding: 5px;
+  border: 1px solid #CCC;
+  color: #333;
+  background-color: #FFF;
+  text-decoration: none;
+  border-radius: 5px;
+
+  &:not(.is-loading):hover {
+    background-color: #EEE;
+  }
+
+  &.is-loading {
+    opacity: 0.5;
+  }
+}
+
+.diagnostic-dj .errors {
+  color: red;
+  font-size: 12px;
+}

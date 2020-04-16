@@ -1,0 +1,72 @@
+.connection-display + .connection-display {
+  margin-left: 15px;
+}
+
+.connection-display {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+  background-color: $sound-background-color;
+  border-radius: 8px;
+  padding: 5px 10px;
+  color: #DDD;
+  position: relative;
+  // height: 40px;
+  overflow:hidden;
+  min-height: 100px;
+}
+
+.connection-display-title {
+  color: #FFF;
+  text-decoration: none;
+}
+
+.connection-toggle {
+  display: inline-block;
+  .icon {
+    color: $disabled;
+  }
+}
+
+.connection-toggle.is-enabled {
+  .icon {
+    color: #FFF;
+  }
+}
+
+.connection-display-info {
+  span {
+    white-space: nowrap;
+    position:relative;
+    top: -5px;
+    font-size: 11px;
+  }
+}
+
+.connection-display.is-expanded {
+  // height: auto;
+}
+
+.connection-attempt-result {
+  position: absolute;
+  border-radius: 0 0 8px 8px;
+  padding: 5px 10px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 50%;
+  background-color: transparent;
+  font-size: 12px;
+  &.is-success {
+    background-color: $success;
+    color: #333;
+  }
+  &.is-skipped {
+    background-color: $dark;
+  }
+  &.is-failed {
+    background-color: $danger;
+  }
+
+}

@@ -1,7 +1,47 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600');
-@import "base";
-@import "layout";
-@import "text";
-@import "buttons";
+// @import "bulma";
+@import "vendor/include-media";
+// MEDIA QUERIES
+$breakpoints: (
+  'phone': 599px,
+  'tablet': 900px,
+  'desktop': 1200px,
+  'big-desktop': 1800px
+);
 
+
+@import "base";
+@import "diagnostic";
+@import "buttons";
 @import "site-chrome";
+
+
+$body-color: #FFF;
+$yellow: yellow;
+$danger: rgb(230, 59, 59);
+$white-ter: grey;
+$success: rgb(51, 212, 91);
+$dark: #333;
+$disabled: gray;
+
+$container-background-color: #FCFCFC;
+$container-border-color: #EEE;
+$container-label-color: $yellow;
+
+$sound-background-color: #1b202b;
+
+$sound-accent-color: aqua;
+$sound-text-color: $body-color;
+
+$text-color-normal: #AAA;
+$text-color-bright: #EEE;
+
+@import "components/sound-container";
+@import "components/service-display";
+@import "components/connection-display";
+@import "components/sound-display";
+@import "components/diagnostic-controls";
+
+html {
+  --brand-primary: #1b202b;
+}

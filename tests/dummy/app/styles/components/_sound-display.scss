@@ -1,0 +1,398 @@
+
+
+.sound-display {
+  overflow: hidden;
+  margin: 0.25rem 0;
+  color: $sound-text-color;
+
+  .tags {
+    flex-wrap: nowrap;
+  }
+}
+
+.sound-display {
+  flex-basis: 100%;
+  background-color: $sound-background-color;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-radius: 8px;
+  padding: 5px 10px;
+  position: relative;
+  height: auto;
+
+  .tags .tag:last-child {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+  .sound-display-top-bar-actions {
+    position: absolute;
+    top: 6px;
+    right: 2px;
+    display: flex;
+    flex-direction: row;
+
+    > button {
+      color: lighten($sound-background-color, 20);
+      &:hover {
+        color: #FFF;
+      }
+    }
+
+    > button + button {
+      margin: 0 5px;
+    }
+  }
+
+
+.sound-display-top-bar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80px;
+  padding: 10px;
+  font-size: 12px;
+  margin-bottom: 25px;
+}
+
+.sound-display-top-bar-current {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30px;
+  color: #000;
+  background-color: $sound-accent-color;
+  padding: 5px;
+  margin-left: -20px;
+  margin-right: -20px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.sound-display-top-bar-connection-name {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  color: #AAA;
+}
+
+.sound-display-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: $text-color-bright;
+  text-align: center;
+}
+
+.sound-display-title-url {
+  font-size: 14px;
+  justify-content: flex-start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: $text-color-normal;
+  text-align: center;
+}
+
+.sound-display-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.sound-control-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: space-around;
+}
+
+.sound-control-button-item {
+  display: flex;
+  padding: 10px;
+  color: $sound-accent-color;
+  outline: 0;
+
+  &:active, &:focus {
+    outline: 0;
+  }
+}
+
+.diagnostic-debug-toggle {
+  margin: -5px -10px;
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+  color: $sound-accent-color;
+  padding: 2px 0;
+  background-color: $sound-background-color;
+  text-decoration: none;
+
+  > span {
+    font-size: 11px;
+    display: none;
+  }
+  > svg {
+
+  }
+}
+
+.sound-display-control-position {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .progress {
+    margin: 5px 0;
+    height: auto;
+    position: relative;
+    background-clip: padding-box;
+    overflow: visible;
+    background-color: lighten($sound-background-color, 10);
+  }
+
+  .progress-track {
+    position: relative;
+  }
+
+  .progress-track-played {
+    height: 4px;
+    display: block;
+    background-color: $sound-accent-color;
+    transition: width ease-in-out 0.25s;
+    position: relative;
+    z-index: 2;
+  }
+
+  .progress-track-downloaded {
+    height: 4px;
+    background-color: #40434b;
+    transition: width ease-in-out 0.25s;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top:0;
+  }
+
+  .progress-track-playhead {
+    position: absolute;
+    z-index: 10;
+    background-color: darken($sound-accent-color, 20);
+    // height: 15px;
+    width: 2px;
+    // border-radius: 10px;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    height: 100%;
+    transform: scale(1,1);
+    transition: opacity 200ms linear, transform 200ms;
+    &:hover {
+      background-color: $sound-accent-color;
+    }
+    z-index: 5;
+  }
+
+  &:hover {
+    .progress-track-playhead {
+      transform: scale(3,2);
+      cursor: grab;
+    }
+    .progress-track-playhead:active {
+      cursor: grabbing;
+    }
+  }
+
+  .progress.is-indeterminate {
+    overflow: hidden;
+
+    .progress-track-downloaded {
+      display: none;
+    }
+    .progress-track {
+      background-color: transparent;
+      pointer-events: none;
+    }
+    .progress-track-playhead {
+      display: none;
+    }
+    .progress-track-played {
+      position: relative;
+      width: 100%;
+      background: transparent linear-gradient(darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));
+    }
+  }
+
+  .progress.is-indeterminate.is-playing {
+    .progress-track {
+      background-color: darken($sound-accent-color, 20);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .progress-track-played:before {
+      content: '';
+      z-index: 5;
+      position: absolute;
+      background: linear-gradient(90deg, darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      will-change: left, right;
+      animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+    }
+    .progress-track-played:after {
+      content: '';
+      z-index: 5;
+      position: absolute;
+      background: linear-gradient(90deg, darken($sound-accent-color, 20), $sound-accent-color, darken($sound-accent-color, 20));;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      will-change: left, right;
+      animation: indeterminate-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+      animation-delay: 1.15s;
+    }
+  }
+}
+
+.sound-display-control-position-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+
+.diagnostic-debug {
+  display: none;
+}
+
+.show-debug-info .diagnostic-debug {
+  display: block;
+}
+
+
+.diagnostic-debug {
+  background-color: lighten($sound-background-color, 2);
+  padding: 5px 10px;
+  margin: 0 -10px;
+  h3 {
+    text-transform: uppercase;
+    padding: 5px;
+    font-size: 11px;
+  }
+}
+
+.diagnostic-debug h3 {
+  margin-top: 10px;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.diagnostic-debug-events {
+  display: block;
+}
+
+.diagnostic-debug-strategy {
+  font-size: 12px;
+  padding: 0 5px;
+  margin: 0;
+  list-style-type: none;
+
+  li.is-success {
+    color: $success;
+  }
+
+  li.is-failure {
+    color: $danger;
+  }
+
+  li.not-attempted {
+
+  }
+
+  li.is-ineligible {
+    color: $disabled;
+  }
+}
+
+.debug-event-tag {
+  background-color: lighten($sound-background-color, 20);
+  display: inline-block;
+  font-size: 11px;
+  white-space: nowrap;
+  margin: 2px;
+  padding: 3px;
+  color: #FFF;
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+.debug-event-tag .debug-event-count {
+  border-right: 1px solid #333;
+	color: $sound-accent-color;
+  display: inline-block;
+  text-align: center;
+	padding: 0 5px;
+}
+
+.debug-event-tag .debug-event-name {
+  padding: 0 3px;
+}
+
+.diagnostic-debug-list {
+  display: grid;
+  grid-template: auto / 10em 1fr;
+  font-size: 11px;
+  dt {
+    grid-column: 1;
+    font-weight: bold;
+  }
+
+  dd {
+    grid-column: 2;
+  }
+
+  dt, dd {
+      margin: 0;
+      padding: .3em .5em;
+      border-top: 1px solid rgba(0,0,0,.1);
+  }
+}
+
+
+.sound-display.is-playing {
+
+}
+
+@keyframes indeterminate {
+  0% {
+    left: -35%;
+    right: 100%; }
+  60% {
+    left: 100%;
+    right: -90%; }
+  100% {
+    left: 100%;
+    right: -90%; } }
+
+@keyframes indeterminate-short {
+  0% {
+    left: -200%;
+    right: 100%; }
+  60% {
+    left: 107%;
+    right: -8%; }
+  100% {
+    left: 107%;
+    right: -8%; }
+}
