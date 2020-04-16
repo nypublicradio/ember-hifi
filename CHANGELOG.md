@@ -1,5 +1,9 @@
 # ember-hifi Changelog
 
+### 1.17 (April 15, 2020)
+- [CHORE] Remove jQuery dependency, bump other dependencies
+- [CHORE] Upgrade to Ember 3.10, improve tests
+
 ### 1.16 (June 16, 2019)
 - [IMPROVEMENT] Add togglePause method to hifi service
 - [IMPROVEMENT] Add the long overdue change from @gmurphey to the build process [#43]
