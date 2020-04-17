@@ -92,6 +92,7 @@ import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 
 export default Controller.extend({
+  queryParams: ['autoplay'],
   hifi: service(),
   init() {
     this.set('testSounds', [
