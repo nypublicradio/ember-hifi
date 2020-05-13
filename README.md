@@ -39,13 +39,13 @@ If the audio URLs are not known at the time of a play event, give `play` the pro
 
 ```javascript
 export default Ember.Route.extend({
-  hifi: Ember.inject.service(),
+  hifi: service(),
   ...
   actions: {
     play(id) {
-      let urlPromise = this.store.find('story', id).then(story => story.getProperties('aacUrl', 'hlsUrl'))
+      let urlPromise = this.store.findRecord('story', id).then(story => story.getProperties('aacUrl', 'hlsUrl'))
 
-      this.get('hifi').play(urlPromise).then(({sound}) => {
+      this.hifi.play(urlPromise).then(({sound}) => {
         // sound object
 
       }).catch(error => {
@@ -59,11 +59,11 @@ If you already know the URLs, just pass them in.
 
 ```javascript
 export default Ember.Route.extend({
-  hifi: Ember.inject.service(),
+  hifi: service(),
   ...
   actions: {
     play(urls) {
-      this.get('hifi').play(urls).then(({sound}) => {
+      this.hifi.play(urls).then(({sound}) => {
         // sound object
 
       }).catch(error => {
@@ -111,7 +111,7 @@ Here's a silly way to make a position control, too.
 ```javascript
 //component.js
 export default Component.extend({
-  hifi: Ember.inject.service(),
+  hifi: service(),
 })
 
 //template.hbs
