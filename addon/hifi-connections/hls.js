@@ -30,6 +30,7 @@ let Sound = BaseSound.extend({
   setup() {
     let hls   = new HLS({debug: false, startFragPrefetch: true});
     let video = document.createElement('video');
+    video.muted = true;
 
     this.set('video', video);
     this.set('hls', hls);
@@ -61,10 +62,13 @@ let Sound = BaseSound.extend({
 
       hls.on(HLS.Events.ERROR, (e, data) => this._onHLSError(e, data));
     });
+
+    hls.on(HLS.Events.INTERNAL_EXCEPTION, (e, data) => this._onHLSError(e, data));
+    hls.on(HLS.Events.ERROR, (e, data) => this._onHLSError(e, data));
   },
 
   _setupPlayerEvents(video) {
-    video.addEventListener('playing',         () => {
+    video.addEventListener('playing', () => {
       if (this.get('loaded')) {
         this.trigger('audio-played', this);
       }
@@ -86,9 +90,14 @@ let Sound = BaseSound.extend({
       // is to play it. If we get a play signal we're golden, but if we
       // get an error, we're outta here
 
+      // TODO: figure out a different way! Currently if we try to figure out if we're ready
+      // like this in an autoplay scenario and the browser blocks the request, the whole
+      // load process will stop
+
       this.debug('Testing if audio is ready');
       this.get('video').volume = 0;
-      this.get('video').play();
+      this.get('video').muted = true
+      this.tryPlay();
     }
   },
 
@@ -194,13 +203,25 @@ let Sound = BaseSound.extend({
     this.get('video').volume = (volume/100);
   },
 
+  tryPlay() {
+    let playPromise = this.get('video').play()
+    if (playPromise !== undefined) {
+      playPromise.then(() => { }).catch(e => {
+        if (e.name === "NotAllowedError") {
+          this.trigger('audio-blocked', e);
+        } 
+        else {
+          return playPromise;
+        }
+      });
+    }
+  },
+
   play() {
     if (!this.get('video').src) {
       this.setup(); // the stream was stopped before
     }
-
-    this.get('video').play();
-
+    this.tryPlay();
     if (this.get('loadStopped')) {
       this.get('hls').startLoad();
       this.set('loadStopped', false);

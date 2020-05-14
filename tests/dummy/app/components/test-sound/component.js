@@ -1,14 +1,17 @@
 import { reads } from '@ember/object/computed';
 import Component from '@ember/component';
 import layout from './template';
-import { inject } from '@ember/service';
+import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
-import { task } from 'ember-concurrency';
+import { task, timeout } from 'ember-concurrency';
+import { later } from '@ember/runloop';
+import { getOwner } from '@ember/application';
 
 export default Component.extend({
   layout,
 
-  hifi: inject(),
+  hifi: service(),
+  router: service(),
   classNames: ['sound', 'test-sound'],
 
   isLoaded: computed('sound', 'sound.isLoading', function() {
@@ -25,7 +28,7 @@ export default Component.extend({
   duration: reads('item.debug.expectedValues.duration'),
 
   playSound: task(function *() {
-    yield this.hifi.play(this.url, {
+    return yield this.hifi.play(this.url, {
       metadata: {
         title: this.title,
         debug: {
@@ -35,8 +38,12 @@ export default Component.extend({
     });
   }),
 
+  autoPlaySound() {
+    window.location = `${this.router.urlFor('diagnostic')}?autoplay=${this.url}`
+  },
+
   loadSound: task(function *() {
-    yield this.hifi.load(this.url, {
+    return yield this.hifi.load(this.url, {
       metadata: {
         title: this.title,
         debug: {

@@ -5,6 +5,7 @@ import { inject as service } from '@ember/service';
 import { computed } from '@ember/object';
 import { getMimeType } from 'ember-hifi/utils/mime-types';
 import { get, set, getWithDefault } from '@ember/object';
+import deepSet from 'ember-deep-set';
 
 export default Component.extend({
   layout,
@@ -104,9 +105,8 @@ export default Component.extend({
           return result
         });
 
-        set(sound, 'metadata.debug.results', debugResults)
-        set(sound, 'metadata.debug.strategies', strategies);
-
+        deepSet(sound, 'metadata.debug.results', debugResults)
+        deepSet(sound, 'metadata.debug.strategies', strategies);
       })
     })
   }

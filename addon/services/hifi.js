@@ -33,7 +33,9 @@ export const EVENT_MAP = [
   {event: 'audio-loading',              handler: '_relayLoadingEvent'},
   {event: 'audio-position-will-change', handler: '_relayPositionWillChangeEvent'},
   {event: 'audio-will-rewind',          handler: '_relayWillRewindEvent'},
-  {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'}
+  {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'},
+  {event: 'audio-blocked',              handler: '_relayBlockedEvent' },
+  {event: 'audio-load-error' }
 ]
 
 export const SERVICE_EVENT_MAP = [
@@ -421,7 +423,9 @@ export default Service.extend(Evented, DebugLogging, {
   _registerEvents(sound) {
     let service = this;
     EVENT_MAP.forEach(item => {
-      sound.on(item.event, service, service[item.handler]);
+      if (item.handler) {
+        sound.on(item.event, service, service[item.handler]);
+      }
     });
 
     // Internal event for cleanup
@@ -446,7 +450,7 @@ export default Service.extend(Evented, DebugLogging, {
 
     let service = this;
     EVENT_MAP.forEach(item => {
-      if (sound.has(item.event)) {
+      if (sound.has(item.event) && item.handler) {
         sound.off(item.event, service, service[item.handler]);
       }
     });
@@ -498,6 +502,10 @@ export default Service.extend(Evented, DebugLogging, {
   _relayWillFastForwardEvent(sound, info) {
     this._relayEvent('audio-will-fast-forward', sound, info);
   },
+  _relayBlockedEvent(sound, info ={}) {
+    this._relayEvent('audio-blocked', sound, info);
+  },
+
   /**
    * Activates the connections as specified in the config options
    *
@@ -760,15 +768,21 @@ export default Service.extend(Evented, DebugLogging, {
 
       document.addEventListener('touchstart', touchPlay, { passive: true });
 
-      let blockCheck = later(() => {
-        this.debug(`Looks like the mobile browser blocked an autoplay trying to play sound with url: ${sound.get('url')}`);
-      }, 2000);
-
       sound.one('audio-played', () => {
         document.removeEventListener('touchstart', touchPlay);
-        cancel(blockCheck);
       });
     }
+
+    let blockCheck = later(() => {
+      sound.trigger('audio-blocked');
+      this.debug(`Looks like the browser blocked autoplay trying to play sound with url: ${sound.get('url')}`);
+    }, 2000);
+
+    sound.one('audio-played', () => {
+      cancel(blockCheck);
+    });
+
+
     sound.play(options);
   }
 });

@@ -71,11 +71,15 @@ export default Component.extend({
 
   removeEvents: function(item) {
     EVENT_MAP.forEach(e => {
-      item.off(e.event);
+      if (item.has(e.event)) {
+        item.off(e.event);
+      }
     });
 
     SERVICE_EVENT_MAP.forEach(e => {
-      item.off(e.event);
+      if (item.has(e.event)) {
+        item.off(e.event);
+      }
     });
   },
 

@@ -84,6 +84,7 @@ let Sound = EmberObject.extend(Evented, DebugLogging, {
 
   hasPlayed:         false,
   isLoading:         false,
+  isBlocked:         false,
   isPlaying:         false,
   isErrored:         computed('error', function() {
     return !!this.get('error');
@@ -117,8 +118,9 @@ let Sound = EmberObject.extend(Evented, DebugLogging, {
       audioPlayed,
       audioPaused,
       audioEnded,
+      audioBlocked,
       audioLoadError
-    } = this.getProperties('audioLoading', 'audioLoaded', 'audioReady', 'audioPlayed', 'audioPaused', 'audioEnded', 'audioLoadError');
+    } = this.getProperties('audioLoading', 'audioLoaded', 'audioReady', 'audioPlayed', 'audioPaused', 'audioEnded', 'audioBlocked', 'audioLoadError');
     this.set('isLoading', true);
 
     this.on('audio-played',    () => {
@@ -145,6 +147,11 @@ let Sound = EmberObject.extend(Evented, DebugLogging, {
     this.on('audio-ready',    () => {
       this.set('duration', this._audioDuration());
       if (audioReady) { audioReady(this); }
+    });
+
+    this.on('audio-blocked',    () => {
+      this.set('isBlocked', true);
+      if (audioBlocked) { audioBlocked(this); }
     });
 
     this.on('audio-load-error', (e) => {

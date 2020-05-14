@@ -6411,6 +6411,13 @@ ember-copy@^1.0.0:
     ember-cli-typescript "^3.1.3"
     ember-inflector "^3.0.1"
 
+ember-deep-set@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/ember-deep-set/-/ember-deep-set-0.2.0.tgz#93428b599f884c3da0550cbcc062b9ec5969a71e"
+  integrity sha512-3vg9Cw4CIInXzufZMQmScClg23mUw+2ybO53L51spFYP/eGaVmGduWmhrVljyl4lHKN7hW/jvG/YVWtwTPSTKA==
+  dependencies:
+    ember-cli-babel "^7.1.2"
+
 ember-disable-prototype-extensions@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/ember-disable-prototype-extensions/-/ember-disable-prototype-extensions-1.1.3.tgz#1969135217654b5e278f9fe2d9d4e49b5720329e"

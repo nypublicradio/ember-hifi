@@ -14,6 +14,7 @@
   <div class="test-sound-actions">
     <a href="#" class="button is-small is-outline {{if loadSound.isRunning "is-loading"}}" {{action (perform loadSound url)}}>Load</a>
     <a href="#" class="button is-small is-outline {{if playSound.isRunning "is-loading"}}" {{action (perform playSound url)}}>Play</a>
+    <a href="#" class="button is-small is-outline" {{action (action this.autoPlaySound url)}}>Autoplay</a>
   </div>
 </div>
 {{yield}}
