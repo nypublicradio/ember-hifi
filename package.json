@@ -44,6 +44,7 @@
     "@fortawesome/ember-fontawesome": "^0.1.7",
     "@fortawesome/free-solid-svg-icons": "^5.9.0",
     "broccoli-asset-rev": "3.0.0",
+    "cypress": "^4.5.0",
     "ember-animated": "^0.6.1",
     "ember-cli": "~3.10.1",
     "ember-cli-addon-docs": "^0.6.16",
