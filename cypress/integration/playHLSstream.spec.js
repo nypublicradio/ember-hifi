@@ -1,12 +1,12 @@
 /// <reference types="cypress" />
 
-context('Load and Play 939 FM', () => {
+context('Load and Play HLS Stream', () => {
     beforeEach(() => {
       cy.visit('https://nypublicradio.github.io/ember-hifi/#/diagnostic')
       });
   });
  
-  it('play 939', function() {
+  it('play WQXR', function() {
    
 
     cy.visit('https://nypublicradio.github.io/ember-hifi/#/diagnostic')
@@ -14,8 +14,8 @@ context('Load and Play 939 FM', () => {
     // we need better locators than the ember numbering but this works for POC here
 
     // Load 93.9 FM stream
-    cy.get('#ember46.input.ember-text-field.ember-view').click().type('https://fm939.wnyc.org/wnycfm.aac')
-    cy.get('#ember47.input.ember-text-field.ember-view').click().type('FM Radio');
+    cy.get('#ember46.input.ember-text-field.ember-view').click().type('https://kut-hls.streamguys1.com/kut2/playlist.m3u8')
+    cy.get('#ember47.input.ember-text-field.ember-view').click().type('HLS Stream');
     cy.contains('button.is-medium.is-outline.is-dark', 'Load').click()
 
     // Open Debug Panel and Verify Load Request

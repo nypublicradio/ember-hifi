@@ -1,12 +1,12 @@
 /// <reference types="cypress" />
 
-context('Load and Play 939 FM', () => {
+context('Load and Play WQXR', () => {
     beforeEach(() => {
       cy.visit('https://nypublicradio.github.io/ember-hifi/#/diagnostic')
       });
   });
  
-  it('play 939', function() {
+  it('play WQXR', function() {
    
 
     cy.visit('https://nypublicradio.github.io/ember-hifi/#/diagnostic')
@@ -14,8 +14,8 @@ context('Load and Play 939 FM', () => {
     // we need better locators than the ember numbering but this works for POC here
 
     // Load 93.9 FM stream
-    cy.get('#ember46.input.ember-text-field.ember-view').click().type('https://fm939.wnyc.org/wnycfm.aac')
-    cy.get('#ember47.input.ember-text-field.ember-view').click().type('FM Radio');
+    cy.get('#ember46.input.ember-text-field.ember-view').click().type('https://stream.wqxr.org/wqxr')
+    cy.get('#ember47.input.ember-text-field.ember-view').click().type('WQXR');
     cy.contains('button.is-medium.is-outline.is-dark', 'Load').click()
 
     // Open Debug Panel and Verify Load Request
@@ -47,9 +47,10 @@ context('Load and Play 939 FM', () => {
     cy.wait(3000)
     cy.get('.svg-inline--fa.fa-stop.fa-w-14.fa-2x.undefined.ember-view').click()
     cy.contains('audio-paused');
+   
 
     // Verify Audio Stopped and Played Again
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('.svg-inline--fa.fa-play.fa-w-14.fa-2x.undefined.ember-view').click({ multiple: true})
     cy.contains('audio-loading');
     cy.contains('audio-played');
