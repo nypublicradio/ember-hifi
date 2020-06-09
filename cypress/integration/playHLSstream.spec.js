@@ -49,7 +49,7 @@ context('Load and Play HLS Stream', () => {
     cy.contains('audio-paused');
 
     // Verify Audio Stopped and Played Again
-    cy.wait(1000)
+    cy.wait(3000)
     cy.get('.svg-inline--fa.fa-play.fa-w-14.fa-2x.undefined.ember-view').click({ multiple: true})
     cy.contains('audio-loading');
     cy.contains('audio-played');
