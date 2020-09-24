@@ -1,7 +1,6 @@
 import Mixin from '@ember/object/mixin';
 import BaseSound from './base';
 import HLS from 'hls';
-import { isEqual } from '@ember/utils';
 
 let ClassMethods = Mixin.create({
   acceptMimeTypes:  ['application/vnd.apple.mpegurl'],
@@ -71,7 +70,6 @@ let Sound = BaseSound.extend({
 
         if (JSON.stringify(self.get('id3TagMetadata')) !== JSON.stringify(newId3TagMetadata)) {
           this.debug('hls metadata changed');
-          this.debug("new title: " + f.frag.title);
           this.trigger('audio-metadata-changed', this, {
             old: self.get('id3TagMetadata'),
             new: newId3TagMetadata
