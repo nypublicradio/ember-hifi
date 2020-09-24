@@ -33,7 +33,8 @@ export const EVENT_MAP = [
   {event: 'audio-loading',              handler: '_relayLoadingEvent'},
   {event: 'audio-position-will-change', handler: '_relayPositionWillChangeEvent'},
   {event: 'audio-will-rewind',          handler: '_relayWillRewindEvent'},
-  {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'}
+  {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'},
+  {event: 'audio-metadata-changed', handler: '_relayMetadataChangedEvent'}
 ]
 
 export const SERVICE_EVENT_MAP = [
@@ -86,6 +87,7 @@ export default Service.extend(Evented, DebugLogging, {
   duration:          readOnly('currentSound.duration'),
   percentLoaded:     readOnly('currentSound.percentLoaded'),
   pollInterval:      reads('options.emberHifi.positionInterval'),
+  id3TagMetadata:    reads('currentSound.id3TagMetadata'),
 
   defaultVolume: 50,
 
@@ -497,6 +499,9 @@ export default Service.extend(Evented, DebugLogging, {
   },
   _relayWillFastForwardEvent(sound, info) {
     this._relayEvent('audio-will-fast-forward', sound, info);
+  },
+  _relayMetadataChangedEvent(sound, info) {
+    this._relayEvent('audio-metadata-changed', sound, info);
   },
   /**
    * Activates the connections as specified in the config options
