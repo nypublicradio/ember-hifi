@@ -34,7 +34,7 @@ export const EVENT_MAP = [
   {event: 'audio-position-will-change', handler: '_relayPositionWillChangeEvent'},
   {event: 'audio-will-rewind',          handler: '_relayWillRewindEvent'},
   {event: 'audio-will-fast-forward',    handler: '_relayWillFastForwardEvent'},
-  {event: 'audio-metadata-changed', handler: '_relayMetadataChangedEvent'}
+  {event: 'audio-metadata-changed',     handler: '_relayMetadataChangedEvent'}
 ]
 
 export const SERVICE_EVENT_MAP = [

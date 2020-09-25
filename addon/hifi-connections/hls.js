@@ -26,7 +26,7 @@ let ClassMethods = Mixin.create({
 let Sound = BaseSound.extend({
   loaded: false,
   mediaRecoveryAttempts: 0,
-  id3TagMetadata: {},
+  id3TagMetadata: null,
 
   setup() {
     let hls   = new HLS({debug: false, startFragPrefetch: true});
