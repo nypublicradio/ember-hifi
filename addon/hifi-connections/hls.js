@@ -26,6 +26,7 @@ let ClassMethods = Mixin.create({
 let Sound = BaseSound.extend({
   loaded: false,
   mediaRecoveryAttempts: 0,
+  id3TagMetadata: null,
 
   setup() {
     let hls   = new HLS({debug: false, startFragPrefetch: true});
@@ -60,6 +61,22 @@ let Sound = BaseSound.extend({
       });
 
       hls.on(HLS.Events.ERROR, (e, data) => this._onHLSError(e, data));
+
+      var self = this;
+      hls.on(HLS.Events.FRAG_CHANGED, (e, f) => {
+        let newId3TagMetadata = {
+          title: f.frag.title
+        }
+
+        if (JSON.stringify(self.get('id3TagMetadata')) !== JSON.stringify(newId3TagMetadata)) {
+          this.debug('hls metadata changed');
+          this.trigger('audio-metadata-changed', this, {
+            old: self.get('id3TagMetadata'),
+            new: newId3TagMetadata
+          });
+          self.set('id3TagMetadata', newId3TagMetadata);
+        }
+      });
     });
   },
 
