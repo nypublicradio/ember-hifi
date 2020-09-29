@@ -1,5 +1,9 @@
 # ember-hifi Changelog
 
+### 1.18 (September 29, 2020)
+
+- [IMPROVEMENT] Trigger an event when an HLS stream's ID3 timed metadata changes (#89)
+
 ### 1.17 (April 15, 2020)
 - [CHORE] Remove jQuery dependency, bump other dependencies
 - [CHORE] Upgrade to Ember 3.10, improve tests
