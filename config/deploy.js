@@ -4,14 +4,6 @@
 module.exports = function(deployTarget) {
   let ENV = {
     build: {},
-    git: {
-      repo: 'git@github.com:nypublicradio/ember-hifi.git'
-    },
-    'git-ci': {
-      userName: 'deploy',
-      userEmail: 'deploy@circleci',
-      deployKeyPath: '/home/circleci/.ssh/id_rsa_efadfb72b41fef800a764826cf29417a',
-    },
     // include other plugin configuration that applies to all deploy targets here
   };
 
