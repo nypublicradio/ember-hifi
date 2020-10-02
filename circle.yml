@@ -58,9 +58,6 @@ jobs:
     <<: *defaults
 
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "ef:ad:fb:72:b4:1f:ef:80:0a:76:48:26:cf:29:41:7a"
       - checkout
       - restore_cache:
           key: node-deps-{{ checksum "yarn.lock" }}
