@@ -89,7 +89,7 @@ export default Service.extend(Evented, DebugLogging, {
   pollInterval:      reads('options.emberHifi.positionInterval'),
   id3TagMetadata:    reads('currentSound.id3TagMetadata'),
 
-  defaultVolume: 50,
+  defaultVolume: 100,
 
   position:          alias('currentSound.position'),
 
