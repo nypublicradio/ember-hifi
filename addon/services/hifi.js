@@ -128,7 +128,7 @@ export default Service.extend(Evented, DebugLogging, {
     set(this, 'appEnvironment', getWithDefault(this, 'options.environment', 'development'));
     set(this, '_connections', {});
     set(this, 'oneAtATime', OneAtATime.create());
-    set(this, 'volume', 50);
+    set(this, 'volume', 100);
     this._activateConnections(connections);
 
     this.set('isReady', true);
