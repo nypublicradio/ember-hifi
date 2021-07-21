@@ -1,5 +1,10 @@
 # ember-hifi Changelog
 
+### 1.19 (July 21, 2021)
+
+- [IMPROVEMENT] Adjust default volume to 100
+- [BUGFIX] Update insecure version of underscore
+
 ### 1.18 (September 29, 2020)
 
 - [IMPROVEMENT] Trigger an event when an HLS stream's ID3 timed metadata changes (#89)
