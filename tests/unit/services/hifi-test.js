@@ -625,14 +625,14 @@ module('Unit | Service | hifi', function(hooks) {
     await sound2.play();
     sound2.set('position', 1000);
 
-    assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
-    assert.equal(sound2._currentPosition(), 1000, "second sound should still have its own position");
+    assert.equal(Math.floor(sound1._currentPosition()), 2000, "first sound should still have its own position");
+    assert.equal(Math.floor(sound2._currentPosition()), 1000, "second sound should still have its own position");
 
     await sound1.play();
-    assert.equal(sound1._currentPosition(), 2000, "first sound should still have its own position");
+    assert.equal(Math.floor(sound1._currentPosition()), 2000, "first sound should still have its own position");
     sound2.set('position', 9000);
     await sound2.play();
-    assert.equal(sound2._currentPosition(), 9000, "second sound should still have its own position");
+    assert.equal(Math.floor(sound2._currentPosition()), 9000, "second sound should still have its own position");
   });
 
   test("sound can play on native audio using shared element one after the other", async function(assert) {

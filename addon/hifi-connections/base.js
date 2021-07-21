@@ -11,7 +11,7 @@ import DebugLogging from '../mixins/debug-logging';
 
 
 /**
-* This is the base sound object from which other sound objects are derived. 
+* This is the base sound object from which other sound objects are derived.
 *
 * @class BaseSound
 * @constructor
@@ -19,8 +19,8 @@ import DebugLogging from '../mixins/debug-logging';
 
 let ClassMethods = Mixin.create({
   setup(config) {
-    this.config = config;
-    this.debugEnabled = config.debugEnabled;
+    this.config = config || {};
+    this.debugEnabled = this.config.debugEnabled || false;
   },
 
   canPlay(url) {
